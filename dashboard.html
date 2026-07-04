@@ -1,0 +1,228 @@
+<!doctype html>
+<html lang="en" class="h-full">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Dashboard — AX Founder Exchange 2026</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+  tailwind.config = { theme: { extend: {
+    colors: { axnavy:'#0F1A4D', axblue:'#3B5BFF', axviolet:'#7C3AED', axlavender:'#EEF1FF', axpaper:'#F7F8FC', axink:'#0F172A', axslate:'#64748B', axline:'#E2E6F3' },
+    fontFamily: { display:['Space Grotesk','sans-serif'], sans:['Inter','sans-serif'], mono:['JetBrains Mono','monospace'] },
+    borderRadius: { xl2:'1.25rem' }
+  } } }
+</script>
+<link rel="stylesheet" href="assets/css/styles.css">
+</head>
+<body class="h-full bg-axpaper font-sans text-axink antialiased">
+<a href="#main" class="skip-link">Skip to main content</a>
+<div id="toast-region" aria-live="polite"></div>
+
+<div class="min-h-screen lg:grid lg:grid-cols-[240px_1fr]">
+
+  <!-- ============ Sidebar ============ -->
+  <aside id="sidebar" class="hidden lg:flex flex-col bg-white border-r border-axline p-5 sticky top-0 h-screen">
+    <a href="login.html" class="flex items-center gap-2.5 mb-8 px-1">
+      <div class="w-8 h-8 rounded-lg bg-axnavy flex items-center justify-center">
+        <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M13 2 3 14h7l-1 8 10-12h-7l1-8Z"/></svg>
+      </div>
+      <span class="font-display font-semibold text-sm leading-tight">AX Founder<br>Exchange</span>
+    </a>
+
+    <nav class="flex-1 space-y-1 text-sm">
+      <a href="#" class="flex items-center gap-3 px-3 py-2.5 rounded-lg bg-axlavender text-axbluedark font-semibold">
+        <svg class="w-4.5 h-4.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 12 12 3.75 20.25 12M6.75 10.5v9a.75.75 0 0 0 .75.75h3.75v-4.5h1.5v4.5h3.75a.75.75 0 0 0 .75-.75v-9"/></svg>
+        Dashboard
+      </a>
+      <a href="register.html" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-axslate hover:bg-axlavender hover:text-axink font-medium">
+        <svg class="w-4.5 h-4.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 3.75h6M5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V7.5l-6-6H5.25A2.25 2.25 0 0 0 3 3.75v15A2.25 2.25 0 0 0 5.25 21Z"/></svg>
+        Registration
+      </a>
+      <a href="#" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-axslate hover:bg-axlavender hover:text-axink font-medium">
+        <svg class="w-4.5 h-4.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"/></svg>
+        Assessment
+      </a>
+      <a href="#" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-axslate hover:bg-axlavender hover:text-axink font-medium">
+        <svg class="w-4.5 h-4.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19.128a9.38 9.38 0 0 0 2.625.372 9.337 9.337 0 0 0 4.121-.952 4.125 4.125 0 0 0-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 0 1 8.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0 1 11.964-3.07M12 6.375a3.375 3.375 0 1 1-6.75 0 3.375 3.375 0 0 1 6.75 0Zm8.25 2.25a2.625 2.625 0 1 1-5.25 0 2.625 2.625 0 0 1 5.25 0Z"/></svg>
+        Mentors
+      </a>
+      <a href="#" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-axslate hover:bg-axlavender hover:text-axink font-medium">
+        <svg class="w-4.5 h-4.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 0 0-3.375-3.375h-1.5A1.125 1.125 0 0 1 13.5 7.125v-1.5A3.375 3.375 0 0 0 10.125 2.25H8.25m0 0H6.75A2.25 2.25 0 0 0 4.5 4.5v15A2.25 2.25 0 0 0 6.75 21.75h9a2.25 2.25 0 0 0 2.25-2.25v-9.75m-6-7.5-1.5 1.5"/></svg>
+        Documents
+      </a>
+      <a href="#" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-axslate hover:bg-axlavender hover:text-axink font-medium">
+        <svg class="w-4.5 h-4.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M9.594 3.94c.09-.542.56-.94 1.11-.94h2.593c.55 0 1.02.398 1.11.94l.213 1.281c.063.374.313.686.645.87.074.04.147.083.22.127.324.196.72.257 1.075.124l1.217-.456a1.125 1.125 0 0 1 1.37.49l1.296 2.247a1.125 1.125 0 0 1-.26 1.431l-1.003.827c-.293.24-.438.613-.431.992a6.759 6.759 0 0 1 0 .255c-.007.378.138.75.43.99l1.005.828c.424.35.534.954.26 1.43l-1.298 2.247a1.125 1.125 0 0 1-1.369.491l-1.217-.456c-.355-.133-.75-.072-1.076.124a6.57 6.57 0 0 1-.22.128c-.331.183-.581.495-.644.869l-.213 1.28c-.09.543-.56.941-1.11.941h-2.594c-.55 0-1.02-.398-1.11-.94l-.213-1.281c-.062-.374-.312-.686-.644-.87a6.52 6.52 0 0 1-.22-.127c-.325-.196-.72-.257-1.076-.124l-1.217.456a1.125 1.125 0 0 1-1.369-.49l-1.297-2.247a1.125 1.125 0 0 1 .26-1.431l1.004-.827c.292-.24.437-.613.43-.992a6.932 6.932 0 0 1 0-.255c.007-.378-.138-.75-.43-.99l-1.004-.828a1.125 1.125 0 0 1-.26-1.43l1.297-2.247a1.125 1.125 0 0 1 1.37-.491l1.216.456c.356.133.751.072 1.076-.124.072-.044.146-.087.22-.128.332-.183.582-.495.644-.869l.214-1.28Z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"/></svg>
+        Settings
+      </a>
+    </nav>
+
+    <div class="border-t border-axline pt-4 mt-4">
+      <div class="flex items-center gap-3 px-1">
+        <div class="w-9 h-9 rounded-full bg-gradient-to-br from-axblue to-axviolet flex items-center justify-center text-white text-xs font-semibold shrink-0">AK</div>
+        <div class="min-w-0">
+          <p class="text-sm font-semibold truncate">Aarav Kapoor</p>
+          <p class="text-xs text-axslate truncate">Founder · Nimbus AI</p>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <div class="flex flex-col min-h-screen">
+    <!-- ============ Topbar ============ -->
+    <header class="sticky top-0 z-30 bg-white/90 backdrop-blur border-b border-axline">
+      <div class="flex items-center justify-between gap-4 px-4 sm:px-6 py-3.5">
+        <button class="lg:hidden text-axslate" data-toggle="mobile-nav" aria-label="Open menu">
+          <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5M3.75 17.25h16.5"/></svg>
+        </button>
+        <div class="hidden sm:flex items-center gap-2 flex-1 max-w-sm bg-axpaper border border-axline rounded-xl2 px-3 py-2">
+          <svg class="w-4 h-4 text-axslate" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z"/></svg>
+          <input type="text" placeholder="Search…" class="bg-transparent text-sm outline-none w-full placeholder:text-axslate">
+        </div>
+        <div class="flex items-center gap-3 ml-auto">
+          <button class="relative text-axslate hover:text-axink" aria-label="Notifications">
+            <svg class="w-5.5 h-5.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M14.857 17.082a23.848 23.848 0 0 0 5.454-1.31A8.967 8.967 0 0 1 18 9.75V9A6 6 0 0 0 6 9v.75a8.967 8.967 0 0 1-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 0 1-5.714 0m5.714 0a3 3 0 1 1-5.714 0"/></svg>
+            <span class="absolute -top-0.5 -right-0.5 w-2 h-2 rounded-full bg-axviolet"></span>
+          </button>
+          <div class="w-9 h-9 rounded-full bg-gradient-to-br from-axblue to-axviolet flex items-center justify-center text-white text-xs font-semibold sm:hidden">AK</div>
+        </div>
+      </div>
+    </header>
+
+    <main id="main" class="flex-1 p-4 sm:p-6 max-w-6xl w-full mx-auto">
+      <div class="mb-6">
+        <h1 class="font-display text-2xl font-semibold">Welcome back, Aarav</h1>
+        <p class="text-sm text-axslate mt-1">Here's where Nimbus AI stands in the AX Founder Exchange 2026 evaluation.</p>
+      </div>
+
+      <!-- Skeleton state, swapped for real content after load -->
+      <div id="skeleton-grid" class="grid sm:grid-cols-2 xl:grid-cols-3 gap-4">
+        <script>document.write(Array(6).fill('<div class="card p-5 h-40"><div class="skeleton h-4 w-24 mb-4"></div><div class="skeleton h-8 w-16 mb-3"></div><div class="skeleton h-3 w-32"></div></div>').join(''))</script>
+      </div>
+
+      <div id="real-grid" class="hidden grid sm:grid-cols-2 xl:grid-cols-3 gap-4">
+
+        <!-- Registration status -->
+        <div class="card card-hover p-5">
+          <div class="flex items-center justify-between mb-4">
+            <p class="text-xs font-semibold uppercase tracking-wide text-axslate">Registration status</p>
+            <svg class="w-4.5 h-4.5 text-axslate" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"/></svg>
+          </div>
+          <span class="badge badge-success mb-2">Submitted</span>
+          <p class="text-sm text-axslate">Participant ID <span class="font-mono font-semibold text-axink">AXFE26-482913</span></p>
+        </div>
+
+        <!-- Assessment status -->
+        <div class="card card-hover p-5">
+          <div class="flex items-center justify-between mb-4">
+            <p class="text-xs font-semibold uppercase tracking-wide text-axslate">Assessment status</p>
+            <svg class="w-4.5 h-4.5 text-axslate" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M9 17.25v1.007a3 3 0 0 1-.879 2.122L7.5 21h9l-.621-.621A3 3 0 0 1 15 18.257V17.25m6-12V15a2.25 2.25 0 0 1-2.25 2.25H5.25A2.25 2.25 0 0 1 3 15V5.25m18 0A2.25 2.25 0 0 0 18.75 3H5.25A2.25 2.25 0 0 0 3 5.25m18 0V12a2.25 2.25 0 0 1-2.25 2.25H5.25A2.25 2.25 0 0 1 3 12V5.25"/></svg>
+          </div>
+          <span class="badge badge-warning mb-2">Under review</span>
+          <p class="text-sm text-axslate">Evaluator feedback expected in 5–7 days</p>
+        </div>
+
+        <!-- Zone assignment -->
+        <div class="card card-hover p-5">
+          <div class="flex items-center justify-between mb-4">
+            <p class="text-xs font-semibold uppercase tracking-wide text-axslate">Zone assignment</p>
+            <svg class="w-4.5 h-4.5 text-axslate" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"/><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1 1 15 0Z"/></svg>
+          </div>
+          <p class="font-display text-lg font-semibold">Zone C · SaaS &amp; AI</p>
+          <p class="text-sm text-axslate mt-1">Bengaluru evaluation track</p>
+        </div>
+
+        <!-- Mentor assignment -->
+        <div class="card card-hover p-5">
+          <div class="flex items-center justify-between mb-4">
+            <p class="text-xs font-semibold uppercase tracking-wide text-axslate">Mentor assignment</p>
+            <svg class="w-4.5 h-4.5 text-axslate" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M18 18.72a9.094 9.094 0 0 0 3.741-.479 3 3 0 0 0-4.682-2.72m.94 3.198.001.031c0 .225-.012.447-.037.666A11.944 11.944 0 0 1 12 21c-2.17 0-4.207-.576-5.963-1.584A6.062 6.062 0 0 1 6 18.719m12 0a5.971 5.971 0 0 0-.941-3.197m0 0A5.995 5.995 0 0 0 12 12.75a5.995 5.995 0 0 0-5.058 2.772m0 0a3 3 0 0 0-4.681 2.72 8.986 8.986 0 0 0 3.74.477m.94-3.197a5.971 5.971 0 0 0-.94 3.197M15 6.75a3 3 0 1 1-6 0 3 3 0 0 1 6 0Zm6 3a2.25 2.25 0 1 1-4.5 0 2.25 2.25 0 0 1 4.5 0Zm-13.5 0a2.25 2.25 0 1 1-4.5 0 2.25 2.25 0 0 1 4.5 0Z"/></svg>
+          </div>
+          <div class="flex items-center gap-3">
+            <div class="w-9 h-9 rounded-full bg-gradient-to-br from-axviolet to-axblue flex items-center justify-center text-white text-xs font-semibold">PS</div>
+            <div>
+              <p class="text-sm font-semibold">Priya Sharma</p>
+              <p class="text-xs text-axslate">Product &amp; GTM mentor</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Stage progress -->
+        <div class="card card-hover p-5">
+          <div class="flex items-center justify-between mb-4">
+            <p class="text-xs font-semibold uppercase tracking-wide text-axslate">Stage progress</p>
+          </div>
+          <div class="flex items-center gap-4">
+            <div class="relative w-16 h-16 shrink-0">
+              <svg viewBox="0 0 64 64" class="eval-dial w-16 h-16">
+                <circle cx="32" cy="32" r="27" fill="none" stroke="#E2E6F3" stroke-width="6"/>
+                <circle cx="32" cy="32" r="27" fill="none" stroke="url(#dg3)" stroke-width="6" stroke-linecap="round" stroke-dasharray="169.6" stroke-dashoffset="59.4"/>
+                <defs><linearGradient id="dg3" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#3B5BFF"/><stop offset="1" stop-color="#7C3AED"/></linearGradient></defs>
+              </svg>
+              <span class="absolute inset-0 flex items-center justify-center text-xs font-mono font-semibold">65%</span>
+            </div>
+            <div class="text-sm">
+              <p class="font-semibold">Stage 2 of 4</p>
+              <p class="text-axslate">Screening interview</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Notifications -->
+        <div class="card card-hover p-5 sm:col-span-2 xl:col-span-1">
+          <div class="flex items-center justify-between mb-4">
+            <p class="text-xs font-semibold uppercase tracking-wide text-axslate">Notifications</p>
+          </div>
+          <div class="space-y-4">
+            <div class="timeline-item">
+              <span class="timeline-dot"></span>
+              <p class="text-sm font-medium">Mentor assigned</p>
+              <p class="text-xs text-axslate">Priya Sharma will reach out this week</p>
+            </div>
+            <div class="timeline-item">
+              <span class="timeline-dot" style="background:var(--axviolet)"></span>
+              <p class="text-sm font-medium">Documents verified</p>
+              <p class="text-xs text-axslate">Pitch deck and registration certificate approved</p>
+            </div>
+            <div class="timeline-item">
+              <span class="timeline-dot" style="background:var(--axslate-light)"></span>
+              <p class="text-sm font-medium">Registration received</p>
+              <p class="text-xs text-axslate">2 days ago</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+
+<!-- Mobile nav drawer -->
+<div id="mobile-nav" class="hidden fixed inset-0 z-50 lg:hidden">
+  <div class="absolute inset-0 bg-axnavy/50" data-toggle="mobile-nav"></div>
+  <div class="absolute left-0 top-0 bottom-0 w-72 bg-white p-5">
+    <div class="flex items-center justify-between mb-6">
+      <span class="font-display font-semibold">Menu</span>
+      <button data-toggle="mobile-nav" aria-label="Close menu"><svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12"/></svg></button>
+    </div>
+    <nav class="space-y-1 text-sm">
+      <a href="#" class="block px-3 py-2.5 rounded-lg bg-axlavender text-axbluedark font-semibold">Dashboard</a>
+      <a href="register.html" class="block px-3 py-2.5 rounded-lg text-axslate font-medium">Registration</a>
+      <a href="#" class="block px-3 py-2.5 rounded-lg text-axslate font-medium">Assessment</a>
+      <a href="#" class="block px-3 py-2.5 rounded-lg text-axslate font-medium">Mentors</a>
+      <a href="#" class="block px-3 py-2.5 rounded-lg text-axslate font-medium">Documents</a>
+      <a href="#" class="block px-3 py-2.5 rounded-lg text-axslate font-medium">Settings</a>
+    </nav>
+  </div>
+</div>
+
+<script src="assets/js/main.js"></script>
+<script>
+  setTimeout(() => {
+    document.getElementById('skeleton-grid').classList.add('hidden');
+    document.getElementById('real-grid').classList.remove('hidden');
+  }, 650);
+</script>
+</body>
+</html>

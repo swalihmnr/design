@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="en" class="h-full">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>AX Founder Exchange 2026 — UI Preview</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+  tailwind.config = { theme: { extend: {
+    colors: { axnavy:'#0F1A4D', axblue:'#3B5BFF', axviolet:'#7C3AED', axlavender:'#EEF1FF', axpaper:'#F7F8FC', axink:'#0F172A', axslate:'#64748B', axline:'#E2E6F3' },
+    fontFamily: { display:['Space Grotesk','sans-serif'], sans:['Inter','sans-serif'] },
+    borderRadius: { xl2:'1.25rem' }
+  } } }
+</script>
+<link rel="stylesheet" href="assets/css/styles.css">
+</head>
+<body class="min-h-screen bg-axpaper bg-paper-dots font-sans text-axink antialiased">
+<main class="max-w-4xl mx-auto px-6 py-16">
+  <div class="flex items-center gap-3 mb-10">
+    <div class="w-10 h-10 rounded-xl2 bg-axnavy flex items-center justify-center">
+      <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M13 2 3 14h7l-1 8 10-12h-7l1-8Z"/></svg>
+    </div>
+    <div>
+      <p class="font-display font-semibold">AX Founder Exchange 2026</p>
+      <p class="text-xs text-axslate font-mono">UI preview</p>
+    </div>
+  </div>
+
+  <h1 class="font-display text-3xl font-semibold mb-2">Four screens, one flow</h1>
+  <p class="text-axslate mb-10 max-w-xl">Sign in, register through an 8-step evaluation wizard, land on a success screen with a generated participant ID, and see the resulting dashboard.</p>
+
+  <div class="grid sm:grid-cols-2 gap-4">
+    <a href="login.html" class="card card-hover p-6 block">
+      <span class="badge badge-blue mb-3">01</span>
+      <h2 class="font-display font-semibold text-lg mb-1">Sign in</h2>
+      <p class="text-sm text-axslate">Split-screen login with floating-label fields and validation states.</p>
+    </a>
+    <a href="register.html" class="card card-hover p-6 block">
+      <span class="badge badge-blue mb-3">02</span>
+      <h2 class="font-display font-semibold text-lg mb-1">Register</h2>
+      <p class="text-sm text-axslate">8-step wizard — Account through Review — with a sticky progress dial.</p>
+    </a>
+    <a href="success.html" class="card card-hover p-6 block">
+      <span class="badge badge-blue mb-3">03</span>
+      <h2 class="font-display font-semibold text-lg mb-1">Success</h2>
+      <p class="text-sm text-axslate">Generated participant ID, QR code, and receipt download.</p>
+    </a>
+    <a href="dashboard.html" class="card card-hover p-6 block">
+      <span class="badge badge-blue mb-3">04</span>
+      <h2 class="font-display font-semibold text-lg mb-1">Dashboard</h2>
+      <p class="text-sm text-axslate">Status, zone, mentor, and stage-progress cards.</p>
+    </a>
+  </div>
+</main>
+</body>
+</html>

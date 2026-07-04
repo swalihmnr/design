@@ -1,0 +1,181 @@
+<!doctype html>
+<html lang="en" class="h-full">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Sign in — AX Founder Exchange 2026</title>
+<meta name="description" content="Sign in to AX Founder Exchange 2026, the innovation assessment and startup evaluation platform." />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+  tailwind.config = {
+    theme: {
+      extend: {
+        colors: {
+          axnavy: '#0F1A4D', axnavydeep:'#0A1338', axblue: '#3B5BFF', axbluedark:'#2A44D6',
+          axviolet: '#7C3AED', axlavender: '#EEF1FF', axpaper: '#F7F8FC', axink: '#0F172A',
+          axslate: '#64748B', axline: '#E2E6F3'
+        },
+        fontFamily: { display: ['Space Grotesk','sans-serif'], sans: ['Inter','sans-serif'], mono: ['JetBrains Mono','monospace'] },
+        borderRadius: { xl2: '1.25rem' }
+      }
+    }
+  }
+</script>
+<link rel="stylesheet" href="assets/css/styles.css">
+</head>
+<body class="h-full bg-axpaper font-sans antialiased">
+<a href="#main" class="skip-link">Skip to main content</a>
+<div id="toast-region" aria-live="polite"></div>
+
+<div class="min-h-screen grid lg:grid-cols-2">
+
+  <!-- ============ LEFT: brand / illustration panel ============ -->
+  <aside class="relative hidden lg:flex flex-col justify-between bg-grid-navy text-white p-12 overflow-hidden">
+    <div class="relative z-10 flex items-center gap-3">
+      <div class="w-11 h-11 rounded-xl2 bg-white/10 border border-white/20 flex items-center justify-center backdrop-blur-sm">
+        <svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M13 2 3 14h7l-1 8 10-12h-7l1-8Z"/></svg>
+      </div>
+      <div>
+        <p class="font-display font-semibold text-lg leading-tight">AX Founder Exchange</p>
+        <p class="text-xs text-white/60 font-mono tracking-wide">2026 COHORT</p>
+      </div>
+    </div>
+
+    <div class="relative z-10 max-w-md">
+      <h1 class="font-display text-4xl font-semibold leading-tight mb-4">Where founders get evaluated, matched, and moved forward.</h1>
+      <p class="text-white/70 text-base leading-relaxed">Innovation assessment &amp; startup evaluation platform connecting founders, mentors, and investors across every stage of the exchange.</p>
+    </div>
+
+    <!-- Network illustration: founders / mentors / innovation, echoing the "evaluation dial" motif -->
+    <div class="relative z-10 mt-10" role="img" aria-label="Illustration of founders and mentors connected across an innovation network">
+      <svg viewBox="0 0 460 220" class="w-full h-auto" fill="none">
+        <g stroke="rgba(255,255,255,0.22)" stroke-width="1.5">
+          <line x1="70" y1="60" x2="200" y2="110"/>
+          <line x1="200" y1="110" x2="360" y2="55"/>
+          <line x1="200" y1="110" x2="150" y2="180"/>
+          <line x1="200" y1="110" x2="310" y2="170"/>
+          <line x1="70" y1="60" x2="150" y2="180"/>
+          <line x1="360" y1="55" x2="310" y2="170"/>
+        </g>
+        <circle cx="200" cy="110" r="26" fill="url(#g1)"/>
+        <circle cx="70" cy="60" r="15" fill="#141F5C" stroke="#3B5BFF" stroke-width="2"/>
+        <circle cx="360" cy="55" r="15" fill="#141F5C" stroke="#7C3AED" stroke-width="2"/>
+        <circle cx="150" cy="180" r="12" fill="#141F5C" stroke="#3B5BFF" stroke-width="2"/>
+        <circle cx="310" cy="170" r="12" fill="#141F5C" stroke="#7C3AED" stroke-width="2"/>
+        <text x="200" y="115" text-anchor="middle" fill="white" font-size="10" font-family="Space Grotesk" font-weight="600">FOUNDER</text>
+        <text x="70" y="64" text-anchor="middle" fill="white" font-size="8" font-family="Inter">Mentor</text>
+        <text x="360" y="59" text-anchor="middle" fill="white" font-size="8" font-family="Inter">Investor</text>
+        <text x="150" y="184" text-anchor="middle" fill="white" font-size="8" font-family="Inter">Product</text>
+        <text x="310" y="174" text-anchor="middle" fill="white" font-size="8" font-family="Inter">Market</text>
+        <defs>
+          <linearGradient id="g1" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0" stop-color="#3B5BFF"/><stop offset="1" stop-color="#7C3AED"/>
+          </linearGradient>
+        </defs>
+      </svg>
+      <div class="flex items-center gap-6 mt-6 text-sm text-white/70">
+        <div class="flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-axblue"></span>1,240 founders assessed</div>
+        <div class="flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-axviolet"></span>86 mentors live</div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ============ RIGHT: login card ============ -->
+  <main id="main" class="flex items-center justify-center p-6 sm:p-10">
+    <div class="w-full max-w-sm">
+
+      <!-- mobile brand -->
+      <div class="flex lg:hidden items-center gap-3 mb-8">
+        <div class="w-10 h-10 rounded-xl2 bg-axnavy flex items-center justify-center">
+          <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M13 2 3 14h7l-1 8 10-12h-7l1-8Z"/></svg>
+        </div>
+        <div>
+          <p class="font-display font-semibold text-axink leading-tight">AX Founder Exchange</p>
+          <p class="text-xs text-axslate font-mono">2026</p>
+        </div>
+      </div>
+
+      <h2 class="font-display text-2xl font-semibold text-axink mb-1">Welcome back</h2>
+      <p class="text-sm text-axslate mb-8">Sign in to continue your evaluation journey.</p>
+
+      <form id="login-form" class="space-y-5" novalidate>
+        <div class="field">
+          <input type="email" id="email" name="email" placeholder=" " required autocomplete="email" />
+          <label for="email">Email address</label>
+          <p class="error-msg"><svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m0 3.75h.008M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"/></svg>Enter a valid email address.</p>
+        </div>
+
+        <div class="field">
+          <input type="password" id="password" name="password" placeholder=" " required autocomplete="current-password" />
+          <label for="password">Password</label>
+          <button type="button" data-toggle-password="password" aria-label="Show password" class="absolute right-3 top-3.5 text-axslate hover:text-axink">
+            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 0 1 0-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178Z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"/></svg>
+          </button>
+          <p class="error-msg"><svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m0 3.75h.008M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"/></svg>Enter your password.</p>
+        </div>
+
+        <div class="flex items-center justify-between text-sm">
+          <label class="flex items-center gap-2 text-axslate cursor-pointer select-none">
+            <input type="checkbox" class="check" name="remember">
+            Remember me
+          </label>
+          <a href="#" class="link">Forgot password?</a>
+        </div>
+
+        <button type="submit" id="login-btn" class="btn btn-primary w-full">
+          Sign in
+          <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3"/></svg>
+        </button>
+
+        <div class="divider-label">or</div>
+
+        <button type="button" id="google-btn" class="btn btn-secondary w-full">
+          <svg class="w-4.5 h-4.5" viewBox="0 0 24 24"><path fill="#4285F4" d="M23.52 12.27c0-.85-.08-1.67-.22-2.45H12v4.64h6.47a5.53 5.53 0 0 1-2.4 3.63v3h3.87c2.27-2.09 3.58-5.17 3.58-8.82Z"/><path fill="#34A853" d="M12 24c3.24 0 5.96-1.07 7.94-2.91l-3.87-3c-1.08.72-2.46 1.15-4.07 1.15-3.13 0-5.78-2.11-6.73-4.96H1.27v3.1A12 12 0 0 0 12 24Z"/><path fill="#FBBC05" d="M5.27 14.28A7.2 7.2 0 0 1 4.89 12c0-.79.14-1.56.38-2.28v-3.1H1.27A12 12 0 0 0 0 12c0 1.94.46 3.77 1.27 5.38l4-3.1Z"/><path fill="#EA4335" d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.44-3.44C17.95 1.19 15.24 0 12 0 7.31 0 3.26 2.69 1.27 6.62l4 3.1C6.22 6.86 8.87 4.75 12 4.75Z"/></svg>
+          Continue with Google
+        </button>
+      </form>
+
+      <p class="text-center text-sm text-axslate mt-8">
+        New to the exchange? <a href="register.html" class="link">Create an account</a>
+      </p>
+
+      <div class="flex items-center justify-center gap-4 mt-10 text-xs text-axslate">
+        <a href="#" class="hover:text-axink">Privacy Policy</a>
+        <span aria-hidden="true">·</span>
+        <a href="#" class="hover:text-axink">Terms &amp; Conditions</a>
+      </div>
+    </div>
+  </main>
+</div>
+
+<script src="assets/js/main.js"></script>
+<script>
+  const form = document.getElementById('login-form');
+  const btn = document.getElementById('login-btn');
+
+  function setFieldError(id, hasError) {
+    document.getElementById(id).closest('.field').classList.toggle('is-error', hasError);
+  }
+
+  form.addEventListener('submit', (e) => {
+    e.preventDefault();
+
+    btn.classList.add('btn-loading');
+    btn.disabled = true;
+    setTimeout(() => {
+      btn.classList.remove('btn-loading');
+      btn.disabled = false;
+      toast({ title: 'Signed in', message: 'Redirecting to your dashboard…', type: 'success' });
+      setTimeout(() => window.location.href = 'dashboard.html', 900);
+    }, 1100);
+  });
+
+  document.getElementById('google-btn').addEventListener('click', () => {
+    toast({ title: 'Google sign-in', message: 'This is a UI preview — connect an auth provider to enable this.', type: 'info' });
+  });
+</script>
+</body>
+</html>
