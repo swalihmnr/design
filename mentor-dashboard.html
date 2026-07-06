@@ -1,0 +1,1136 @@
+<!doctype html>
+<html lang="en" class="h-full">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mentor Dashboard — AX Founder Exchange 2026</title>
+  <meta name="description" content="Mentor evaluation, grading rubrics, and notes portal for the AX Founder Exchange 2026." />
+  
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <!-- Tailwind Configuration -->
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: '#2563EB',
+            secondary: '#7C3AED',
+            success: '#16A34A',
+            warning: '#F59E0B',
+            danger: '#DC2626',
+            axnavy: '#0F1A4D',
+            axblue: '#3B5BFF',
+            axviolet: '#7C3AED',
+            axlavender: '#EEF1FF',
+            axpaper: '#F7F8FC',
+            axink: '#0F172A',
+            axslate: '#64748B',
+            axline: '#E2E6F3'
+          },
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+            display: ['Space Grotesk', 'sans-serif'],
+          },
+          boxShadow: {
+            'sm-custom': '0 1px 2px rgba(17,24,39,0.05)',
+            'md-custom': '0 4px 12px -2px rgba(17,24,39,0.08), 0 2px 4px rgba(17,24,39,0.04)',
+            'lg-custom': '0 16px 32px -8px rgba(17,24,39,0.14), 0 4px 8px rgba(17,24,39,0.05)',
+          }
+        }
+      }
+    }
+  </script>
+  
+  <!-- React & Babel CDNs -->
+  <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+  <style>
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .animate-fade-in {
+      animation: fadeIn 0.3s ease-out forwards;
+    }
+    .no-scrollbar::-webkit-scrollbar {
+      display: none;
+    }
+    .no-scrollbar {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+    .glass-card {
+      background: rgba(255, 255, 255, 0.7);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+    }
+    .input-glow:focus {
+      outline: none;
+      border-color: #2563EB;
+      box-shadow: 0 0 0 4px rgba(37,99,235,0.1);
+    }
+    .slider-thumb::-webkit-slider-thumb {
+      background: #2563EB;
+      border: 2px solid white;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    }
+  </style>
+</head>
+<body class="h-full bg-slate-50 text-slate-800">
+  <div id="root"></div>
+
+  <!-- Toast Root -->
+  <div id="toast-root" class="fixed bottom-4 right-4 z-50 flex flex-col gap-3 pointer-events-none"></div>
+
+  <script type="text/babel">
+    console.log("Mentor Dashboard React App initializing...");
+    const { useState, useEffect } = React;
+
+    // ==========================================
+    // SHARED UTILITY COMPONENTS
+    // ==========================================
+    const Toast = ({ id, type, title, message, onClose }) => {
+      useEffect(() => {
+        const timer = setTimeout(() => onClose(id), 4000);
+        return () => clearTimeout(timer);
+      }, [id, onClose]);
+
+      const colors = {
+        success: 'border-green-100 bg-green-50 text-green-800',
+        error: 'border-red-100 bg-red-50 text-red-800',
+        warning: 'border-amber-100 bg-amber-50 text-amber-800',
+        info: 'border-blue-100 bg-blue-50 text-blue-800'
+      };
+
+      const icons = {
+        success: (
+          <svg className="w-5 h-5 text-green-600 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+        ),
+        error: (
+          <svg className="w-5 h-5 text-red-600 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m0 3.75h.008M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+        ),
+        warning: (
+          <svg className="w-5 h-5 text-amber-600 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+          </svg>
+        ),
+        info: (
+          <svg className="w-5 h-5 text-blue-600 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M11.25 11.25l.041-.02a.75.75 0 111.063.852l-.708 2.836a.75.75 0 001.063.852l.041-.021M21 12a9 9 0 1 1-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25z" />
+          </svg>
+        )
+      };
+
+      return (
+        <div className={`flex gap-3 p-4 rounded-xl border shadow-md-custom max-w-sm pointer-events-auto bg-white ${colors[type]} animate-fade-in`}>
+          {icons[type]}
+          <div className="flex-1">
+            <h4 className="text-xs font-bold font-display">{title}</h4>
+            <p className="text-[11px] mt-1 leading-normal opacity-90">{message}</p>
+          </div>
+          <button onClick={() => onClose(id)} className="text-slate-400 hover:text-slate-600">
+            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
+          </button>
+        </div>
+      );
+    };
+
+    // ==========================================
+    // INITIAL MOCK DATA
+    // ==========================================
+    const initialParticipants = [
+      {
+        id: "AXFE26-118490",
+        name: "Nimbus AI Solutions",
+        track: "SaaS & AI",
+        stage: "Stage 2 of 4",
+        status: "Completed",
+        score: 8.4,
+        founder: "Aditi Sharma",
+        email: "aditi@nimbusai.io",
+        scores: { valueProp: 8, gtm: 9, team: 8, tech: 9, finance: 8 },
+        notes: "Excellent product market fit for LLM orchestration. GTM strategy is solid in enterprise space.",
+        recommendations: "Build out custom API pricing options to win pilot partners.",
+        updatedAt: "2 hours ago"
+      },
+      {
+        id: "AXFE26-482913",
+        name: "FinFlow Pay",
+        track: "SaaS & AI",
+        stage: "Stage 2 of 4",
+        status: "Pending",
+        score: null,
+        founder: "Rajesh Verma",
+        email: "rajesh@finflowpay.com",
+        scores: { valueProp: 0, gtm: 0, team: 0, tech: 0, finance: 0 },
+        notes: "",
+        recommendations: "",
+        updatedAt: "--"
+      },
+      {
+        id: "AXFE26-773910",
+        name: "Zetta AgriTech Systems",
+        track: "Agritech",
+        stage: "Stage 3 of 4",
+        status: "Completed",
+        score: 9.0,
+        founder: "Amit Patel",
+        email: "amit@zettaagri.com",
+        scores: { valueProp: 9, gtm: 9, team: 9, tech: 9, finance: 9 },
+        notes: "Strong physical-digital integration with soil sensors. High margins demonstrated.",
+        recommendations: "Develop clear scaling roadmap for regional co-operative integrations.",
+        updatedAt: "Yesterday"
+      }
+    ];
+
+    const upcomingMeetings = [
+      { id: 1, startup: "FinFlow Pay", time: "Today at 2:00 PM", type: "Evaluation Review" },
+      { id: 2, startup: "Nimbus AI Solutions", time: "Tomorrow at 11:00 AM", type: "1:1 Sync Session" },
+      { id: 3, startup: "Zetta AgriTech Systems", time: "July 9 at 3:30 PM", type: "Shortlist Verification" }
+    ];
+
+    // ==========================================
+    // MAIN APP COMPONENT
+    // ==========================================
+    function App() {
+      // Pages: 'home', 'roster', 'evaluate', 'notes'
+      const [activePage, setActivePage] = useState('home');
+      const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
+      const [isMobileOpen, setIsMobileOpen] = useState(false);
+      const [toasts, setToasts] = useState([]);
+
+      // State Data
+      const [participants, setParticipants] = useState(() => {
+        const local = localStorage.getItem('axfe26_mentor_startups');
+        return local ? JSON.parse(local) : initialParticipants;
+      });
+
+      // Selected startup for evaluation
+      const [selectedStartupId, setSelectedStartupId] = useState('');
+      const [valueProp, setValueProp] = useState(5);
+      const [gtm, setGtm] = useState(5);
+      const [team, setTeam] = useState(5);
+      const [tech, setTech] = useState(5);
+      const [finance, setFinance] = useState(5);
+      const [notesText, setNotesText] = useState('');
+      const [recText, setRecText] = useState('');
+
+      // Startup Profile Modal
+      const [profileStartup, setProfileStartup] = useState(null);
+
+      // Search & Filters
+      const [searchTerm, setSearchTerm] = useState('');
+      const [statusFilter, setStatusFilter] = useState('all');
+
+      // Save to localStorage when participants change
+      useEffect(() => {
+        localStorage.setItem('axfe26_mentor_startups', JSON.stringify(participants));
+      }, [participants]);
+
+      // Calculate stats
+      const totalAssigned = participants.length;
+      const completedAssessments = participants.filter(p => p.status === 'Completed').length;
+      const pendingAssessments = totalAssigned - completedAssessments;
+      const scoresList = participants.filter(p => p.score !== null).map(p => p.score);
+      const avgScore = scoresList.length > 0 ? (scoresList.reduce((a, b) => a + b, 0) / scoresList.length).toFixed(1) : 'N/A';
+
+      const showToast = (type, title, message) => {
+        const id = Date.now().toString();
+        setToasts(prev => [...prev, { id, type, title, message }]);
+      };
+
+      const removeToast = (id) => {
+        setToasts(prev => prev.filter(t => t.id !== id));
+      };
+
+      // Set up form when a startup is selected for evaluation
+      const handleSelectStartupForEvaluation = (startupId) => {
+        const target = participants.find(p => p.id === startupId);
+        if (target) {
+          setSelectedStartupId(startupId);
+          setValueProp(target.scores.valueProp || 5);
+          setGtm(target.scores.gtm || 5);
+          setTeam(target.scores.team || 5);
+          setTech(target.scores.tech || 5);
+          setFinance(target.scores.finance || 5);
+          setNotesText(target.notes || '');
+          setRecText(target.recommendations || '');
+          setActivePage('evaluate');
+        }
+      };
+
+      // Submit assessment
+      const handleAssessmentSubmit = (e) => {
+        e.preventDefault();
+        if (!selectedStartupId) {
+          showToast('error', 'Selection Required', 'Please select a startup company to evaluate.');
+          return;
+        }
+
+        const overall = parseFloat(((valueProp + gtm + team + tech + finance) / 5).toFixed(1));
+
+        setParticipants(prev => prev.map(p => {
+          if (p.id === selectedStartupId) {
+            return {
+              ...p,
+              status: 'Completed',
+              score: overall,
+              scores: { valueProp, gtm, team, tech, finance },
+              notes: notesText,
+              recommendations: recText,
+              updatedAt: "Just now"
+            };
+          }
+          return p;
+        }));
+
+        const companyName = participants.find(p => p.id === selectedStartupId)?.name;
+        showToast('success', 'Assessment Submitted', `Evaluation scores and recommendations successfully synced to ${companyName}'s profile.`);
+        setActivePage('home');
+      };
+
+      const handleLogout = () => {
+        sessionStorage.clear();
+        showToast('info', 'Logged Out', 'Successfully logged out of mentor portal.');
+        setTimeout(() => {
+          window.location.href = 'login.html';
+        }, 1000);
+      };
+
+      // Filtered participants list
+      const filteredParticipants = participants.filter(p => {
+        const matchesSearch = p.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
+                             p.founder.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                             p.id.toLowerCase().includes(searchTerm.toLowerCase());
+        const matchesStatus = statusFilter === 'all' || p.status === statusFilter;
+        return matchesSearch && matchesStatus;
+      });
+
+      return (
+        <div className="min-h-screen flex bg-slate-50 font-sans">
+          
+          {/* Mobile Navigation Drawer Backdrop */}
+          {isMobileOpen && (
+            <div 
+              onClick={() => setIsMobileOpen(false)}
+              className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-40 lg:hidden"
+            ></div>
+          )}
+
+          {/* ============ SIDEBAR NAVIGATION ============ */}
+          <aside className={`fixed top-0 bottom-0 left-0 z-50 bg-white border-r border-slate-200/80 flex flex-col transition-all duration-300 ${
+            isSidebarCollapsed ? 'w-[76px]' : 'w-[264px]'
+          } ${
+            isMobileOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
+          }`}>
+            
+            {/* Sidebar Logo Header */}
+            <div className="h-16 flex items-center gap-3 px-5 border-b border-slate-100 flex-shrink-0">
+              <div className="w-8 h-8 rounded-lg bg-amber-500 flex items-center justify-center flex-shrink-0 shadow-md shadow-amber-500/10">
+                <svg className="w-5 h-5 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M12 6.042A8.967 8.967 0 0 0 6 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 0 1 6 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 0 1 6-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0 0 18 18a8.967 8.967 0 0 0-6 2.292m0-14.25v14.25" />
+                </svg>
+              </div>
+              {!isSidebarCollapsed && (
+                <div className="min-w-0">
+                  <p className="font-display font-bold text-xs text-slate-800 leading-tight">AX Mentor Hub</p>
+                  <p className="text-[10px] font-bold text-amber-600 tracking-wider font-mono">AXFE26 EVALUATOR</p>
+                </div>
+              )}
+            </div>
+
+            {/* Sidebar Nav */}
+            <nav className="flex-1 overflow-y-auto no-scrollbar p-3 space-y-4">
+              
+              {/* Section 1: Overview */}
+              <div>
+                {!isSidebarCollapsed && (
+                  <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400 px-3 mb-2 font-display">Overview</p>
+                )}
+                <div className="space-y-0.5">
+                  <button 
+                    onClick={() => { setActivePage('home'); setIsMobileOpen(false); }}
+                    className={`w-full flex items-center gap-3.5 px-3 py-2.5 rounded-xl text-xs font-bold transition-all ${
+                      activePage === 'home' 
+                        ? 'bg-amber-50 text-amber-700' 
+                        : 'text-slate-500 hover:text-slate-800 hover:bg-slate-50'
+                    }`}
+                  >
+                    <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="m2.25 12 8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25" /></svg>
+                    {!isSidebarCollapsed && 'Mentor Dashboard'}
+                  </button>
+                </div>
+              </div>
+
+              {/* Section 2: Mentorship Operations */}
+              <div>
+                {!isSidebarCollapsed && (
+                  <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400 px-3 mb-2 font-display">Mentorship</p>
+                )}
+                <div className="space-y-0.5">
+                  <button 
+                    onClick={() => { setActivePage('roster'); setIsMobileOpen(false); }}
+                    className={`w-full flex items-center gap-3.5 px-3 py-2.5 rounded-xl text-xs font-bold transition-all ${
+                      activePage === 'roster' 
+                        ? 'bg-amber-50 text-amber-700' 
+                        : 'text-slate-500 hover:text-slate-800 hover:bg-slate-50'
+                    }`}
+                  >
+                    <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M18 18.72a9.094 9.094 0 0 0 3.741-.479 3 3 0 0 0-4.682-2.72m.94 3.198.001.031c0 .225-.012.447-.037.666A11.944 11.944 0 0 1 12 21c-2.17 0-4.207-.576-5.963-1.584A6.062 6.062 0 0 1 6 18.719m12 0a5.971 5.971 0 0 0-.941-3.197m0 0A5.995 5.995 0 0 0 12 12.75a5.995 5.995 0 0 0-5.058 2.772m0 0a3 3 0 0 0-4.681 2.72 8.986 8.986 0 0 0 3.74.477m.94-3.197a5.971 5.971 0 0 0-.94 3.197M15 6.75a3 3 0 1 1-6 0 3 3 0 0 1 6 0Zm6 3a2.25 2.25 0 1 1-4.5 0 2.25 2.25 0 0 1 4.5 0Zm-13.5 0a2.25 2.25 0 1 1-4.5 0 2.25 2.25 0 0 1 4.5 0Z" /></svg>
+                    {!isSidebarCollapsed && 'Assigned Participants'}
+                  </button>
+
+                  <button 
+                    onClick={() => { 
+                      if (participants.length > 0) {
+                        setSelectedStartupId(participants[0].id);
+                        handleSelectStartupForEvaluation(participants[0].id);
+                      } else {
+                        setActivePage('evaluate');
+                      }
+                      setIsMobileOpen(false); 
+                    }}
+                    className={`w-full flex items-center gap-3.5 px-3 py-2.5 rounded-xl text-xs font-bold transition-all ${
+                      activePage === 'evaluate' 
+                        ? 'bg-amber-50 text-amber-700' 
+                        : 'text-slate-500 hover:text-slate-800 hover:bg-slate-50'
+                    }`}
+                  >
+                    <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M9 12h3.75M9 15h3.375M9 18h3.375m-6.408-9H18m2.25-3.125v12.25A2.25 2.25 0 0118 20.25H6a2.25 2.25 0 01-2.25-2.25V5.875C3 4.839 3.84 4 4.875 4h14.25c1.035 0 1.875.84 1.875 1.875z" /></svg>
+                    {!isSidebarCollapsed && 'Mentor Assessment'}
+                  </button>
+
+                  <button 
+                    onClick={() => { setActivePage('notes'); setIsMobileOpen(false); }}
+                    className={`w-full flex items-center gap-3.5 px-3 py-2.5 rounded-xl text-xs font-bold transition-all ${
+                      activePage === 'notes' 
+                        ? 'bg-amber-50 text-amber-700' 
+                        : 'text-slate-500 hover:text-slate-800 hover:bg-slate-50'
+                    }`}
+                  >
+                    <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M7.5 8.25h9m-9 3h9m-9 3h9m-9 3h9m-9 3h9M3.75 3.75h16.5a1.5 1.5 0 011.5 1.5v13.5a1.5 1.5 0 01-1.5 1.5H3.75a1.5 1.5 0 01-1.5-1.5V5.25a1.5 1.5 0 01.5-1.5z" /></svg>
+                    {!isSidebarCollapsed && 'Notes & Recommendations'}
+                  </button>
+                </div>
+              </div>
+            </nav>
+
+            {/* Logout Footer */}
+            <div className="p-4 border-t border-slate-100 flex-shrink-0">
+              <button 
+                onClick={handleLogout}
+                className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-bold text-red-600 hover:bg-red-50 transition-colors"
+              >
+                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0 0 13.5 3h-6a2.25 2.25 0 0 0-2.25 2.25v13.5A2.25 2.25 0 0 0 7.5 21h6a2.25 2.25 0 0 0 2.25-2.25V15M12 9l-3 3m0 0 3 3m-3-3h12.75" /></svg>
+                {!isSidebarCollapsed && 'Log Out'}
+              </button>
+            </div>
+          </aside>
+
+          {/* ============ MAIN CONTENT AREA ============ */}
+          <div className={`flex-grow flex flex-col min-w-0 transition-all duration-300 ${
+            isSidebarCollapsed ? 'lg:pl-[76px]' : 'lg:pl-[264px]'
+          }`}>
+            
+            {/* Topbar Navbar */}
+            <header className="h-16 border-b border-slate-200/80 bg-white/80 backdrop-blur-md sticky top-0 z-30 flex items-center justify-between px-6">
+              <div className="flex items-center gap-3">
+                <button 
+                  onClick={() => setIsMobileOpen(true)}
+                  className="lg:hidden p-1.5 text-slate-500 hover:bg-slate-100 rounded-lg transition-colors"
+                >
+                  <svg className="w-5.5 h-5.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" /></svg>
+                </button>
+                <button 
+                  onClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
+                  className="hidden lg:block p-1.5 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-lg transition-colors"
+                >
+                  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M3.75 12h16.5m-16.5 0L9 5.25M12 12l-3 6.75" /></svg>
+                </button>
+                <h2 className="text-sm font-bold text-slate-800 font-display">AXFE26 Mentor Console</h2>
+              </div>
+              <div className="flex items-center gap-3">
+                <div className="text-right hidden sm:block">
+                  <p className="text-xs font-bold text-slate-800">Priya Sharma</p>
+                  <p className="text-[10px] text-amber-600 font-bold tracking-wide uppercase">GTM Mentor Lead</p>
+                </div>
+                <div className="w-9 h-9 rounded-xl bg-amber-500 text-white flex items-center justify-center font-bold text-xs shadow-md shadow-amber-500/20">
+                  PS
+                </div>
+              </div>
+            </header>
+
+            {/* Content Container */}
+            <main className="flex-1 p-6 md:p-8 overflow-y-auto max-w-[1440px] mx-auto w-full">
+              
+              {/* ============ VIEW 1: HOME ============ */}
+              {activePage === 'home' && (
+                <div className="space-y-8 animate-fade-in">
+                  
+                  {/* Top Welcome Title */}
+                  <div>
+                    <h1 className="text-xl font-bold tracking-tight text-slate-800 font-display">Mentor Evaluation Dashboard</h1>
+                    <p className="text-xs text-slate-400 mt-1">Review your assigned founders, track rubrics grading status, and push feedback logs directly.</p>
+                  </div>
+
+                  {/* 4 Stats Grid */}
+                  <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+                    
+                    {/* Card 1 */}
+                    <div className="bg-white border border-slate-200/80 rounded-2xl p-5 shadow-sm-custom hover:shadow-md-custom transition-all duration-200 relative overflow-hidden">
+                      <div className="absolute top-0 left-0 right-0 h-1 bg-primary"></div>
+                      <div className="w-9 h-9 rounded-xl bg-blue-50 text-primary flex items-center justify-center mb-4">
+                        <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M15 19.128a9.38 9.38 0 002.625.372 9.337 9.337 0 004.121-.952 4.125 4.125 0 00-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.109A12.318 12.318 0 019.374 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0111.964-3.07M12 6.375a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zm8.25 2.25a2.625 2.625 0 11-5.25 0 2.625 2.625 0 015.25 0z" /></svg>
+                      </div>
+                      <p className="text-2xl font-extrabold text-slate-800 tracking-tight font-display">{totalAssigned}</p>
+                      <p className="text-xs text-slate-400 mt-1 font-semibold">Assigned Startups</p>
+                      <span className="inline-block text-[10px] font-bold text-blue-600 bg-blue-50 border border-blue-100 rounded-full px-2 py-0.5 mt-3">Active cohort</span>
+                    </div>
+
+                    {/* Card 2 */}
+                    <div className="bg-white border border-slate-200/80 rounded-2xl p-5 shadow-sm-custom hover:shadow-md-custom transition-all duration-200 relative overflow-hidden">
+                      <div className="absolute top-0 left-0 right-0 h-1 bg-success"></div>
+                      <div className="w-9 h-9 rounded-xl bg-green-50 text-success flex items-center justify-center mb-4">
+                        <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                      </div>
+                      <p className="text-2xl font-extrabold text-slate-800 tracking-tight font-display">{completedAssessments}</p>
+                      <p className="text-xs text-slate-400 mt-1 font-semibold">Graded Rubrics</p>
+                      <span className="inline-block text-[10px] font-bold text-green-600 bg-green-50 border border-green-100 rounded-full px-2 py-0.5 mt-3">
+                        {((completedAssessments / totalAssigned) * 100).toFixed(0)}% complete
+                      </span>
+                    </div>
+
+                    {/* Card 3 */}
+                    <div className="bg-white border border-slate-200/80 rounded-2xl p-5 shadow-sm-custom hover:shadow-md-custom transition-all duration-200 relative overflow-hidden">
+                      <div className="absolute top-0 left-0 right-0 h-1 bg-warning"></div>
+                      <div className="w-9 h-9 rounded-xl bg-amber-50 text-warning flex items-center justify-center mb-4">
+                        <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                      </div>
+                      <p className="text-2xl font-extrabold text-slate-800 tracking-tight font-display">{pendingAssessments}</p>
+                      <p className="text-xs text-slate-400 mt-1 font-semibold">Pending Evaluations</p>
+                      <span className="inline-block text-[10px] font-bold text-amber-600 bg-amber-50 border border-amber-100 rounded-full px-2 py-0.5 mt-3">Action required</span>
+                    </div>
+
+                    {/* Card 4 */}
+                    <div className="bg-white border border-slate-200/80 rounded-2xl p-5 shadow-sm-custom hover:shadow-md-custom transition-all duration-200 relative overflow-hidden">
+                      <div className="absolute top-0 left-0 right-0 h-1 bg-secondary"></div>
+                      <div className="w-9 h-9 rounded-xl bg-purple-50 text-secondary flex items-center justify-center mb-4">
+                        <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M10.5 6a7.5 7.5 0 107.5 7.5h-7.5V6z" /><path strokeLinecap="round" strokeLinejoin="round" d="M13.5 10.5H21A7.5 7.5 0 0013.5 3v7.5z" /></svg>
+                      </div>
+                      <p className="text-2xl font-extrabold text-slate-800 tracking-tight font-display">{avgScore}</p>
+                      <p className="text-xs text-slate-400 mt-1 font-semibold">Average Given Score</p>
+                      <span className="inline-block text-[10px] font-bold text-purple-600 bg-purple-50 border border-purple-100 rounded-full px-2 py-0.5 mt-3">Scale of 10.0</span>
+                    </div>
+                  </div>
+
+                  {/* Split columns */}
+                  <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    
+                    {/* Left: Assigned Startups List Table */}
+                    <div className="lg:col-span-2 bg-white border border-slate-200/80 rounded-2xl p-6 shadow-sm-custom">
+                      <div className="flex justify-between items-center mb-6">
+                        <div>
+                          <h3 className="text-sm font-bold text-slate-800 font-display">Assigned Cohort Startups</h3>
+                          <p className="text-[11px] text-slate-400">Direct assessment control for active startups</p>
+                        </div>
+                        <button 
+                          onClick={() => setActivePage('roster')}
+                          className="text-xs font-bold text-amber-600 hover:text-amber-700 transition-colors"
+                        >
+                          View All
+                        </button>
+                      </div>
+
+                      <div className="overflow-x-auto">
+                        <table className="w-full text-left border-collapse">
+                          <thead>
+                            <tr className="border-b border-slate-100 text-[10px] font-bold text-slate-400 uppercase tracking-wider pb-3">
+                              <th className="py-3">Startup Name</th>
+                              <th className="py-3">Track</th>
+                              <th className="py-3">Evaluation Status</th>
+                              <th className="py-3">Score</th>
+                              <th className="py-3 text-right">Actions</th>
+                            </tr>
+                          </thead>
+                          <tbody className="divide-y divide-slate-50 text-xs">
+                            {participants.map(p => (
+                              <tr key={p.id} className="hover:bg-slate-50/50 transition-colors">
+                                <td className="py-3.5 font-semibold text-slate-700">
+                                  <div>
+                                    <p>{p.name}</p>
+                                    <p className="text-[10px] text-slate-400 font-normal">{p.founder}</p>
+                                  </div>
+                                </td>
+                                <td className="py-3.5 text-slate-500">{p.track}</td>
+                                <td className="py-3.5">
+                                  <span className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold border ${
+                                    p.status === 'Completed' 
+                                      ? 'bg-green-50 text-green-700 border-green-100' 
+                                      : 'bg-amber-50 text-amber-700 border-amber-100'
+                                  }`}>
+                                    {p.status}
+                                  </span>
+                                </td>
+                                <td className="py-3.5 font-bold text-slate-800">
+                                  {p.score !== null ? `${p.score} / 10.0` : '--'}
+                                </td>
+                                <td className="py-3.5 text-right">
+                                  <button
+                                    onClick={() => handleSelectStartupForEvaluation(p.id)}
+                                    className="px-3 py-1.5 rounded-lg font-bold text-[10px] bg-slate-100 hover:bg-amber-500 hover:text-white transition-colors"
+                                  >
+                                    {p.status === 'Completed' ? 'Recalculate' : 'Assess'}
+                                  </button>
+                                </td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+
+                    {/* Right: Upcoming syncs */}
+                    <div className="bg-white border border-slate-200/80 rounded-2xl p-6 shadow-sm-custom flex flex-col justify-between">
+                      <div>
+                        <h3 className="text-sm font-bold text-slate-800 font-display mb-1">Upcoming Sync Sessions</h3>
+                        <p className="text-[11px] text-slate-400 mb-6">Scheduled startup consultations and reviews</p>
+                        
+                        <div className="space-y-4">
+                          {upcomingMeetings.map(m => (
+                            <div key={m.id} className="flex gap-3.5 p-3 rounded-xl border border-slate-100 bg-slate-50/50 hover:bg-slate-50 transition-all duration-150">
+                              <div className="w-8 h-8 rounded-lg bg-amber-50 text-amber-600 flex items-center justify-center shrink-0">
+                                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5m-9-6h.008v.008H12v-.008zM12 15h.008v.008H12V15zm0 2.25h.008v.008H12v-.008zM9.75 15h.008v.008H9.75V15zm0 2.25h.008v.008H9.75v-.008zM7.5 15h.008v.008H7.5V15zm0 2.25h.008v.008H7.5v-.008zm6.75-4.5h.008v.008h-.008v-.008zm0 2.25h.008v.008h-.008V15zm0 2.25h.008v.008h-.008v-.008zm2.25-4.5h.008v.008H16.5v-.008zm0 2.25h.008v.008H16.5V15z" /></svg>
+                              </div>
+                              <div className="min-w-0">
+                                <p className="text-xs font-bold text-slate-700 truncate">{m.startup}</p>
+                                <p className="text-[10px] text-slate-400 mt-0.5">{m.time} · {m.type}</p>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+
+                      <div className="pt-6 mt-6 border-t border-slate-100">
+                        <button 
+                          onClick={() => {
+                            if(participants.length > 0) {
+                              handleSelectStartupForEvaluation(participants.find(p => p.status === 'Pending')?.id || participants[0].id);
+                            }
+                          }}
+                          className="w-full btn bg-amber-500 hover:bg-amber-600 text-white rounded-xl py-3 text-xs font-bold transition-all shadow-md shadow-amber-500/10 flex items-center justify-center gap-2"
+                        >
+                          Grade Next Pending Startup
+                          <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" /></svg>
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* ============ VIEW 2: ROSTER ============ */}
+              {activePage === 'roster' && (
+                <div className="space-y-6 animate-fade-in">
+                  
+                  {/* Title & Actions */}
+                  <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                    <div>
+                      <h1 className="text-xl font-bold tracking-tight text-slate-800 font-display">Assigned Cohort Startups</h1>
+                      <p className="text-xs text-slate-400 mt-1">Search assigned companies, inspect complete evaluations, or edit rubric criteria.</p>
+                    </div>
+                    <div className="flex gap-2">
+                      <button 
+                        onClick={() => { setStatusFilter('all'); setSearchTerm(''); }}
+                        className="btn bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 rounded-xl px-3 py-2 text-xs font-semibold"
+                      >
+                        Reset Filter
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Filter bar */}
+                  <div className="bg-white border border-slate-200/80 rounded-2xl p-4 shadow-sm-custom flex flex-col md:flex-row gap-4 items-center justify-between">
+                    <div className="relative w-full md:max-w-md">
+                      <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
+                        <svg className="w-4.5 h-4.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.604 10.604z" /></svg>
+                      </div>
+                      <input 
+                        type="text" 
+                        placeholder="Search startup name, founder, or ID..."
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                        className="w-full bg-slate-50 border border-slate-200 rounded-xl pl-10 pr-4 py-2.5 text-xs input-glow"
+                      />
+                    </div>
+                    <div className="flex gap-2 w-full md:w-auto">
+                      <button
+                        onClick={() => setStatusFilter('all')}
+                        className={`flex-grow md:flex-initial px-4 py-2.5 rounded-xl text-xs font-bold border transition-all ${
+                          statusFilter === 'all' 
+                            ? 'bg-amber-500 border-amber-500 text-white shadow-sm shadow-amber-500/10' 
+                            : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50'
+                        }`}
+                      >
+                        All Status
+                      </button>
+                      <button
+                        onClick={() => setStatusFilter('Completed')}
+                        className={`flex-grow md:flex-initial px-4 py-2.5 rounded-xl text-xs font-bold border transition-all ${
+                          statusFilter === 'Completed' 
+                            ? 'bg-amber-500 border-amber-500 text-white shadow-sm shadow-amber-500/10' 
+                            : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50'
+                        }`}
+                      >
+                        Completed
+                      </button>
+                      <button
+                        onClick={() => setStatusFilter('Pending')}
+                        className={`flex-grow md:flex-initial px-4 py-2.5 rounded-xl text-xs font-bold border transition-all ${
+                          statusFilter === 'Pending' 
+                            ? 'bg-amber-500 border-amber-500 text-white shadow-sm shadow-amber-500/10' 
+                            : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50'
+                        }`}
+                      >
+                        Pending
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Startup Roster Grid */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+                    {filteredParticipants.map(p => (
+                      <div key={p.id} className="bg-white border border-slate-200/80 rounded-2xl shadow-sm-custom overflow-hidden flex flex-col justify-between hover:shadow-md transition-all duration-200">
+                        <div className="p-6">
+                          <div className="flex justify-between items-start mb-4">
+                            <div className="w-10 h-10 rounded-xl bg-amber-50 text-amber-600 font-display font-extrabold flex items-center justify-center text-sm shadow-sm border border-amber-100">
+                              {p.name.split(' ').map(n=>n[0]).join('')}
+                            </div>
+                            <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold border ${
+                              p.status === 'Completed' 
+                                ? 'bg-green-50 text-green-700 border-green-100' 
+                                : 'bg-amber-50 text-amber-700 border-amber-100'
+                            }`}>
+                              {p.status}
+                            </span>
+                          </div>
+
+                          <h3 className="font-display font-bold text-slate-800 text-sm mb-1">{p.name}</h3>
+                          <p className="text-[10px] text-slate-400 font-mono mb-4">{p.id} · {p.track}</p>
+
+                          <div className="space-y-2 border-t border-b border-slate-100 py-3 my-4 text-xs">
+                            <div className="flex justify-between text-slate-500">
+                              <span>Founder:</span>
+                              <span className="font-semibold text-slate-700">{p.founder}</span>
+                            </div>
+                            <div className="flex justify-between text-slate-500">
+                              <span>Contact Email:</span>
+                              <span className="font-mono text-slate-700">{p.email}</span>
+                            </div>
+                            <div className="flex justify-between text-slate-500">
+                              <span>Overall Score:</span>
+                              <span className="font-bold text-slate-800">{p.score !== null ? `${p.score} / 10.0` : '--'}</span>
+                            </div>
+                          </div>
+
+                          {p.status === 'Completed' && (
+                            <div className="space-y-1">
+                              <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Evaluation Highlights</p>
+                              <p className="text-xs text-slate-500 line-clamp-2 italic">"{p.notes}"</p>
+                            </div>
+                          )}
+                        </div>
+
+                        <div className="bg-slate-50/80 px-6 py-4 border-t border-slate-100 flex gap-2 justify-end">
+                          <button
+                            onClick={() => setProfileStartup(p)}
+                            className="btn bg-white hover:bg-slate-100 text-slate-700 border border-slate-200 rounded-xl px-3 py-1.5 text-xs font-semibold"
+                          >
+                            Details
+                          </button>
+                          <button
+                            onClick={() => handleSelectStartupForEvaluation(p.id)}
+                            className="btn bg-amber-500 hover:bg-amber-600 text-white rounded-xl px-3 py-1.5 text-xs font-bold shadow-sm shadow-amber-500/10"
+                          >
+                            {p.status === 'Completed' ? 'Edit Grades' : 'Assess'}
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+
+                    {filteredParticipants.length === 0 && (
+                      <div className="col-span-full py-12 text-center bg-white border border-slate-200/80 rounded-2xl">
+                        <svg className="w-8 h-8 text-slate-300 mx-auto mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M2.25 13.5h3.86a2.25 2.25 0 0 1 2.008 1.24l.885 1.77a2.25 2.25 0 0 0 2.007 1.24h1.98a2.25 2.25 0 0 0 2.007-1.24l.885-1.77a2.25 2.25 0 0 1 2.007-1.24h3.86m-18 0h18M2.25 13.5v-6a2.25 2.25 0 0 1 2.25-2.25h15a2.25 2.25 0 0 1 2.25 2.25v6m-18 0V18a2.25 2.25 0 0 0 2.25 2.25h15a2.25 2.25 0 0 0 2.25-2.25v-4.5m-18 0h18" /></svg>
+                        <p className="text-slate-400 font-semibold text-xs">No assigned startups match your criteria.</p>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
+
+              {/* ============ VIEW 3: EVALUATE FORM ============ */}
+              {activePage === 'evaluate' && (
+                <div className="space-y-6 max-w-3xl mx-auto animate-fade-in">
+                  
+                  {/* Title Header */}
+                  <div>
+                    <h1 className="text-xl font-bold tracking-tight text-slate-800 font-display">Grade Startup Performance</h1>
+                    <p className="text-xs text-slate-400 mt-1">Fill the rubrics below to assign criteria grades and send recommendations to the founder.</p>
+                  </div>
+
+                  <form onSubmit={handleAssessmentSubmit} className="bg-white border border-slate-200/80 rounded-2xl p-6 sm:p-8 shadow-sm-custom space-y-6">
+                    
+                    {/* Startup Selection Row */}
+                    <div>
+                      <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Select Startup Company</label>
+                      <select 
+                        value={selectedStartupId} 
+                        onChange={(e) => handleSelectStartupForEvaluation(e.target.value)}
+                        className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-xs input-glow font-semibold"
+                        required
+                      >
+                        <option value="">-- Choose startup to evaluate --</option>
+                        {participants.map(p => (
+                          <option key={p.id} value={p.id}>
+                            {p.name} ({p.track} - {p.status})
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+
+                    {selectedStartupId && (
+                      <div className="space-y-6 border-t border-slate-100 pt-6">
+                        
+                        {/* Overall Score preview */}
+                        <div className="flex justify-between items-center bg-slate-50 rounded-xl p-4 border border-slate-100">
+                          <div>
+                            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Computed Average</span>
+                            <p className="text-xs text-slate-500 mt-0.5">Calculated as weighted average of 5 criteria</p>
+                          </div>
+                          <div className="text-right">
+                            <span className="text-xl font-extrabold text-amber-500 font-display block">
+                              {((valueProp + gtm + team + tech + finance) / 5).toFixed(1)} / 10.0
+                            </span>
+                          </div>
+                        </div>
+
+                        {/* Grading Rubrics Slider Grid */}
+                        <div className="space-y-5">
+                          <h3 className="text-xs font-bold text-slate-800 uppercase tracking-wider border-b border-slate-50 pb-2">Grading Criteria Rubrics</h3>
+                          
+                          {/* Criteria 1 */}
+                          <div className="space-y-2">
+                            <div className="flex justify-between text-xs font-bold text-slate-700">
+                              <span>Value Proposition &amp; Product Market Fit</span>
+                              <span className="text-amber-500">{valueProp} / 10</span>
+                            </div>
+                            <input 
+                              type="range" min="1" max="10" 
+                              value={valueProp} 
+                              onChange={(e)=>setValueProp(parseInt(e.target.value))}
+                              className="w-full h-1.5 bg-slate-100 rounded-lg appearance-none cursor-pointer accent-amber-500" 
+                            />
+                            <p className="text-[10px] text-slate-400">Clear problem-solution statements, core technology differentiation, and product readiness.</p>
+                          </div>
+
+                          {/* Criteria 2 */}
+                          <div className="space-y-2">
+                            <div className="flex justify-between text-xs font-bold text-slate-700">
+                              <span>Go-To-Market (GTM) Strategy</span>
+                              <span className="text-amber-500">{gtm} / 10</span>
+                            </div>
+                            <input 
+                              type="range" min="1" max="10" 
+                              value={gtm} 
+                              onChange={(e)=>setGtm(parseInt(e.target.value))}
+                              className="w-full h-1.5 bg-slate-100 rounded-lg appearance-none cursor-pointer accent-amber-500" 
+                            />
+                            <p className="text-[10px] text-slate-400">Target customer definition, marketing channels, customer acquisition costs (CAC), and sales velocity.</p>
+                          </div>
+
+                          {/* Criteria 3 */}
+                          <div className="space-y-2">
+                            <div className="flex justify-between text-xs font-bold text-slate-700">
+                              <span>Founder &amp; Team Competence</span>
+                              <span className="text-amber-500">{team} / 10</span>
+                            </div>
+                            <input 
+                              type="range" min="1" max="10" 
+                              value={team} 
+                              onChange={(e)=>setTeam(parseInt(e.target.value))}
+                              className="w-full h-1.5 bg-slate-100 rounded-lg appearance-none cursor-pointer accent-amber-500" 
+                            />
+                            <p className="text-[10px] text-slate-400">Domain authority, execution capability, technical background, and alignment on core business values.</p>
+                          </div>
+
+                          {/* Criteria 4 */}
+                          <div className="space-y-2">
+                            <div className="flex justify-between text-xs font-bold text-slate-700">
+                              <span>Technical Viability &amp; Scalability</span>
+                              <span className="text-amber-500">{tech} / 10</span>
+                            </div>
+                            <input 
+                              type="range" min="1" max="10" 
+                              value={tech} 
+                              onChange={(e)=>setTech(parseInt(e.target.value))}
+                              className="w-full h-1.5 bg-slate-100 rounded-lg appearance-none cursor-pointer accent-amber-500" 
+                            />
+                            <p className="text-[10px] text-slate-400">Security standards compliance, engineering complexity, system architecture robustness, and deployment scalability.</p>
+                          </div>
+
+                          {/* Criteria 5 */}
+                          <div className="space-y-2">
+                            <div className="flex justify-between text-xs font-bold text-slate-700">
+                              <span>Financial Plan &amp; Capital Efficiency</span>
+                              <span className="text-amber-500">{finance} / 10</span>
+                            </div>
+                            <input 
+                              type="range" min="1" max="10" 
+                              value={finance} 
+                              onChange={(e)=>setFinance(parseInt(e.target.value))}
+                              className="w-full h-1.5 bg-slate-100 rounded-lg appearance-none cursor-pointer accent-amber-500" 
+                            />
+                            <p className="text-[10px] text-slate-400">Revenue projections clarity, burn rate validation, cash runway duration, and unit economics margins.</p>
+                          </div>
+                        </div>
+
+                        {/* Notes and Recommendations */}
+                        <div className="space-y-4 pt-4 border-t border-slate-100">
+                          <div>
+                            <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Evaluation Notes &amp; Observations</label>
+                            <textarea 
+                              value={notesText} 
+                              onChange={(e)=>setNotesText(e.target.value)}
+                              rows="3"
+                              placeholder="Write complete assessment remarks here. These notes will be visible to the organizers and founders."
+                              className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-xs input-glow font-sans"
+                              required
+                            />
+                          </div>
+
+                          <div>
+                            <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Mentor Recommendations</label>
+                            <textarea 
+                              value={recText} 
+                              onChange={(e)=>setRecText(e.target.value)}
+                              rows="3"
+                              placeholder="Enter concrete guidelines or action items to prepare the founder for subsequent judging stages."
+                              className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-xs input-glow font-sans"
+                              required
+                            />
+                          </div>
+                        </div>
+
+                        <div className="pt-4 flex gap-3 justify-end">
+                          <button
+                            type="button"
+                            onClick={() => setActivePage('home')}
+                            className="px-4 py-2.5 border border-slate-200 text-slate-600 bg-white hover:bg-slate-50 rounded-xl text-xs font-bold transition-all"
+                          >
+                            Cancel
+                          </button>
+                          <button
+                            type="submit"
+                            className="px-5 py-2.5 bg-amber-500 hover:bg-amber-600 text-white rounded-xl text-xs font-bold transition-all shadow-md shadow-amber-500/10 flex items-center gap-1.5"
+                          >
+                            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M12 9v6m3-3H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                            Submit Assessment
+                          </button>
+                        </div>
+                      </div>
+                    )}
+                  </form>
+                </div>
+              )}
+
+              {/* ============ VIEW 4: NOTES LOG ============ */}
+              {activePage === 'notes' && (
+                <div className="space-y-6 animate-fade-in">
+                  
+                  {/* Header Title */}
+                  <div>
+                    <h1 className="text-xl font-bold tracking-tight text-slate-800 font-display">Notes &amp; Recommendations Log</h1>
+                    <p className="text-xs text-slate-400 mt-1">Review feedback, active recommendations, and observation statements submitted across startups.</p>
+                  </div>
+
+                  {/* Log list */}
+                  <div className="space-y-4">
+                    {participants.filter(p => p.status === 'Completed').map(p => (
+                      <div key={p.id} className="bg-white border border-slate-200/80 rounded-2xl p-6 shadow-sm-custom relative">
+                        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 pb-4 mb-4 border-b border-slate-100">
+                          <div>
+                            <span className="text-[10px] font-mono text-slate-400 font-bold uppercase tracking-wider">{p.id} · {p.track}</span>
+                            <h3 className="text-sm font-bold text-slate-800 font-display mt-0.5">{p.name}</h3>
+                          </div>
+                          <div className="flex items-center gap-3">
+                            <span className="text-xs font-bold text-slate-800">Grade Score: <span className="text-amber-500">{p.score} / 10.0</span></span>
+                            <button
+                              onClick={() => handleSelectStartupForEvaluation(p.id)}
+                              className="px-2.5 py-1 bg-slate-50 border border-slate-200 hover:bg-amber-50 hover:text-amber-600 text-slate-500 rounded-lg text-[10px] font-bold transition-all"
+                            >
+                              Edit Note
+                            </button>
+                          </div>
+                        </div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-xs">
+                          <div>
+                            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1">Observation Remarks</span>
+                            <p className="text-slate-600 leading-relaxed italic bg-slate-50/50 rounded-xl p-3 border border-slate-100">"{p.notes}"</p>
+                          </div>
+                          <div>
+                            <span className="text-[10px] font-bold text-primary uppercase tracking-wider block mb-1">Recommended Next Steps</span>
+                            <p className="text-slate-600 leading-relaxed font-semibold bg-blue-50/20 rounded-xl p-3 border border-blue-50/50">"{p.recommendations}"</p>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+
+                    {participants.filter(p => p.status === 'Completed').length === 0 && (
+                      <div className="py-12 text-center bg-white border border-slate-200/80 rounded-2xl">
+                        <svg className="w-8 h-8 text-slate-300 mx-auto mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M7.5 8.25h9m-9 3h9m-9 3h9m-9 3h9m-9 3h9M3.75 3.75h16.5a1.5 1.5 0 011.5 1.5v13.5a1.5 1.5 0 01-1.5 1.5H3.75a1.5 1.5 0 01-1.5-1.5V5.25a1.5 1.5 0 011.5-1.5z" /></svg>
+                        <p className="text-slate-400 font-semibold text-xs">No active notes or recommendations submitted yet.</p>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
+            </main>
+          </div>
+
+          {/* ============ MODAL: STARTUP DETAILS PROFILE ============ */}
+          {profileStartup && (
+            <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-sm animate-fade-in">
+              <div className="bg-white border border-slate-200 rounded-2xl w-full max-w-xl shadow-lg-custom overflow-hidden">
+                <div className="h-14 border-b border-slate-100 flex items-center justify-between px-6 bg-slate-50">
+                  <h3 className="font-display font-bold text-sm text-slate-800">Cohort Startup Profile</h3>
+                  <button 
+                    onClick={() => setProfileStartup(null)}
+                    className="p-1.5 text-slate-400 hover:text-slate-600 rounded-lg hover:bg-slate-100 transition-colors"
+                  >
+                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
+                  </button>
+                </div>
+
+                <div className="p-6 space-y-6">
+                  {/* Overview Header */}
+                  <div className="flex gap-4 items-center">
+                    <div className="w-12 h-12 rounded-xl bg-amber-500 text-white font-display font-extrabold flex items-center justify-center text-base shadow-md">
+                      {profileStartup.name.split(' ').map(n=>n[0]).join('')}
+                    </div>
+                    <div>
+                      <h4 className="font-display font-extrabold text-slate-800 text-base">{profileStartup.name}</h4>
+                      <p className="text-xs text-slate-400 mt-0.5">{profileStartup.id} · {profileStartup.track} · {profileStartup.stage}</p>
+                    </div>
+                  </div>
+
+                  {/* Criteria Scores Grid */}
+                  <div>
+                    <h5 className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-3">Rubrics Scoring Card</h5>
+                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                      <div className="bg-slate-50 border border-slate-100 p-3 rounded-xl text-center">
+                        <span className="text-[10px] text-slate-400 uppercase tracking-wider block">Value Prop</span>
+                        <span className="text-sm font-extrabold text-slate-700 mt-0.5 block">{profileStartup.scores.valueProp || '--'}</span>
+                      </div>
+                      <div className="bg-slate-50 border border-slate-100 p-3 rounded-xl text-center">
+                        <span className="text-[10px] text-slate-400 uppercase tracking-wider block">GTM Strategy</span>
+                        <span className="text-sm font-extrabold text-slate-700 mt-0.5 block">{profileStartup.scores.gtm || '--'}</span>
+                      </div>
+                      <div className="bg-slate-50 border border-slate-100 p-3 rounded-xl text-center">
+                        <span className="text-[10px] text-slate-400 uppercase tracking-wider block">Founder Team</span>
+                        <span className="text-sm font-extrabold text-slate-700 mt-0.5 block">{profileStartup.scores.team || '--'}</span>
+                      </div>
+                      <div className="bg-slate-50 border border-slate-100 p-3 rounded-xl text-center">
+                        <span className="text-[10px] text-slate-400 uppercase tracking-wider block">Tech Viability</span>
+                        <span className="text-sm font-extrabold text-slate-700 mt-0.5 block">{profileStartup.scores.tech || '--'}</span>
+                      </div>
+                      <div className="bg-slate-50 border border-slate-100 p-3 rounded-xl text-center">
+                        <span className="text-[10px] text-slate-400 uppercase tracking-wider block">Financials</span>
+                        <span className="text-sm font-extrabold text-slate-700 mt-0.5 block">{profileStartup.scores.finance || '--'}</span>
+                      </div>
+                      <div className="bg-amber-500/10 border border-amber-500/20 p-3 rounded-xl text-center">
+                        <span className="text-[10px] text-amber-600 font-bold uppercase tracking-wider block">Weighted Avg</span>
+                        <span className="text-sm font-extrabold text-amber-600 mt-0.5 block">{profileStartup.score || '--'}</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Feedback Details */}
+                  {profileStartup.status === 'Completed' ? (
+                    <div className="space-y-4 border-t border-slate-100 pt-4 text-xs">
+                      <div>
+                        <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1">Mentor Evaluation Notes</span>
+                        <p className="text-slate-600 bg-slate-50 p-3 rounded-xl border border-slate-100">"{profileStartup.notes}"</p>
+                      </div>
+                      <div>
+                        <span className="text-[10px] font-bold text-primary uppercase tracking-wider block mb-1">Mentor Recommendations</span>
+                        <p className="text-slate-600 bg-blue-50/20 p-3 rounded-xl border border-blue-50/50">"{profileStartup.recommendations}"</p>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="border-t border-slate-100 pt-6 text-center text-xs text-slate-400">
+                      This startup has not been graded yet. Complete the assessment evaluation.
+                    </div>
+                  )}
+                </div>
+
+                <div className="bg-slate-50 px-6 py-4 border-t border-slate-100 flex gap-2 justify-end">
+                  <button
+                    onClick={() => setProfileStartup(null)}
+                    className="btn bg-white hover:bg-slate-100 text-slate-700 border border-slate-200 rounded-xl px-4 py-2 text-xs font-semibold"
+                  >
+                    Close
+                  </button>
+                  <button
+                    onClick={() => {
+                      const id = profileStartup.id;
+                      setProfileStartup(null);
+                      handleSelectStartupForEvaluation(id);
+                    }}
+                    className="btn bg-amber-500 hover:bg-amber-600 text-white rounded-xl px-4 py-2 text-xs font-bold shadow-md shadow-amber-500/10"
+                  >
+                    {profileStartup.status === 'Completed' ? 'Recalculate Rubrics' : 'Grade Rubrics'}
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Render Toasts */}
+          {ReactDOM.createPortal(
+            <div className="flex flex-col gap-3 pointer-events-none">
+              {toasts.map((toast) => (
+                <Toast
+                  key={toast.id}
+                  id={toast.id}
+                  type={toast.type}
+                  title={toast.title}
+                  message={toast.message}
+                  onClose={removeToast}
+                />
+              ))}
+            </div>,
+            document.getElementById('toast-root')
+          )}
+
+        </div>
+      );
+    }
+
+    const root = ReactDOM.createRoot(document.getElementById('root'));
+    root.render(<App />);
+  </script>
+</body>
+</html>
