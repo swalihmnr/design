@@ -1,0 +1,1361 @@
+<!doctype html>
+<html lang="en" class="h-full">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AX Founder Exchange 2026 — Assessment Tool</title>
+  <meta name="description" content="Assessment tool for organizers running AX Founder Exchange 2026: participants, mentors, zone management, judging, and reports." />
+  
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <!-- Tailwind Configuration -->
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: '#2563EB',
+            'primary-dark': '#1D4ED8',
+            'primary-light': '#EFF6FF',
+            'primary-line': '#BFDBFE',
+            success: '#16A34A',
+            'success-bg': '#F0FDF4',
+            warning: '#F59E0B',
+            'warning-bg': '#FFFBEB',
+            danger: '#DC2626',
+            'danger-bg': '#FEF2F2',
+            bgcol: '#F8FAFC',
+            sidebar: '#FFFFFF',
+            card: '#FFFFFF',
+            textcol: '#111827',
+            'text-muted': '#6B7280',
+            'text-faint': '#9CA3AF',
+            bordercol: '#E5E7EB',
+            'border-light': '#F1F5F9',
+          },
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+            display: ['Space Grotesk', 'sans-serif'],
+          },
+          boxShadow: {
+            'sm-custom': '0 1px 2px rgba(17,24,39,0.05)',
+            'md-custom': '0 4px 12px -2px rgba(17,24,39,0.08), 0 2px 4px rgba(17,24,39,0.04)',
+            'lg-custom': '0 16px 32px -8px rgba(17,24,39,0.14), 0 4px 8px rgba(17,24,39,0.05)',
+          }
+        }
+      }
+    }
+  </script>
+  
+  <!-- React & Babel CDNs -->
+  <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+  <style>
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .animate-fade-in {
+      animation: fadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+    .glass-card {
+      background: rgba(255, 255, 255, 0.8);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+    }
+    .input-glow:focus {
+      outline: none;
+      border-color: #2563EB;
+      box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.12);
+    }
+    /* Hide scrollbar for Chrome, Safari and Opera */
+    .no-scrollbar::-webkit-scrollbar {
+      display: none;
+    }
+    /* Hide scrollbar for IE, Edge and Firefox */
+    .no-scrollbar {
+      -ms-overflow-style: none;  /* IE and Edge */
+      scrollbar-width: none;  /* Firefox */
+    }
+  </style>
+</head>
+<body class="h-full bg-[#F8FAFC] font-sans antialiased text-[#111827]">
+
+  <!-- Toast Root -->
+  <div id="toast-root" class="fixed top-5 right-5 z-[100] flex flex-col gap-3 w-full max-w-sm pointer-events-none"></div>
+
+  <!-- React Root -->
+  <div id="root" class="h-full"></div>
+
+  <!-- React Application Code -->
+  <script type="text/babel">
+    const { useState, useEffect, useRef } = React;
+
+    // ==========================================
+    // ICONS COMPONENTS
+    // ==========================================
+    const DashboardIcon = () => (
+      <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.8">
+        <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 12 12 3.75 20.25 12M6.75 10.5v9a.75.75 0 0 0 .75.75h3.75v-4.5h1.5v4.5h3.75a.75.75 0 0 0 .75-.75v-9" />
+      </svg>
+    );
+
+    const ParticipantsIcon = () => (
+      <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.8">
+        <path strokeLinecap="round" strokeLinejoin="round" d="M15 19.128a9.38 9.38 0 0 0 2.625.372 9.337 9.337 0 0 0 4.121-.952 4.125 4.125 0 0 0-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 0 1 8.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0 1 11.964-3.07M12 6.375a3.375 3.375 0 1 1-6.75 0 3.375 3.375 0 0 1 6.75 0Zm8.25 2.25a2.625 2.625 0 1 1-5.25 0 2.625 2.625 0 0 1 5.25 0Z" />
+      </svg>
+    );
+
+    const AssessmentsIcon = () => (
+      <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.8">
+        <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+      </svg>
+    );
+
+    const ZonesIcon = () => (
+      <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.8">
+        <path strokeLinecap="round" strokeLinejoin="round" d="M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
+        <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1 1 15 0Z" />
+      </svg>
+    );
+
+    const MentorsIcon = () => (
+      <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.8">
+        <path strokeLinecap="round" strokeLinejoin="round" d="M4.26 10.147a60.436 60.436 0 0 0-.491 6.347A48.62 48.62 0 0 1 12 20.904a48.62 48.62 0 0 1 8.232-4.41 60.46 60.46 0 0 0-.491-6.347m-15.482 0a50.57 50.57 0 0 0-2.658-.813A59.905 59.905 0 0 1 12 3.493a59.902 59.902 0 0 1 10.399 5.031c-.896.248-1.783.52-2.658.814m-15.482 0A50.697 50.697 0 0 1 12 13.489a50.702 50.702 0 0 1 7.74-3.342M6.75 15a.75.75 0 1 0 0-1.5.75.75 0 0 0 0 1.5Zm0 0v-3.675A55.378 55.378 0 0 1 12 8.443" />
+      </svg>
+    );
+
+    const VolunteersIcon = () => (
+      <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.8">
+        <path strokeLinecap="round" strokeLinejoin="round" d="M18 18.72a9.094 9.094 0 0 0 3.741-.479 3 3 0 0 0-4.682-2.72m.94 3.198.001.031c0 .225-.012.447-.037.666A11.944 11.944 0 0 1 12 21c-2.17 0-4.207-.576-5.963-1.584A6.062 6.062 0 0 1 6 18.719m12 0a5.971 5.971 0 0 0-.941-3.197m0 0A5.995 5.995 0 0 0 12 12.75a5.995 5.995 0 0 0-5.058 2.772m0 0a3 3 0 0 0-4.681 2.72 8.986 8.986 0 0 0 3.74.477m.94-3.197a5.971 5.971 0 0 0-.94 3.197M15 6.75a3 3 0 1 1-6 0 3 3 0 0 1 6 0Zm6 3a2.25 2.25 0 1 1-4.5 0 2.25 2.25 0 0 1 4.5 0Zm-13.5 0a2.25 2.25 0 1 1-4.5 0 2.25 2.25 0 0 1 4.5 0Z" />
+      </svg>
+    );
+
+    const StageJudgingIcon = () => (
+      <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.8">
+        <path strokeLinecap="round" strokeLinejoin="round" d="M11.48 3.499a.562.562 0 0 1 1.04 0l2.125 5.111a.563.563 0 0 0 .475.345l5.518.442c.499.04.701.663.321.988l-4.204 3.602a.563.563 0 0 0-.182.557l1.285 5.385a.562.562 0 0 1-.84.61l-4.725-2.885a.562.562 0 0 0-.586 0L6.982 21.14a.562.562 0 0 1-.84-.61l1.285-5.386a.562.562 0 0 0-.182-.557l-4.204-3.602a.562.562 0 0 1 .321-.988l5.518-.442a.563.563 0 0 0 .475-.345L11.48 3.5Z" />
+      </svg>
+    );
+
+    const FinalSelectionIcon = () => (
+      <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.8">
+        <path strokeLinecap="round" strokeLinejoin="round" d="M16.5 18.75h-9m9 0a3 3 0 0 1 3 3h-15a3 3 0 0 1 3-3m9 0v-3.375c0-.621-.503-1.125-1.125-1.125h-.871M7.5 18.75v-3.375c0-.621.504-1.125 1.125-1.125h.872m5.007 0H9.497m5.007 0a7.454 7.454 0 0 1-.982-3.172M9.497 14.25a7.454 7.454 0 0 0 .981-3.172M5.25 4.236c-.982.143-1.954.317-2.916.52A6.003 6.003 0 0 0 7.73 9.728M5.25 4.236V4.5c0 2.108.966 3.99 2.48 5.228M5.25 4.236V2.721C7.456 2.41 9.71 2.25 12 2.25c2.291 0 4.545.16 6.75.47v1.516M7.73 9.728a6.726 6.726 0 0 0 2.748 1.35m8.272-6.842V4.5c0 2.108-.966 3.99-2.48 5.228m2.48-5.492a46.32 46.32 0 0 1 2.916.52 6.003 6.003 0 0 1-5.395 4.972m0 0a6.726 6.726 0 0 1-2.749 1.35" />
+      </svg>
+    );
+
+    const ReportsIcon = () => (
+      <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
+        <path strokeLinecap="round" strokeLinejoin="round" d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 0 1 3 19.875v-6.75ZM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 0 1-1.125-1.125V8.625ZM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 0 1-1.125-1.125V4.125Z" />
+      </svg>
+    );
+
+    const NotificationsIcon = () => (
+      <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
+        <path strokeLinecap="round" strokeLinejoin="round" d="M14.857 17.082a23.848 23.848 0 0 0 5.454-1.31A8.967 8.967 0 0 1 18 9.75V9A6 6 0 0 0 6 9v.75a8.967 8.967 0 0 1-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 0 1-5.714 0m5.714 0a3 3 0 1 1-5.714 0" />
+      </svg>
+    );
+
+    const SettingsIcon = () => (
+      <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
+        <path strokeLinecap="round" strokeLinejoin="round" d="M9.594 3.94c.09-.542.56-.94 1.11-.94h2.593c.55 0 1.02.398 1.11.94l.213 1.281c.063.374.313.686.645.87.074.04.147.083.22.127.324.196.72.257 1.075.124l1.217-.456a1.125 1.125 0 0 1 1.37.49l1.296 2.247a1.125 1.125 0 0 1-.26 1.431l-1.003.827c-.293.24-.438.613-.431.992a6.759 6.759 0 0 1 0 .255c-.007.378.138.75.43.99l1.005.828c.424.35.534.954.26 1.43l-1.298 2.247a1.125 1.125 0 0 1-1.369.491l-1.217-.456c-.355-.133-.75-.072-1.076.124a6.57 6.57 0 0 1-.22.128c-.331.183-.581.495-.644.869l-.213 1.28c-.09.543-.56.941-1.11.941h-2.594c-.55 0-1.02-.398-1.11-.94l-.213-1.281c-.062-.374-.312-.686-.644-.87a6.52 6.52 0 0 1-.22-.127c-.325-.196-.72-.257-1.076-.124l-1.217.456a1.125 1.125 0 0 1-1.369-.49l-1.297-2.247a1.125 1.125 0 0 1 .26-1.431l1.004-.827c.292-.24.437-.613.43-.992a6.932 6.932 0 0 1 0-.255c.007-.378-.138-.75-.43-.99l-1.004-.828a1.125 1.125 0 0 1-.26-1.43l1.297-2.247a1.125 1.125 0 0 1 1.37-.491l1.216.456c.356.133.751.072 1.076-.124.072-.044.146-.087.22-.128.332-.183.582-.495.644-.869l.214-1.28Z" />
+        <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
+      </svg>
+    );
+
+    const HelpIcon = () => (
+      <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.8">
+        <path strokeLinecap="round" strokeLinejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+        <path strokeLinecap="round" strokeLinejoin="round" d="M12 17.25h.008v.008H12v-.008Z" />
+      </svg>
+    );
+
+    const LogoutIcon = () => (
+      <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
+        <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0 0 13.5 3h-6a2.25 2.25 0 0 0-2.25 2.25v13.5A2.25 2.25 0 0 0 7.5 21h6a2.25 2.25 0 0 0 2.25-2.25V15M12 9l3 3m0 0-3 3m3-3H3" />
+      </svg>
+    );
+
+    const CloseIcon = () => (
+      <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
+        <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+      </svg>
+    );
+
+    const CheckCircleIcon = () => (
+      <svg className="w-6 h-6 text-green-500 shrink-0" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+      </svg>
+    );
+
+    const XCircleIcon = () => (
+      <svg className="w-6 h-6 text-red-500 shrink-0" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+      </svg>
+    );
+
+    // ==========================================
+    // TOAST COMPONENT
+    // ==========================================
+    const Toast = ({ id, type, title, message, onClose }) => {
+      useEffect(() => {
+        const timer = setTimeout(() => onClose(id), 3500);
+        return () => clearTimeout(timer);
+      }, [id, onClose]);
+
+      return (
+        <div className="flex items-start gap-3 bg-white/95 backdrop-blur border border-slate-100 rounded-xl p-4 shadow-lg-custom ring-1 ring-black/5 animate-fade-in pointer-events-auto transition-all duration-300">
+          {type === 'success' ? <CheckCircleIcon /> : <XCircleIcon />}
+          <div className="flex-1 min-w-0">
+            <p className="text-sm font-semibold text-slate-900">{title}</p>
+            {message && <p className="text-xs text-slate-500 mt-0.5">{message}</p>}
+          </div>
+          <button 
+            onClick={() => onClose(id)} 
+            className="text-slate-400 hover:text-slate-600 transition-colors duration-150 shrink-0"
+            aria-label="Dismiss notification"
+          >
+            <CloseIcon />
+          </button>
+        </div>
+      );
+    };
+
+    // ==========================================
+    // DIALOGS / MODALS
+    // ==========================================
+    const AddParticipantModal = ({ isOpen, onClose, onAdd }) => {
+      const [name, setName] = useState('');
+      const [startup, setStartup] = useState('');
+      const [zone, setZone] = useState('Zone C — SaaS & AI');
+
+      if (!isOpen) return null;
+
+      const handleSubmit = (e) => {
+        e.preventDefault();
+        if (!name || !startup) return;
+        onAdd({ name, startup, zone });
+        setName('');
+        setStartup('');
+        onClose();
+      };
+
+      return (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <div className="absolute inset-0 bg-slate-900/40 backdrop-blur-sm" onClick={onClose}></div>
+          <div className="bg-white rounded-2xl p-6 sm:p-8 max-w-md w-full shadow-lg-custom relative z-10 glass-card animate-fade-in border border-white/40">
+            <div className="flex justify-between items-center mb-6">
+              <h3 className="text-lg font-bold text-slate-900">Add New Participant</h3>
+              <button onClick={onClose} className="text-slate-400 hover:text-slate-600">
+                <CloseIcon />
+              </button>
+            </div>
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <div>
+                <label className="block text-xs font-semibold text-slate-600 uppercase tracking-wider mb-2">Founder Name</label>
+                <input 
+                  type="text" 
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  placeholder="e.g. Devika Rao" 
+                  className="w-full bg-white border border-slate-200 rounded-xl px-4 py-3 text-sm input-glow"
+                  required
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-semibold text-slate-600 uppercase tracking-wider mb-2">Startup Name</label>
+                <input 
+                  type="text" 
+                  value={startup}
+                  onChange={(e) => setStartup(e.target.value)}
+                  placeholder="e.g. Nimbus AI" 
+                  className="w-full bg-white border border-slate-200 rounded-xl px-4 py-3 text-sm input-glow"
+                  required
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-semibold text-slate-600 uppercase tracking-wider mb-2">Evaluation Zone</label>
+                <select 
+                  value={zone}
+                  onChange={(e) => setZone(e.target.value)}
+                  className="w-full bg-white border border-slate-200 rounded-xl px-4 py-3 text-sm input-glow appearance-none"
+                >
+                  <option value="Zone A — FinTech">Zone A — FinTech</option>
+                  <option value="Zone B — HealthTech">Zone B — HealthTech</option>
+                  <option value="Zone C — SaaS & AI">Zone C — SaaS & AI</option>
+                  <option value="Zone D — Web3 & Infra">Zone D — Web3 & Infra</option>
+                </select>
+              </div>
+              <div className="flex gap-3 justify-end pt-4">
+                <button 
+                  type="button" 
+                  onClick={onClose}
+                  className="px-4 py-2.5 text-sm font-semibold text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-xl transition-all duration-150"
+                >
+                  Cancel
+                </button>
+                <button 
+                  type="submit" 
+                  className="px-5 py-2.5 text-sm font-semibold text-white bg-primary hover:bg-primary-dark rounded-xl transition-all duration-150 shadow-md shadow-blue-500/10 hover:shadow-blue-500/20"
+                >
+                  Register Participant
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      );
+    };
+
+    const AssignMentorModal = ({ isOpen, onClose, onAssign }) => {
+      const [mentor, setMentor] = useState('Arjun Nair');
+      const [zone, setZone] = useState('Zone C — SaaS & AI');
+
+      if (!isOpen) return null;
+
+      const handleSubmit = (e) => {
+        e.preventDefault();
+        onAssign({ mentor, zone });
+        onClose();
+      };
+
+      return (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <div className="absolute inset-0 bg-slate-900/40 backdrop-blur-sm" onClick={onClose}></div>
+          <div className="bg-white rounded-2xl p-6 sm:p-8 max-w-md w-full shadow-lg-custom relative z-10 glass-card animate-fade-in border border-white/40">
+            <div className="flex justify-between items-center mb-6">
+              <h3 className="text-lg font-bold text-slate-900">Assign Mentor to Zone</h3>
+              <button onClick={onClose} className="text-slate-400 hover:text-slate-600">
+                <CloseIcon />
+              </button>
+            </div>
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <div>
+                <label className="block text-xs font-semibold text-slate-600 uppercase tracking-wider mb-2">Select Mentor</label>
+                <select 
+                  value={mentor}
+                  onChange={(e) => setMentor(e.target.value)}
+                  className="w-full bg-white border border-slate-200 rounded-xl px-4 py-3 text-sm input-glow"
+                >
+                  <option value="Arjun Nair">Arjun Nair</option>
+                  <option value="Siddharth Mehta">Siddharth Mehta</option>
+                  <option value="Priya Sharma">Priya Sharma</option>
+                  <option value="Karan Johar">Karan Johar</option>
+                </select>
+              </div>
+              <div>
+                <label className="block text-xs font-semibold text-slate-600 uppercase tracking-wider mb-2">Evaluation Zone</label>
+                <select 
+                  value={zone}
+                  onChange={(e) => setZone(e.target.value)}
+                  className="w-full bg-white border border-slate-200 rounded-xl px-4 py-3 text-sm input-glow"
+                >
+                  <option value="Zone A — FinTech">Zone A — FinTech</option>
+                  <option value="Zone B — HealthTech">Zone B — HealthTech</option>
+                  <option value="Zone C — SaaS & AI">Zone C — SaaS & AI</option>
+                  <option value="Zone D — Web3 & Infra">Zone D — Web3 & Infra</option>
+                </select>
+              </div>
+              <div className="flex gap-3 justify-end pt-4">
+                <button 
+                  type="button" 
+                  onClick={onClose}
+                  className="px-4 py-2.5 text-sm font-semibold text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-xl transition-all duration-150"
+                >
+                  Cancel
+                </button>
+                <button 
+                  type="submit" 
+                  className="px-5 py-2.5 text-sm font-semibold text-white bg-primary hover:bg-primary-dark rounded-xl transition-all duration-150 shadow-md shadow-blue-500/10 hover:shadow-blue-500/20"
+                >
+                  Confirm Assignment
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      );
+    };
+
+    // ==========================================
+    // MAIN APP COMPONENT
+    // ==========================================
+    function App() {
+      const [activePage, setActivePage] = useState('dashboard');
+      const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
+      const [isMobileOpen, setIsMobileOpen] = useState(false);
+      const [isNotifOpen, setIsNotifOpen] = useState(false);
+      const [isUserDropdownOpen, setIsUserDropdownOpen] = useState(false);
+      const [toasts, setToasts] = useState([]);
+      const [searchQuery, setSearchQuery] = useState('');
+
+      // Modals
+      const [isAddOpen, setIsAddOpen] = useState(false);
+      const [isAssignOpen, setIsAssignOpen] = useState(false);
+
+      // Export report state
+      const [isExporting, setIsExporting] = useState(false);
+
+      // Dynamic Stats & Feeds
+      const [totalParticipants, setTotalParticipants] = useState(1240);
+      const [mentorsAssigned, setMentorsAssigned] = useState(86);
+      const [activities, setActivities] = useState([
+        { id: 1, type: 'success', name: 'Devika Rao', startup: 'Zone C — SaaS & AI', action: 'checked in at', time: '2 minutes ago' },
+        { id: 2, type: 'warning', name: 'Mentor Arjun Nair', startup: 'Nimbus AI', action: 'submitted a score for', time: '14 minutes ago' },
+        { id: 3, type: 'primary', name: 'Stage 2 Judging', startup: 'Zone A — FinTech', action: 'started for', time: '1 hour ago' },
+        { id: 4, type: 'neutral', name: 'Weekly cohort report', startup: '', action: 'is ready for download', time: '3 hours ago' },
+      ]);
+
+      const [notifications, setNotifications] = useState([
+        { id: 1, type: 'success', title: 'Participant Checked In', desc: 'Devika Rao (Nimbus AI) checked in at Zone C.', time: '2 minutes ago', unread: true },
+        { id: 2, type: 'warning', title: 'Mentor Submitted Score', desc: 'Arjun Nair scored Nimbus AI for Stage 2.', time: '14 minutes ago', unread: true },
+        { id: 3, type: 'primary', title: 'Stage Judging Started', desc: 'Stage 2 judging is now live for Zone A — FinTech.', time: '1 hour ago', unread: false },
+        { id: 4, type: 'neutral', title: 'Report Ready', desc: 'The weekly cohort report has been generated.', time: '3 hours ago', unread: false },
+      ]);
+
+      // Calculate unread notification count
+      const unreadCount = notifications.filter(n => n.unread).length;
+
+      // Toast dispatch
+      const showToast = (type, title, message) => {
+        const id = Date.now().toString();
+        setToasts((prev) => [...prev, { id, type, title, message }]);
+      };
+
+      const removeToast = (id) => {
+        setToasts((prev) => prev.filter((t) => t.id !== id));
+      };
+
+      // Mark notification as read
+      const handleNotifClick = (id) => {
+        setNotifications((prev) =>
+          prev.map((n) => (n.id === id ? { ...n, unread: false } : n))
+        );
+      };
+
+      // Add Participant Flow
+      const handleAddParticipant = (data) => {
+        setTotalParticipants(prev => prev + 1);
+        const newAct = {
+          id: Date.now(),
+          type: 'success',
+          name: data.name,
+          startup: data.zone,
+          action: `registered startup ${data.startup} at`,
+          time: 'Just now'
+        };
+        setActivities(prev => [newAct, ...prev]);
+        showToast('success', 'Participant Added', `${data.name} from ${data.startup} added successfully!`);
+      };
+
+      // Assign Mentor Flow
+      const handleAssignMentor = (data) => {
+        setMentorsAssigned(prev => prev + 1);
+        const newAct = {
+          id: Date.now(),
+          type: 'primary',
+          name: `Mentor ${data.mentor}`,
+          startup: data.zone,
+          action: 'assigned to',
+          time: 'Just now'
+        };
+        setActivities(prev => [newAct, ...prev]);
+        showToast('success', 'Mentor Assigned', `${data.mentor} successfully assigned to ${data.zone}`);
+      };
+
+      // Export Report Flow
+      const handleExportReport = () => {
+        setIsExporting(true);
+        setTimeout(() => {
+          setIsExporting(false);
+          showToast('success', 'Report Exported', 'CSV report has been successfully generated and downloaded.');
+        }, 1500);
+      };
+
+      // Logout simulation
+      const handleLogout = (e) => {
+        e.preventDefault();
+        showToast('success', 'Logging Out', 'Clearing credentials and redirecting...');
+        setTimeout(() => {
+          window.location.href = 'login.html';
+        }, 1200);
+      };
+
+      // Pages configuration mapping
+      const PAGES = {
+        dashboard: { title: 'Dashboard', subtitle: 'Live status across every zone, mentor, and assessment for the 2026 cohort.' },
+        participants: { 
+          title: 'Participants', 
+          subtitle: 'Every founder registered for AX Founder Exchange 2026.',
+          empty: { 
+            h: 'No participants match this view', 
+            d: 'Add your first participant or clear filters to see the full list.', 
+            cta: 'Add Participant', 
+            action: () => setIsAddOpen(true)
+          } 
+        },
+        assessments: { 
+          title: 'Assessments', 
+          subtitle: 'Track evaluation criteria and scoring across every stage.',
+          empty: { 
+            h: 'No assessments run yet', 
+            d: 'Assessments will appear here once evaluators start scoring participants.', 
+            cta: 'Start an Assessment', 
+            action: () => showToast('success', 'Assessment Started', 'Evaluation sheet loaded.')
+          } 
+        },
+        zones: { 
+          title: 'Zone Management', 
+          subtitle: 'Assign founders and mentors to physical or virtual evaluation zones.',
+          empty: { 
+            h: 'No zones configured', 
+            d: 'Create zones to organize check-in, judging, and mentor coverage by track.', 
+            cta: 'Create Zone', 
+            action: () => showToast('success', 'Zone Configuration', 'Opening setup wizard.')
+          } 
+        },
+        mentors: { 
+          title: 'Mentors', 
+          subtitle: 'Manage the mentor roster and their zone assignments.',
+          empty: { 
+            h: 'No mentors added yet', 
+            d: 'Invite mentors and assign them to zones so founders can get matched.', 
+            cta: 'Invite Mentor', 
+            action: () => setIsAssignOpen(true)
+          } 
+        },
+        volunteers: { 
+          title: 'Volunteers', 
+          subtitle: 'Coordinate on-ground and virtual volunteer support.',
+          empty: { 
+            h: 'No volunteers added yet', 
+            d: 'Add volunteers to help run check-in, zones, and logistics on event day.', 
+            cta: 'Add Volunteer', 
+            action: () => showToast('success', 'Invite Volunteer', 'Opening email invite panel.')
+          } 
+        },
+        'stage-judging': { 
+          title: 'Stage Judging', 
+          subtitle: 'Run live judging sessions and collect scores by stage.',
+          empty: { 
+            h: 'Judging hasn’t started', 
+            d: 'Open a stage to let mentors begin scoring participants in real time.', 
+            cta: 'Start Judging', 
+            action: () => showToast('success', 'Judging Sessions', 'Scoresheet initialized.')
+          } 
+        },
+        'final-selection': { 
+          title: 'Final Selection', 
+          subtitle: 'Confirm winners once every zone completes judging.',
+          empty: { 
+            h: 'No finalists selected yet', 
+            d: 'Final Selection unlocks once every zone completes Stage 2 judging.', 
+            cta: 'View Judging Progress', 
+            action: () => setActivePage('stage-judging')
+          } 
+        },
+        reports: { 
+          title: 'Reports', 
+          subtitle: 'Generate and download reports for organizers and sponsors.',
+          empty: { 
+            h: 'No reports generated yet', 
+            d: 'Export a report to share cohort progress with your team or sponsors.', 
+            cta: 'Export Report', 
+            action: handleExportReport
+          } 
+        },
+        notifications: { 
+          title: 'Notifications', 
+          subtitle: 'A full history of alerts across the platform.',
+          empty: { 
+            h: 'You’re all caught up', 
+            d: 'New check-ins, scores, and reports will show up here as they happen.', 
+            cta: 'Open Notification Panel', 
+            action: () => setIsNotifOpen(true)
+          } 
+        },
+        settings: { 
+          title: 'Settings', 
+          subtitle: 'Configure the assessment tool for your organizing team.',
+          empty: { 
+            h: 'Nothing to configure yet', 
+            d: 'Settings for scoring rubrics, roles, and integrations will live here.', 
+            cta: 'Explore Settings', 
+            action: () => showToast('success', 'Configuration', 'Loading settings profile...')
+          } 
+        },
+        help: { 
+          title: 'Help', 
+          subtitle: 'Guides and support for running AX Founder Exchange 2026.',
+          empty: { 
+            h: 'Need a hand?', 
+            d: 'Browse guides for check-in, judging, and reporting, or reach the organizer support line.', 
+            cta: 'Contact Support', 
+            action: () => showToast('success', 'Support Request', 'Support ticket submitted to AX IT Desk.')
+          } 
+        },
+      };
+
+      // Filter activities based on search query
+      const filteredActivities = activities.filter((act) => {
+        const query = searchQuery.toLowerCase();
+        return (
+          act.name.toLowerCase().includes(query) ||
+          act.startup.toLowerCase().includes(query) ||
+          act.action.toLowerCase().includes(query)
+        );
+      });
+
+      return (
+        <div className="min-h-screen flex bg-slate-50 relative overflow-x-hidden">
+
+          {/* Skip link for accessibility */}
+          <a href="#main-content" className="sr-only focus:not-sr-only focus:absolute focus:top-0 focus:left-0 focus:z-50 focus:bg-slate-900 focus:text-white focus:p-4 focus:rounded-br-xl">
+            Skip to main content
+          </a>
+
+          {/* ============ SIDEBAR ============ */}
+          <aside className={`fixed top-0 bottom-0 left-0 z-50 bg-white border-r border-slate-200/80 flex flex-col transition-all duration-300 ${
+            isSidebarCollapsed ? 'w-[76px]' : 'w-[264px]'
+          } ${isMobileOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}`}>
+            
+            {/* Sidebar Logo */}
+            <div className="h-16 flex items-center gap-3 px-5 border-b border-slate-100 flex-shrink-0">
+              <div className="w-9 h-9 rounded-xl bg-primary flex items-center justify-center shadow-md shadow-blue-500/20 flex-shrink-0">
+                <svg className="w-5 h-5 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M13 2 3 14h7l-1 8 10-12h-7l1-8Z"/>
+                </svg>
+              </div>
+              {!isSidebarCollapsed && (
+                <div className="min-w-0 overflow-hidden">
+                  <p className="font-bold text-sm text-slate-800 tracking-tight leading-tight">AX Founder Exchange</p>
+                  <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider mt-0.5">Assessment Tool</p>
+                </div>
+              )}
+              
+              {/* Collapse Switcher */}
+              <button 
+                onClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
+                className="hidden lg:flex items-center justify-center w-7 h-7 rounded-lg border border-slate-200/60 bg-white text-slate-400 hover:text-slate-600 ml-auto transition-transform duration-300"
+                style={{ transform: isSidebarCollapsed ? 'rotate(180deg)' : 'none' }}
+                aria-label="Collapse sidebar"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M18.75 19.5l-7.5-7.5 7.5-7.5m-6 15L5.25 12l7.5-7.5" />
+                </svg>
+              </button>
+            </div>
+
+            {/* Sidebar Nav */}
+            <nav className="flex-1 overflow-y-auto no-scrollbar p-3 space-y-4">
+              
+              {/* Section 1: Overview */}
+              <div>
+                {!isSidebarCollapsed && (
+                  <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400 px-3 mb-2">Overview</p>
+                )}
+                <div className="space-y-0.5">
+                  <button 
+                    onClick={() => { setActivePage('dashboard'); setIsMobileOpen(false); }}
+                    className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-150 ${
+                      activePage === 'dashboard'
+                        ? 'bg-blue-50 text-primary font-bold'
+                        : 'text-slate-500 hover:bg-slate-50 hover:text-slate-800 font-semibold'
+                    } ${isSidebarCollapsed ? 'justify-center' : ''}`}
+                  >
+                    <DashboardIcon />
+                    {!isSidebarCollapsed && <span>Dashboard</span>}
+                  </button>
+                </div>
+              </div>
+
+              {/* Section 2: Operations */}
+              <div>
+                {!isSidebarCollapsed && (
+                  <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400 px-3 mb-2">Event Operations</p>
+                )}
+                <div className="space-y-0.5">
+                  {[
+                    { id: 'participants', label: 'Participants', icon: <ParticipantsIcon /> },
+                    { id: 'assessments', label: 'Assessments', icon: <AssessmentsIcon /> },
+                    { id: 'zones', label: 'Zone Management', icon: <ZonesIcon /> },
+                    { id: 'mentors', label: 'Mentors', icon: <MentorsIcon /> },
+                    { id: 'volunteers', label: 'Volunteers', icon: <VolunteersIcon /> },
+                  ].map((item) => (
+                    <button
+                      key={item.id}
+                      onClick={() => { setActivePage(item.id); setIsMobileOpen(false); }}
+                      className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-150 ${
+                        activePage === item.id
+                          ? 'bg-blue-50 text-primary font-bold border-l-3 border-primary'
+                          : 'text-slate-500 hover:bg-slate-50 hover:text-slate-800 font-semibold'
+                      } ${isSidebarCollapsed ? 'justify-center' : ''}`}
+                    >
+                      {item.icon}
+                      {!isSidebarCollapsed && <span>{item.label}</span>}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Section 3: Judging */}
+              <div>
+                {!isSidebarCollapsed && (
+                  <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400 px-3 mb-2">Judging</p>
+                )}
+                <div className="space-y-0.5">
+                  {[
+                    { id: 'stage-judging', label: 'Stage Judging', icon: <StageJudgingIcon /> },
+                    { id: 'final-selection', label: 'Final Selection', icon: <FinalSelectionIcon /> },
+                  ].map((item) => (
+                    <button
+                      key={item.id}
+                      onClick={() => { setActivePage(item.id); setIsMobileOpen(false); }}
+                      className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-150 ${
+                        activePage === item.id
+                          ? 'bg-blue-50 text-primary font-bold'
+                          : 'text-slate-500 hover:bg-slate-50 hover:text-slate-800 font-semibold'
+                      } ${isSidebarCollapsed ? 'justify-center' : ''}`}
+                    >
+                      {item.icon}
+                      {!isSidebarCollapsed && <span>{item.label}</span>}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Section 4: Insights */}
+              <div>
+                {!isSidebarCollapsed && (
+                  <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400 px-3 mb-2">Insights</p>
+                )}
+                <div className="space-y-0.5">
+                  {[
+                    { id: 'reports', label: 'Reports', icon: <ReportsIcon /> },
+                    { id: 'notifications', label: 'Notifications', icon: <NotificationsIcon /> },
+                    { id: 'settings', label: 'Settings', icon: <SettingsIcon /> },
+                  ].map((item) => (
+                    <button
+                      key={item.id}
+                      onClick={() => { setActivePage(item.id); setIsMobileOpen(false); }}
+                      className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-150 ${
+                        activePage === item.id
+                          ? 'bg-blue-50 text-primary font-bold'
+                          : 'text-slate-500 hover:bg-slate-50 hover:text-slate-800 font-semibold'
+                      } ${isSidebarCollapsed ? 'justify-center' : ''}`}
+                    >
+                      {item.icon}
+                      {!isSidebarCollapsed && <span>{item.label}</span>}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+            </nav>
+
+            {/* Sidebar Footer */}
+            <div className="border-t border-slate-100 p-3 space-y-0.5 flex-shrink-0">
+              <button 
+                onClick={() => { setActivePage('help'); setIsMobileOpen(false); }}
+                className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-150 ${
+                  activePage === 'help'
+                    ? 'bg-blue-50 text-primary font-bold'
+                    : 'text-slate-500 hover:bg-slate-50 hover:text-slate-800 font-semibold'
+                } ${isSidebarCollapsed ? 'justify-center' : ''}`}
+              >
+                <HelpIcon />
+                {!isSidebarCollapsed && <span>Help</span>}
+              </button>
+              
+              <a 
+                href="#"
+                onClick={handleLogout}
+                className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-red-500 hover:bg-red-50 font-semibold transition-all duration-150 ${
+                  isSidebarCollapsed ? 'justify-center' : ''
+                }`}
+              >
+                <LogoutIcon />
+                {!isSidebarCollapsed && <span>Logout</span>}
+              </a>
+            </div>
+          </aside>
+
+          {/* Mobile navigation overlay backdrop */}
+          {isMobileOpen && (
+            <div 
+              onClick={() => setIsMobileOpen(false)}
+              className="fixed inset-0 bg-slate-900/30 backdrop-blur-xs z-40 lg:hidden"
+            ></div>
+          )}
+
+          {/* ============ MAIN MAIN CONTENT COLUMN ============ */}
+          <div className={`flex-1 min-w-0 flex flex-col transition-all duration-300 ${
+            isSidebarCollapsed ? 'lg:ml-[76px]' : 'lg:ml-[264px]'
+          }`}>
+            
+            {/* ============ TOPBAR ============ */}
+            <header className="h-16 bg-white border-b border-slate-200/80 flex items-center justify-between px-6 sticky top-0 z-30">
+              
+              {/* Hamburger and Title */}
+              <div className="flex items-center gap-4">
+                <button 
+                  onClick={() => setIsMobileOpen(true)}
+                  className="lg:hidden p-2 -ml-2 rounded-lg text-slate-500 hover:bg-slate-100"
+                  aria-label="Open sidebar drawer"
+                >
+                  <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h16" />
+                  </svg>
+                </button>
+                <h2 className="font-display font-bold text-slate-800 text-lg capitalize sm:block hidden">
+                  {activePage.replace('-', ' ')}
+                </h2>
+              </div>
+
+              {/* Central Search Bar */}
+              <div className="flex-1 max-w-lg mx-6 sm:block hidden">
+                <div className="relative">
+                  <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+                    <svg className="w-4.5 h-4.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" />
+                    </svg>
+                  </div>
+                  <input
+                    type="text"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    placeholder="Search Participant ID, Startup or Founder…"
+                    className="w-full bg-slate-50 border border-slate-200 rounded-xl pl-10 pr-4 py-2 text-sm transition-all duration-150 input-glow focus:bg-white"
+                  />
+                  {searchQuery && (
+                    <button 
+                      onClick={() => setSearchQuery('')}
+                      className="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-slate-600"
+                    >
+                      <CloseIcon />
+                    </button>
+                  )}
+                </div>
+              </div>
+
+              {/* Topbar Right Action items */}
+              <div className="flex items-center gap-3">
+                
+                {/* Notification Trigger Button */}
+                <button 
+                  onClick={() => { setIsNotifOpen(true); }}
+                  className="w-10 h-10 rounded-xl hover:bg-slate-50 border border-transparent hover:border-slate-100 flex items-center justify-center text-slate-500 hover:text-slate-700 relative"
+                  aria-label="Open notifications"
+                >
+                  <svg className="w-5.5 h-5.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.8">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M14.857 17.082a23.848 23.848 0 0 0 5.454-1.31A8.967 8.967 0 0 1 18 9.75V9A6 6 0 0 0 6 9v.75a8.967 8.967 0 0 1-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 0 1-5.714 0m5.714 0a3 3 0 1 1-5.714 0" />
+                  </svg>
+                  {unreadCount > 0 && (
+                    <span className="absolute top-2 right-2.5 w-4 h-4 bg-danger text-white text-[9px] font-bold rounded-full border border-white flex items-center justify-center">
+                      {unreadCount}
+                    </span>
+                  )}
+                </button>
+
+                {/* User Menu Dropdown */}
+                <div className="relative">
+                  <button 
+                    onClick={() => setIsUserDropdownOpen(!isUserDropdownOpen)}
+                    className="flex items-center gap-3 p-1 pr-3 rounded-xl border border-transparent hover:border-slate-100 hover:bg-slate-50 transition-colors duration-150"
+                  >
+                    <div className="w-8 h-8 rounded-full bg-gradient-to-br from-primary to-secondary flex items-center justify-center text-white text-xs font-bold font-display">
+                      RS
+                    </div>
+                    <div className="text-left md:block hidden">
+                      <p className="text-xs font-semibold text-slate-800 leading-tight">Riya Sen</p>
+                      <span className="inline-block text-[9px] font-bold text-primary bg-blue-50 border border-blue-100 px-1.5 py-0.5 rounded-full mt-0.5 uppercase tracking-wider">
+                        Organizer
+                      </span>
+                    </div>
+                    <svg className="w-3.5 h-3.5 text-slate-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" />
+                    </svg>
+                  </button>
+
+                  {/* Dropdown Menu Box */}
+                  {isUserDropdownOpen && (
+                    <>
+                      <div className="fixed inset-0 z-30" onClick={() => setIsUserDropdownOpen(false)}></div>
+                      <div className="absolute right-0 mt-2 w-52 bg-white rounded-xl shadow-lg-custom border border-slate-100 p-1 z-40 animate-fade-in">
+                        <button 
+                          onClick={() => { setIsUserDropdownOpen(false); showToast('success', 'Profile Opened', 'Redirecting to your user profile settings.'); }}
+                          className="w-full flex items-center gap-2 px-3 py-2 text-xs font-semibold text-slate-600 hover:bg-slate-50 hover:text-slate-800 rounded-lg transition-colors"
+                        >
+                          <svg className="w-4.5 h-4.5 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.8">
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z" />
+                          </svg>
+                          My Profile
+                        </button>
+                        <button 
+                          onClick={() => { setIsUserDropdownOpen(false); showToast('success', 'Account Settings', 'Opening account preferences panel.'); }}
+                          className="w-full flex items-center gap-2 px-3 py-2 text-xs font-semibold text-slate-600 hover:bg-slate-50 hover:text-slate-800 rounded-lg transition-colors"
+                        >
+                          <svg className="w-4.5 h-4.5 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.8">
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M9.594 3.94c.09-.542.56-.94 1.11-.94h2.593c.55 0 1.02.398 1.11.94l.213 1.281c.063.374.313.686.645.87.074.04.147.083.22.127.324.196.72.257 1.075.124l1.217-.456a1.125 1.125 0 0 1 1.37.49l1.296 2.247a1.125 1.125 0 0 1-.26 1.431l-1.003.827c-.293.24-.438.613-.431.992a6.759 6.759 0 0 1 0 .255c-.007.378.138.75.43.99l1.005.828c.424.35.534.954.26 1.43l-1.298 2.247a1.125 1.125 0 0 1-1.369.491l-1.217-.456c-.355-.133-.75-.072-1.076.124a6.57 6.57 0 0 1-.22.128c-.331.183-.581.495-.644.869l-.213 1.28c-.09.543-.56.941-1.11.941h-2.594c-.55 0-1.02-.398-1.11-.94l-.213-1.281c-.062-.374-.312-.686-.644-.87a6.52 6.52 0 0 1-.22-.127c-.325-.196-.72-.257-1.076-.124l-1.217.456a1.125 1.125 0 0 1-1.369-.49l-1.297-2.247a1.125 1.125 0 0 1 .26-1.431l1.004-.827c.292-.24.437-.613.43-.992a6.932 6.932 0 0 1 0-.255c.007-.378-.138-.75-.43-.99l-1.004-.828a1.125 1.125 0 0 1-.26-1.43l1.297-2.247a1.125 1.125 0 0 1 1.37-.491l1.216.456c.356.133.751.072 1.076-.124.072-.044.146-.087.22-.128.332-.183.582-.495.644-.869l.214-1.28Z" />
+                          </svg>
+                          Account Settings
+                        </button>
+                        <button 
+                          onClick={() => { setIsUserDropdownOpen(false); window.location.href = 'reset-password.html'; }}
+                          className="w-full flex items-center gap-2 px-3 py-2 text-xs font-semibold text-slate-600 hover:bg-slate-50 hover:text-slate-800 rounded-lg transition-colors"
+                        >
+                          <svg className="w-4.5 h-4.5 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 1 0-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 0 0 2.25-2.25v-6.75a2.25 2.25 0 0 0-2.25-2.25H6.75a2.25 2.25 0 0 0-2.25 2.25v6.75a2.25 2.25 0 0 0 2.25 2.25Z" />
+                          </svg>
+                          Change Password
+                        </button>
+                        <div className="h-px bg-slate-100 my-1"></div>
+                        <button 
+                          onClick={handleLogout}
+                          className="w-full flex items-center gap-2 px-3 py-2 text-xs font-semibold text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                        >
+                          <svg className="w-4.5 h-4.5 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0 0 13.5 3h-6a2.25 2.25 0 0 0-2.25 2.25v13.5A2.25 2.25 0 0 0 7.5 21h6a2.25 2.25 0 0 0 2.25-2.25V15M12 9l3 3m0 0-3 3m3-3H3" />
+                          </svg>
+                          Logout
+                        </button>
+                      </div>
+                    </>
+                  )}
+                </div>
+
+              </div>
+
+            </header>
+
+            {/* ============ MAIN CONTENT AREA ============ */}
+            <main id="main-content" class="flex-1 p-6 sm:p-8 max-w-[1400px] mx-auto w-full">
+              
+              {/* Breadcrumbs */}
+              <nav className="flex items-center gap-2 text-xs font-semibold text-slate-400 mb-6">
+                <span>Home</span>
+                <svg className="w-3 h-3 text-slate-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5" />
+                </svg>
+                <span className="text-slate-800 capitalize">{activePage.replace('-', ' ')}</span>
+              </nav>
+
+              {/* Page Title & Actions */}
+              <div className="flex flex-wrap items-start justify-between gap-4 mb-8">
+                <div>
+                  <h1 className="font-display text-2xl font-bold tracking-tight text-slate-800">
+                    {PAGES[activePage].title}
+                  </h1>
+                  <p className="text-sm text-slate-500 mt-1.5">
+                    {PAGES[activePage].subtitle}
+                  </p>
+                </div>
+                
+                {activePage === 'dashboard' && (
+                  <div className="flex gap-2.5 flex-wrap">
+                    <button 
+                      onClick={() => setIsAddOpen(true)}
+                      className="btn bg-primary hover:bg-primary-dark text-white rounded-xl px-4 py-2.5 text-xs font-bold flex items-center gap-2 shadow-sm-custom hover:shadow-md transition-all duration-150 active:scale-[0.98]"
+                    >
+                      <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.2">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M18 7.5v3m0 0v3m0-3h3m-3 0h-3m-2.25-4.125a3.375 3.375 0 1 1-6.75 0 3.375 3.375 0 0 1 6.75 0ZM3 19.235v-.11a6.375 6.375 0 0 1 12.75 0v.109A12.318 12.318 0 0 1 9.374 21c-2.331 0-4.512-.645-6.374-1.766Z" />
+                      </svg>
+                      Add Participant
+                    </button>
+                    <button 
+                      onClick={handleExportReport}
+                      disabled={isExporting}
+                      className="btn bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 rounded-xl px-4 py-2.5 text-xs font-bold flex items-center gap-2 transition-all duration-150 active:scale-[0.98] disabled:opacity-60"
+                    >
+                      {isExporting ? (
+                        <>
+                          <svg className="animate-spin h-4 w-4 text-slate-500" fill="none" viewBox="0 0 24 24">
+                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                          </svg>
+                          Exporting CSV...
+                        </>
+                      ) : (
+                        <>
+                          <svg className="w-4 h-4 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5m-13.5-6 4.5 4.5m0 0 4.5-4.5m-4.5 4.5V3" />
+                          </svg>
+                          Export Report
+                        </>
+                      )}
+                    </button>
+                    <button 
+                      onClick={() => setIsAssignOpen(true)}
+                      className="btn bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 rounded-xl px-4 py-2.5 text-xs font-bold flex items-center gap-2 transition-all duration-150 active:scale-[0.98]"
+                    >
+                      <svg className="w-4 h-4 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M18 18.72a9.094 9.094 0 0 0 3.741-.479 3 3 0 0 0-4.682-2.72m.94 3.198.001.031c0 .225-.012.447-.037.666A11.944 11.944 0 0 1 12 21c-2.17 0-4.207-.576-5.963-1.584A6.062 6.062 0 0 1 6 18.719m12 0a5.971 5.971 0 0 0-.941-3.197m0 0A5.995 5.995 0 0 0 12 12.75a5.995 5.995 0 0 0-5.058 2.772m0 0a3 3 0 0 0-4.681 2.72 8.986 8.986 0 0 0 3.74.477m.94-3.197a5.971 5.971 0 0 0-.94 3.197M15 6.75a3 3 0 1 1-6 0 3 3 0 0 1 6 0Zm6 3a2.25 2.25 0 1 1-4.5 0 2.25 2.25 0 0 1 4.5 0Zm-13.5 0a2.25 2.25 0 1 1-4.5 0 2.25 2.25 0 0 1 4.5 0Z" />
+                      </svg>
+                      Assign Mentor
+                    </button>
+                  </div>
+                )}
+              </div>
+
+              {/* ============ VIEWS CONTAINER ============ */}
+              {activePage === 'dashboard' ? (
+                <div className="space-y-6 animate-fade-in">
+                  
+                  {/* Dashboard Stats Row */}
+                  <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-4">
+                    
+                    {/* Stat Card 1 */}
+                    <div className="bg-white border border-slate-200/80 rounded-2xl p-5 shadow-sm-custom hover:shadow-md-custom hover:-translate-y-0.5 transition-all duration-200 relative overflow-hidden">
+                      <div className="absolute top-0 left-0 right-0 h-1 bg-primary"></div>
+                      <div className="w-9 h-9 rounded-xl bg-blue-50 text-primary flex items-center justify-center mb-4">
+                        <ParticipantsIcon />
+                      </div>
+                      <p className="text-2xl font-extrabold text-slate-800 tracking-tight font-display">{totalParticipants.toLocaleString()}</p>
+                      <p className="text-xs text-slate-400 mt-1 font-semibold">Total Participants</p>
+                      <span className="inline-flex items-center gap-1 text-[10px] font-bold text-success bg-success-bg border border-green-100 rounded-full px-2 py-0.5 mt-3">
+                        <svg className="w-2.5 h-2.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="3">
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 6.75 12 3m0 0 3.75 3.75M12 3v18" />
+                        </svg>
+                        +8.2% this week
+                      </span>
+                    </div>
+
+                    {/* Stat Card 2 */}
+                    <div className="bg-white border border-slate-200/80 rounded-2xl p-5 shadow-sm-custom hover:shadow-md-custom hover:-translate-y-0.5 transition-all duration-200 relative overflow-hidden">
+                      <div className="absolute top-0 left-0 right-0 h-1 bg-success"></div>
+                      <div className="w-9 h-9 rounded-xl bg-green-50 text-success flex items-center justify-center mb-4">
+                        <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.8">
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+                        </svg>
+                      </div>
+                      <p className="text-2xl font-extrabold text-slate-800 tracking-tight font-display">986</p>
+                      <p className="text-xs text-slate-400 mt-1 font-semibold">Checked In</p>
+                      <span className="inline-flex items-center gap-1 text-[10px] font-bold text-success bg-success-bg border border-green-100 rounded-full px-2 py-0.5 mt-3">
+                        <svg className="w-2.5 h-2.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="3">
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 6.75 12 3m0 0 3.75 3.75M12 3v18" />
+                        </svg>
+                        79.5% of total
+                      </span>
+                    </div>
+
+                    {/* Stat Card 3 */}
+                    <div className="bg-white border border-slate-200/80 rounded-2xl p-5 shadow-sm-custom hover:shadow-md-custom hover:-translate-y-0.5 transition-all duration-200 relative overflow-hidden">
+                      <div className="absolute top-0 left-0 right-0 h-1 bg-warning"></div>
+                      <div className="w-9 h-9 rounded-xl bg-amber-50 text-warning flex items-center justify-center mb-4">
+                        <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.8">
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M9 17.25v1.007a3 3 0 0 1-.879 2.122L7.5 21h9l-.621-.621A3 3 0 0 1 15 18.257V17.25m6-12V15a2.25 2.25 0 0 1-2.25 2.25H5.25A2.25 2.25 0 0 1 3 15V5.25m18 0A2.25 2.25 0 0 0 18.75 3H5.25A2.25 2.25 0 0 0 3 5.25m18 0V12a2.25 2.25 0 0 1-2.25 2.25H5.25A2.25 2.25 0 0 1 3 12V5.25" />
+                        </svg>
+                      </div>
+                      <p className="text-2xl font-extrabold text-slate-800 tracking-tight font-display">742</p>
+                      <p className="text-xs text-slate-400 mt-1 font-semibold">Assessments Done</p>
+                      <span className="inline-flex items-center gap-1 text-[10px] font-bold text-slate-500 bg-slate-100 border border-slate-200 rounded-full px-2 py-0.5 mt-3">
+                        <svg className="w-2.5 h-2.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="3">
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12h15" />
+                        </svg>
+                        On pace
+                      </span>
+                    </div>
+
+                    {/* Stat Card 4 */}
+                    <div className="bg-white border border-slate-200/80 rounded-2xl p-5 shadow-sm-custom hover:shadow-md-custom hover:-translate-y-0.5 transition-all duration-200 relative overflow-hidden">
+                      <div className="absolute top-0 left-0 right-0 h-1 bg-primary"></div>
+                      <div className="w-9 h-9 rounded-xl bg-blue-50 text-primary flex items-center justify-center mb-4">
+                        <ZonesIcon />
+                      </div>
+                      <p className="text-2xl font-extrabold text-slate-800 tracking-tight font-display">12</p>
+                      <p className="text-xs text-slate-400 mt-1 font-semibold">Active Zones</p>
+                      <span className="inline-flex items-center gap-1 text-[10px] font-bold text-slate-500 bg-slate-100 border border-slate-200 rounded-full px-2 py-0.5 mt-3">
+                        <svg className="w-2.5 h-2.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="3">
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12h15" />
+                        </svg>
+                        All operational
+                      </span>
+                    </div>
+
+                    {/* Stat Card 5 */}
+                    <div className="bg-white border border-slate-200/80 rounded-2xl p-5 shadow-sm-custom hover:shadow-md-custom hover:-translate-y-0.5 transition-all duration-200 relative overflow-hidden">
+                      <div className="absolute top-0 left-0 right-0 h-1 bg-success"></div>
+                      <div className="w-9 h-9 rounded-xl bg-green-50 text-success flex items-center justify-center mb-4">
+                        <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.8">
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M4.26 10.147a60.436 60.436 0 0 0-.491 6.347A48.62 48.62 0 0 1 12 20.904a48.62 48.62 0 0 1 8.232-4.41 60.46 60.46 0 0 0-.491-6.347M12 13.489a50.702 50.702 0 0 1 7.74-3.342M12 13.489a50.57 50.57 0 0 0-7.74-3.342M12 13.489V21" />
+                        </svg>
+                      </div>
+                      <p className="text-2xl font-extrabold text-slate-800 tracking-tight font-display">{mentorsAssigned}</p>
+                      <p className="text-xs text-slate-400 mt-1 font-semibold">Mentors Assigned</p>
+                      <span className="inline-flex items-center gap-1 text-[10px] font-bold text-success bg-success-bg border border-green-100 rounded-full px-2 py-0.5 mt-3">
+                        <svg className="w-2.5 h-2.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="3">
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 6.75 12 3m0 0 3.75 3.75M12 3v18" />
+                        </svg>
+                        +4 today
+                      </span>
+                    </div>
+
+                    {/* Stat Card 6 */}
+                    <div className="bg-white border border-slate-200/80 rounded-2xl p-5 shadow-sm-custom hover:shadow-md-custom hover:-translate-y-0.5 transition-all duration-200 relative overflow-hidden">
+                      <div className="absolute top-0 left-0 right-0 h-1 bg-danger"></div>
+                      <div className="w-9 h-9 rounded-xl bg-red-50 text-danger flex items-center justify-center mb-4">
+                        <ReportsIcon />
+                      </div>
+                      <p className="text-2xl font-extrabold text-slate-800 tracking-tight font-display">9</p>
+                      <p className="text-xs text-slate-400 mt-1 font-semibold">Pending Reports</p>
+                      <span className="inline-flex items-center gap-1 text-[10px] font-bold text-danger bg-danger-bg border border-red-100 rounded-full px-2 py-0.5 mt-3">
+                        <svg className="w-2.5 h-2.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="3">
+                          <path strokeLinecap="round" strokeLinejoin="round" d="m15.75 17.25-3.75 3.75m0 0-3.75-3.75M12 21V3" />
+                        </svg>
+                        Due this week
+                      </span>
+                    </div>
+
+                  </div>
+
+                  {/* Split Cards Grid */}
+                  <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
+                    
+                    {/* Activity log card */}
+                    <div className="bg-white border border-slate-200/80 rounded-2xl p-5 shadow-sm-custom">
+                      <div className="flex justify-between items-center pb-4 mb-4 border-b border-slate-100">
+                        <h3 className="text-sm font-bold text-slate-800">Recent Activity</h3>
+                        <button 
+                          onClick={() => { setActivePage('notifications'); }}
+                          className="px-3 py-1.5 text-xs font-semibold text-primary hover:bg-blue-50 rounded-lg transition-colors duration-150"
+                        >
+                          View all
+                        </button>
+                      </div>
+
+                      {filteredActivities.length === 0 ? (
+                        <div className="text-center py-10 text-slate-400 text-sm">
+                          No activities found matching "{searchQuery}"
+                        </div>
+                      ) : (
+                        <div className="space-y-4">
+                          {filteredActivities.map((act) => (
+                            <div key={act.id} className="flex gap-4 items-start p-2 hover:bg-slate-50 rounded-xl transition-colors duration-150">
+                              <div className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 ${
+                                act.type === 'success' ? 'bg-green-50 text-success' :
+                                act.type === 'warning' ? 'bg-amber-50 text-warning' :
+                                act.type === 'primary' ? 'bg-blue-50 text-primary' : 'bg-slate-100 text-slate-500'
+                              }`}>
+                                {act.type === 'success' && (
+                                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
+                                    <path strokeLinecap="round" strokeLinejoin="round" d="m4.5 12.75 6 6 9-13.5" />
+                                  </svg>
+                                )}
+                                {act.type === 'warning' && (
+                                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
+                                    <path strokeLinecap="round" strokeLinejoin="round" d="M11.48 3.499a.562.562 0 0 1 1.04 0l2.125 5.111a.563.563 0 0 0 .475.345l5.518.442c.499.04.701.663.321.988l-4.204 3.602a.563.563 0 0 0-.182.557l1.285 5.385a.562.562 0 0 1-.84.61l-4.725-2.885a.562.562 0 0 0-.586 0L6.982 21.14a.562.562 0 0 1-.84-.61l1.285-5.386a.562.562 0 0 0-.182-.557l-4.204-3.602a.562.562 0 0 1 .321-.988l5.518-.442a.563.563 0 0 0 .475-.345L11.48 3.5Z" />
+                                  </svg>
+                                )}
+                                {act.type === 'primary' && (
+                                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
+                                    <path strokeLinecap="round" strokeLinejoin="round" d="M5.25 5.653c0-.856.917-1.398 1.667-.986l11.54 6.347a1.125 1.125 0 0 1 0 1.972l-11.54 6.347a1.125 1.125 0 0 1-1.667-.986V5.653Z" />
+                                  </svg>
+                                )}
+                                {act.type === 'neutral' && (
+                                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
+                                    <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 0 0-3.375-3.375h-1.5A1.125 1.125 0 0 1 13.5 7.125v-1.5A3.375 3.375 0 0 0 10.125 2.25H8.25" />
+                                  </svg>
+                                )}
+                              </div>
+                              <div className="flex-1 min-w-0">
+                                <p className="text-xs text-slate-600 leading-normal">
+                                  <span className="font-bold text-slate-800">{act.name}</span> {act.action} <span className="font-semibold text-primary">{act.startup}</span>
+                                </p>
+                                <p className="text-[10px] text-slate-400 mt-1 font-semibold">{act.time}</p>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Final Selection Card */}
+                    <div className="bg-white border border-slate-200/80 rounded-2xl p-5 shadow-sm-custom flex flex-col">
+                      <div className="flex justify-between items-center pb-4 mb-4 border-b border-slate-100">
+                        <h3 className="text-sm font-bold text-slate-800">Final Selection</h3>
+                        <span className="px-2.5 py-0.5 text-[10px] font-bold text-warning bg-warning-bg border border-amber-100 rounded-full">
+                          Not started
+                        </span>
+                      </div>
+                      
+                      <div className="flex-1 flex flex-col items-center justify-center text-center p-8">
+                        <div className="w-14 h-14 bg-blue-50 text-primary rounded-2xl flex items-center justify-center mb-4">
+                          <FinalSelectionIcon />
+                        </div>
+                        <h4 className="text-sm font-bold text-slate-800">No finalists selected yet</h4>
+                        <p className="text-xs text-slate-400 mt-2 max-w-sm leading-relaxed">
+                          Final Selection unlocks once every zone completes Stage 2 judging. Currently, 3 of 12 zones are remaining.
+                        </p>
+                        <button 
+                          onClick={() => setActivePage('stage-judging')}
+                          className="mt-6 px-4 py-2 text-xs font-bold text-slate-600 hover:text-slate-800 border border-slate-200 bg-white hover:bg-slate-50 rounded-xl transition-all duration-150"
+                        >
+                          View judging progress
+                        </button>
+                      </div>
+                    </div>
+
+                  </div>
+
+                </div>
+              ) : (
+                
+                // Generic Placeholder views for all other items
+                <div className="bg-white border border-slate-200/80 rounded-2xl shadow-sm-custom p-10 sm:p-16 flex flex-col items-center justify-center text-center animate-fade-in">
+                  <div className="w-16 h-16 bg-blue-50 text-primary rounded-2xl flex items-center justify-center mb-6">
+                    {PAGES[activePage].title === 'Participants' && <ParticipantsIcon />}
+                    {PAGES[activePage].title === 'Assessments' && <AssessmentsIcon />}
+                    {PAGES[activePage].title === 'Zone Management' && <ZonesIcon />}
+                    {PAGES[activePage].title === 'Mentors' && <MentorsIcon />}
+                    {PAGES[activePage].title === 'Volunteers' && <VolunteersIcon />}
+                    {PAGES[activePage].title === 'Stage Judging' && <StageJudgingIcon />}
+                    {PAGES[activePage].title === 'Final Selection' && <FinalSelectionIcon />}
+                    {PAGES[activePage].title === 'Reports' && <ReportsIcon />}
+                    {PAGES[activePage].title === 'Notifications' && <NotificationsIcon />}
+                    {PAGES[activePage].title === 'Settings' && <SettingsIcon />}
+                    {PAGES[activePage].title === 'Help' && <HelpIcon />}
+                  </div>
+                  <h3 className="font-display font-bold text-slate-800 text-lg">
+                    {activePage === 'notifications' && notifications.length > 0 ? 'Review alerts catalog' : PAGES[activePage].empty?.h || 'Nothing here yet'}
+                  </h3>
+                  <p className="text-slate-400 text-xs mt-2 max-w-sm leading-relaxed">
+                    {activePage === 'notifications' && notifications.length > 0 ? 'Clear notifications or mark them as read in the notifications center drawer.' : PAGES[activePage].empty?.d || 'This page is ready to build out.'}
+                  </p>
+                  
+                  {/* Action CTA */}
+                  {PAGES[activePage].empty && (
+                    <button
+                      onClick={PAGES[activePage].empty.action}
+                      className="mt-6 btn bg-primary hover:bg-primary-dark text-white rounded-xl px-5 py-3 text-xs font-bold shadow-sm-custom hover:shadow-md transition-all duration-150"
+                    >
+                      {PAGES[activePage].empty.cta}
+                    </button>
+                  )}
+                </div>
+
+              )}
+
+            </main>
+          </div>
+
+          {/* ============ NOTIFICATION DRAWER ============ */}
+          {isNotifOpen && (
+            <>
+              <div 
+                onClick={() => setIsNotifOpen(false)}
+                className="fixed inset-0 bg-slate-900/35 backdrop-blur-xs z-50 transition-opacity duration-300"
+              ></div>
+              <aside className="fixed top-0 right-0 bottom-0 w-[400px] max-w-[90vw] bg-white shadow-lg-custom z-55 flex flex-col animate-fade-in">
+                
+                {/* Header */}
+                <div className="h-16 flex items-center justify-between px-5 border-b border-slate-100 flex-shrink-0">
+                  <h3 className="font-display font-bold text-slate-800 text-base">Notifications</h3>
+                  <button 
+                    onClick={() => setIsNotifOpen(false)}
+                    className="w-8 h-8 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-50 flex items-center justify-center transition-colors"
+                  >
+                    <CloseIcon />
+                  </button>
+                </div>
+
+                {/* Notification List */}
+                <div className="flex-1 overflow-y-auto p-4 space-y-3">
+                  {notifications.map((notif) => (
+                    <div 
+                      key={notif.id}
+                      onClick={() => handleNotifClick(notif.id)}
+                      className={`flex gap-3.5 p-3.5 rounded-xl border border-slate-100 transition-all duration-150 cursor-pointer ${
+                        notif.unread ? 'bg-blue-50/70 hover:bg-blue-50/90 border-blue-50' : 'bg-white hover:bg-slate-50'
+                      }`}
+                    >
+                      <div className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 ${
+                        notif.type === 'success' ? 'bg-green-50 text-success' :
+                        notif.type === 'warning' ? 'bg-amber-50 text-warning' :
+                        notif.type === 'primary' ? 'bg-blue-50 text-primary' : 'bg-slate-100 text-slate-500'
+                      }`}>
+                        {notif.type === 'success' && (
+                          <svg className="w-4.5 h-4.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+                            <path strokeLinecap="round" strokeLinejoin="round" d="m4.5 12.75 6 6 9-13.5" />
+                          </svg>
+                        )}
+                        {notif.type === 'warning' && (
+                          <svg className="w-4.5 h-4.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M11.48 3.499a.562.562 0 0 1 1.04 0l2.125 5.111a.563.563 0 0 0 .475.345l5.518.442c.499.04.701.663.321.988l-4.204 3.602a.563.563 0 0 0-.182.557l1.285 5.385a.562.562 0 0 1-.84.61l-4.725-2.885a.562.562 0 0 0-.586 0L6.982 21.14a.562.562 0 0 1-.84-.61l1.285-5.386a.562.562 0 0 0-.182-.557l-4.204-3.602a.562.562 0 0 1 .321-.988l5.518-.442a.563.563 0 0 0 .475-.345L11.48 3.5Z" />
+                          </svg>
+                        )}
+                        {notif.type === 'primary' && (
+                          <svg className="w-4.5 h-4.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M10.34 15.84c-.688-.06-1.386-.09-2.09-.09H7.5a4.5 4.5 0 1 1 0-9h.75c.704 0 1.402-.03 2.09-.09" />
+                          </svg>
+                        )}
+                        {notif.type === 'neutral' && (
+                          <svg className="w-4.5 h-4.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 0 0-3.375-3.375h-1.5A1.125 1.125 0 0 1 13.5 7.125v-1.5A3.375 3.375 0 0 0 10.125 2.25H8.25" />
+                          </svg>
+                        )}
+                      </div>
+
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center justify-between gap-2">
+                          <p className="text-xs font-bold text-slate-800 truncate">{notif.title}</p>
+                          {notif.unread && (
+                            <span className="w-1.5 h-1.5 bg-primary rounded-full shrink-0"></span>
+                          )}
+                        </div>
+                        <p className="text-[11px] text-slate-500 mt-1 leading-normal">{notif.desc}</p>
+                        <p className="text-[9px] font-semibold text-slate-400 mt-2">{notif.time}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+              </aside>
+            </>
+          )}
+
+          {/* ============ MODAL PORTALS ============ */}
+          <AddParticipantModal 
+            isOpen={isAddOpen} 
+            onClose={() => setIsAddOpen(false)} 
+            onAdd={handleAddParticipant} 
+          />
+
+          <AssignMentorModal 
+            isOpen={isAssignOpen} 
+            onClose={() => setIsAssignOpen(false)} 
+            onAssign={handleAssignMentor} 
+          />
+
+          {/* Render Toast Notifications */}
+          {ReactDOM.createPortal(
+            <div className="flex flex-col gap-3 pointer-events-none">
+              {toasts.map((toast) => (
+                <Toast
+                  key={toast.id}
+                  id={toast.id}
+                  type={toast.type}
+                  title={toast.title}
+                  message={toast.message}
+                  onClose={removeToast}
+                />
+              ))}
+            </div>,
+            document.getElementById('toast-root')
+          )}
+
+        </div>
+      );
+    }
+
+    const root = ReactDOM.createRoot(document.getElementById('root'));
+    root.render(<App />);
+  </script>
+</body>
+</html>

@@ -259,7 +259,12 @@
           } else {
             showToastMessage('success', 'Verification Successful', 'Identity verified. Access granted.');
             setTimeout(() => {
-              window.location.href = 'dashboard.html';
+              const role = sessionStorage.getItem('userRole');
+              if (role === 'admin') {
+                window.location.href = 'assessment.html';
+              } else {
+                window.location.href = 'dashboard.html';
+              }
             }, 1000);
           }
         }, 1500);

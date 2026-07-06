@@ -1,228 +1,1872 @@
 <!doctype html>
 <html lang="en" class="h-full">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Dashboard — AX Founder Exchange 2026</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
-<script src="https://cdn.tailwindcss.com"></script>
-<script>
-  tailwind.config = { theme: { extend: {
-    colors: { axnavy:'#0F1A4D', axblue:'#3B5BFF', axviolet:'#7C3AED', axlavender:'#EEF1FF', axpaper:'#F7F8FC', axink:'#0F172A', axslate:'#64748B', axline:'#E2E6F3' },
-    fontFamily: { display:['Space Grotesk','sans-serif'], sans:['Inter','sans-serif'], mono:['JetBrains Mono','monospace'] },
-    borderRadius: { xl2:'1.25rem' }
-  } } }
-</script>
-<link rel="stylesheet" href="assets/css/styles.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Founder Dashboard — AX Founder Exchange 2026</title>
+  <meta name="description" content="Participant portal for founders in the AX Founder Exchange 2026: track your assessment progress, schedule mentor sessions, and upload evaluation documents." />
+  
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <!-- Tailwind Configuration -->
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: '#2563EB',
+            secondary: '#7C3AED',
+            success: '#16A34A',
+            warning: '#F59E0B',
+            danger: '#DC2626',
+            axnavy: '#0F1A4D',
+            axblue: '#3B5BFF',
+            axviolet: '#7C3AED',
+            axlavender: '#EEF1FF',
+            axpaper: '#F7F8FC',
+            axink: '#0F172A',
+            axslate: '#64748B',
+            axline: '#E2E6F3'
+          },
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+            display: ['Space Grotesk', 'sans-serif'],
+          },
+          boxShadow: {
+            'sm-custom': '0 1px 2px rgba(17,24,39,0.05)',
+            'md-custom': '0 4px 12px -2px rgba(17,24,39,0.08), 0 2px 4px rgba(17,24,39,0.04)',
+            'lg-custom': '0 16px 32px -8px rgba(17,24,39,0.14), 0 4px 8px rgba(17,24,39,0.05)',
+          }
+        }
+      }
+    }
+  </script>
+  
+  <!-- React & Babel CDNs -->
+  <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+  <style>
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .animate-fade-in {
+      animation: fadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+    .glass-card {
+      background: rgba(255, 255, 255, 0.85);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.5);
+    }
+    .input-glow:focus {
+      outline: none;
+      border-color: #2563EB;
+      box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.12);
+    }
+    /* Hide scrollbars */
+    .no-scrollbar::-webkit-scrollbar {
+      display: none;
+    }
+    .no-scrollbar {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+  </style>
 </head>
-<body class="h-full bg-axpaper font-sans text-axink antialiased">
-<a href="#main" class="skip-link">Skip to main content</a>
-<div id="toast-region" aria-live="polite"></div>
+<body class="h-full bg-axpaper font-sans antialiased text-[#0F172A]">
 
-<div class="min-h-screen lg:grid lg:grid-cols-[240px_1fr]">
+  <!-- Toast Root -->
+  <div id="toast-root" class="fixed top-5 right-5 z-[100] flex flex-col gap-3 w-full max-w-sm pointer-events-none"></div>
 
-  <!-- ============ Sidebar ============ -->
-  <aside id="sidebar" class="hidden lg:flex flex-col bg-white border-r border-axline p-5 sticky top-0 h-screen">
-    <a href="login.html" class="flex items-center gap-2.5 mb-8 px-1">
-      <div class="w-8 h-8 rounded-lg bg-axnavy flex items-center justify-center">
-        <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M13 2 3 14h7l-1 8 10-12h-7l1-8Z"/></svg>
-      </div>
-      <span class="font-display font-semibold text-sm leading-tight">AX Founder<br>Exchange</span>
-    </a>
+  <!-- React Root -->
+  <div id="root" class="h-full"></div>
 
-    <nav class="flex-1 space-y-1 text-sm">
-      <a href="#" class="flex items-center gap-3 px-3 py-2.5 rounded-lg bg-axlavender text-axbluedark font-semibold">
-        <svg class="w-4.5 h-4.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 12 12 3.75 20.25 12M6.75 10.5v9a.75.75 0 0 0 .75.75h3.75v-4.5h1.5v4.5h3.75a.75.75 0 0 0 .75-.75v-9"/></svg>
-        Dashboard
-      </a>
-      <a href="register.html" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-axslate hover:bg-axlavender hover:text-axink font-medium">
-        <svg class="w-4.5 h-4.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 3.75h6M5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V7.5l-6-6H5.25A2.25 2.25 0 0 0 3 3.75v15A2.25 2.25 0 0 0 5.25 21Z"/></svg>
-        Registration
-      </a>
-      <a href="#" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-axslate hover:bg-axlavender hover:text-axink font-medium">
-        <svg class="w-4.5 h-4.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"/></svg>
-        Assessment
-      </a>
-      <a href="#" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-axslate hover:bg-axlavender hover:text-axink font-medium">
-        <svg class="w-4.5 h-4.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19.128a9.38 9.38 0 0 0 2.625.372 9.337 9.337 0 0 0 4.121-.952 4.125 4.125 0 0 0-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 0 1 8.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0 1 11.964-3.07M12 6.375a3.375 3.375 0 1 1-6.75 0 3.375 3.375 0 0 1 6.75 0Zm8.25 2.25a2.625 2.625 0 1 1-5.25 0 2.625 2.625 0 0 1 5.25 0Z"/></svg>
-        Mentors
-      </a>
-      <a href="#" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-axslate hover:bg-axlavender hover:text-axink font-medium">
-        <svg class="w-4.5 h-4.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 0 0-3.375-3.375h-1.5A1.125 1.125 0 0 1 13.5 7.125v-1.5A3.375 3.375 0 0 0 10.125 2.25H8.25m0 0H6.75A2.25 2.25 0 0 0 4.5 4.5v15A2.25 2.25 0 0 0 6.75 21.75h9a2.25 2.25 0 0 0 2.25-2.25v-9.75m-6-7.5-1.5 1.5"/></svg>
-        Documents
-      </a>
-      <a href="#" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-axslate hover:bg-axlavender hover:text-axink font-medium">
-        <svg class="w-4.5 h-4.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M9.594 3.94c.09-.542.56-.94 1.11-.94h2.593c.55 0 1.02.398 1.11.94l.213 1.281c.063.374.313.686.645.87.074.04.147.083.22.127.324.196.72.257 1.075.124l1.217-.456a1.125 1.125 0 0 1 1.37.49l1.296 2.247a1.125 1.125 0 0 1-.26 1.431l-1.003.827c-.293.24-.438.613-.431.992a6.759 6.759 0 0 1 0 .255c-.007.378.138.75.43.99l1.005.828c.424.35.534.954.26 1.43l-1.298 2.247a1.125 1.125 0 0 1-1.369.491l-1.217-.456c-.355-.133-.75-.072-1.076.124a6.57 6.57 0 0 1-.22.128c-.331.183-.581.495-.644.869l-.213 1.28c-.09.543-.56.941-1.11.941h-2.594c-.55 0-1.02-.398-1.11-.94l-.213-1.281c-.062-.374-.312-.686-.644-.87a6.52 6.52 0 0 1-.22-.127c-.325-.196-.72-.257-1.076-.124l-1.217.456a1.125 1.125 0 0 1-1.369-.49l-1.297-2.247a1.125 1.125 0 0 1 .26-1.431l1.004-.827c.292-.24.437-.613.43-.992a6.932 6.932 0 0 1 0-.255c.007-.378-.138-.75-.43-.99l-1.004-.828a1.125 1.125 0 0 1-.26-1.43l1.297-2.247a1.125 1.125 0 0 1 1.37-.491l1.216.456c.356.133.751.072 1.076-.124.072-.044.146-.087.22-.128.332-.183.582-.495.644-.869l.214-1.28Z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"/></svg>
-        Settings
-      </a>
-    </nav>
+  <!-- React Application Code -->
+  <script type="text/babel">
+    const { useState, useEffect, useRef } = React;
 
-    <div class="border-t border-axline pt-4 mt-4">
-      <div class="flex items-center gap-3 px-1">
-        <div class="w-9 h-9 rounded-full bg-gradient-to-br from-axblue to-axviolet flex items-center justify-center text-white text-xs font-semibold shrink-0">AK</div>
-        <div class="min-w-0">
-          <p class="text-sm font-semibold truncate">Aarav Kapoor</p>
-          <p class="text-xs text-axslate truncate">Founder · Nimbus AI</p>
-        </div>
-      </div>
-    </div>
-  </aside>
+    // ==========================================
+    // ICONS COMPONENTS
+    // ==========================================
+    const DashboardIcon = () => (
+      <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.8">
+        <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 12 12 3.75 20.25 12M6.75 10.5v9a.75.75 0 0 0 .75.75h3.75v-4.5h1.5v4.5h3.75a.75.75 0 0 0 .75-.75v-9" />
+      </svg>
+    );
 
-  <div class="flex flex-col min-h-screen">
-    <!-- ============ Topbar ============ -->
-    <header class="sticky top-0 z-30 bg-white/90 backdrop-blur border-b border-axline">
-      <div class="flex items-center justify-between gap-4 px-4 sm:px-6 py-3.5">
-        <button class="lg:hidden text-axslate" data-toggle="mobile-nav" aria-label="Open menu">
-          <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5M3.75 17.25h16.5"/></svg>
-        </button>
-        <div class="hidden sm:flex items-center gap-2 flex-1 max-w-sm bg-axpaper border border-axline rounded-xl2 px-3 py-2">
-          <svg class="w-4 h-4 text-axslate" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z"/></svg>
-          <input type="text" placeholder="Search…" class="bg-transparent text-sm outline-none w-full placeholder:text-axslate">
-        </div>
-        <div class="flex items-center gap-3 ml-auto">
-          <button class="relative text-axslate hover:text-axink" aria-label="Notifications">
-            <svg class="w-5.5 h-5.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M14.857 17.082a23.848 23.848 0 0 0 5.454-1.31A8.967 8.967 0 0 1 18 9.75V9A6 6 0 0 0 6 9v.75a8.967 8.967 0 0 1-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 0 1-5.714 0m5.714 0a3 3 0 1 1-5.714 0"/></svg>
-            <span class="absolute -top-0.5 -right-0.5 w-2 h-2 rounded-full bg-axviolet"></span>
+    const RegistrationIcon = () => (
+      <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.8">
+        <path strokeLinecap="round" strokeLinejoin="round" d="M9 12h6m-6 3.75h6M5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V7.5l-6-6H5.25A2.25 2.25 0 0 0 3 3.75v15A2.25 2.25 0 0 0 5.25 21Z" />
+      </svg>
+    );
+
+    const AssessmentIcon = () => (
+      <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.8">
+        <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+      </svg>
+    );
+
+    const MentorsIcon = () => (
+      <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.8">
+        <path strokeLinecap="round" strokeLinejoin="round" d="M15 19.128a9.38 9.38 0 0 0 2.625.372 9.337 9.337 0 0 0 4.121-.952 4.125 4.125 0 0 0-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 0 1 8.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0 1 11.964-3.07M12 6.375a3.375 3.375 0 1 1-6.75 0 3.375 3.375 0 0 1 6.75 0Zm8.25 2.25a2.625 2.625 0 1 1-5.25 0 2.625 2.625 0 0 1 5.25 0Z" />
+      </svg>
+    );
+
+    const DocumentsIcon = () => (
+      <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.8">
+        <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 0 0-3.375-3.375h-1.5A1.125 1.125 0 0 1 13.5 7.125v-1.5A3.375 3.375 0 0 0 10.125 2.25H8.25m0 0H6.75A2.25 2.25 0 0 0 4.5 4.5v15A2.25 2.25 0 0 0 6.75 21.75h9a2.25 2.25 0 0 0 2.25-2.25v-9.75m-6-7.5-1.5 1.5" />
+      </svg>
+    );
+
+    const SettingsIcon = () => (
+      <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.8">
+        <path strokeLinecap="round" strokeLinejoin="round" d="M9.594 3.94c.09-.542.56-.94 1.11-.94h2.593c.55 0 1.02.398 1.11.94l.213 1.281c.063.374.313.686.645.87.074.04.147.083.22.127.324.196.72.257 1.075.124l1.217-.456a1.125 1.125 0 0 1 1.37.49l1.296 2.247a1.125 1.125 0 0 1-.26 1.431l-1.003.827c-.293.24-.438.613-.431.992a6.759 6.759 0 0 1 0 .255c-.007.378.138.75.43.99l1.005.828c.424.35.534.954.26 1.43l-1.298 2.247a1.125 1.125 0 0 1-1.369.491l-1.217-.456c-.355-.133-.75-.072-1.076.124a6.57 6.57 0 0 1-.22.128c-.331.183-.581.495-.644.869l-.213 1.28c-.09.543-.56.941-1.11.941h-2.594c-.55 0-1.02-.398-1.11-.94l-.213-1.281c-.062-.374-.312-.686-.644-.87a6.52 6.52 0 0 1-.22-.127c-.325-.196-.72-.257-1.076-.124l-1.217.456a1.125 1.125 0 0 1-1.369-.49l-1.297-2.247a1.125 1.125 0 0 1 .26-1.431l1.004-.827c.292-.24.437-.613.43-.992a6.932 6.932 0 0 1 0-.255c.007-.378-.138-.75-.43-.99l-1.004-.828a1.125 1.125 0 0 1-.26-1.43l1.297-2.247a1.125 1.125 0 0 1 1.37-.491l1.216.456c.356.133.751.072 1.076-.124.072-.044.146-.087.22-.128.332-.183.582-.495.644-.869l.214-1.28Z" />
+        <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
+      </svg>
+    );
+
+    const HelpIcon = () => (
+      <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.8">
+        <path strokeLinecap="round" strokeLinejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+        <path strokeLinecap="round" strokeLinejoin="round" d="M12 17.25h.008v.008H12v-.008Z" />
+      </svg>
+    );
+
+    const LogoutIcon = () => (
+      <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.8">
+        <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0 0 13.5 3h-6a2.25 2.25 0 0 0-2.25 2.25v13.5A2.25 2.25 0 0 0 7.5 21h6a2.25 2.25 0 0 0 2.25-2.25V15M12 9l3 3m0 0-3 3m3-3H3" />
+      </svg>
+    );
+
+    const CloseIcon = () => (
+      <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
+        <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+      </svg>
+    );
+
+    const CheckCircleIcon = () => (
+      <svg className="w-6 h-6 text-green-500 shrink-0" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+      </svg>
+    );
+
+    const XCircleIcon = () => (
+      <svg className="w-6 h-6 text-red-500 shrink-0" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+      </svg>
+    );
+
+    // ==========================================
+    // TOAST COMPONENT
+    // ==========================================
+    const Toast = ({ id, type, title, message, onClose }) => {
+      useEffect(() => {
+        const timer = setTimeout(() => onClose(id), 3500);
+        return () => clearTimeout(timer);
+      }, [id, onClose]);
+
+      return (
+        <div className="flex items-start gap-3 bg-white/95 backdrop-blur border border-slate-100 rounded-xl p-4 shadow-lg-custom ring-1 ring-black/5 animate-fade-in pointer-events-auto transition-all duration-300">
+          {type === 'success' ? <CheckCircleIcon /> : <XCircleIcon />}
+          <div className="flex-1 min-w-0">
+            <p className="text-sm font-semibold text-slate-900">{title}</p>
+            {message && <p className="text-xs text-slate-500 mt-0.5">{message}</p>}
+          </div>
+          <button 
+            onClick={() => onClose(id)} 
+            className="text-slate-400 hover:text-slate-600 transition-colors duration-150 shrink-0"
+            aria-label="Dismiss notification"
+          >
+            <CloseIcon />
           </button>
-          <div class="w-9 h-9 rounded-full bg-gradient-to-br from-axblue to-axviolet flex items-center justify-center text-white text-xs font-semibold sm:hidden">AK</div>
         </div>
-      </div>
-    </header>
+      );
+    };
 
-    <main id="main" class="flex-1 p-4 sm:p-6 max-w-6xl w-full mx-auto">
-      <div class="mb-6">
-        <h1 class="font-display text-2xl font-semibold">Welcome back, Aarav</h1>
-        <p class="text-sm text-axslate mt-1">Here's where Nimbus AI stands in the AX Founder Exchange 2026 evaluation.</p>
-      </div>
+    // ==========================================
+    // MODALS & DIALOGS
+    // ==========================================
+    const ScorecardModal = ({ isOpen, onClose }) => {
+      if (!isOpen) return null;
 
-      <!-- Skeleton state, swapped for real content after load -->
-      <div id="skeleton-grid" class="grid sm:grid-cols-2 xl:grid-cols-3 gap-4">
-        <script>document.write(Array(6).fill('<div class="card p-5 h-40"><div class="skeleton h-4 w-24 mb-4"></div><div class="skeleton h-8 w-16 mb-3"></div><div class="skeleton h-3 w-32"></div></div>').join(''))</script>
-      </div>
+      const criteria = [
+        { name: 'Problem Statement & Depth', score: 8.5, max: 10, desc: 'Clarity of the SaaS validation and pain points identified.' },
+        { name: 'Market Opportunity & TAM', score: 7.0, max: 10, desc: 'Target size assessment and GTM strategy readiness.' },
+        { name: 'Technical Stack Architecture', score: 9.0, max: 10, desc: 'Modern AI architecture, database structure, and scale strategies.' },
+        { name: 'Founder & Team Synergy', score: 8.0, max: 10, desc: 'Technical proficiency and domain expertise alignment.' },
+      ];
 
-      <div id="real-grid" class="hidden grid sm:grid-cols-2 xl:grid-cols-3 gap-4">
+      return (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <div className="absolute inset-0 bg-slate-900/40 backdrop-blur-sm" onClick={onClose}></div>
+          <div className="bg-white rounded-2xl p-6 sm:p-8 max-w-lg w-full shadow-lg-custom relative z-10 glass-card animate-fade-in border border-white/40">
+            <div className="flex justify-between items-center mb-6">
+              <div>
+                <h3 className="text-lg font-bold text-slate-900 font-display">Stage 2 Detailed Scorecard</h3>
+                <p className="text-xs text-slate-500">Evaluated by Arjun Nair & Priya Sharma</p>
+              </div>
+              <button onClick={onClose} className="text-slate-400 hover:text-slate-600">
+                <CloseIcon />
+              </button>
+            </div>
+            
+            <div className="space-y-4 mb-6">
+              {criteria.map((item, idx) => (
+                <div key={idx} className="bg-slate-50/80 border border-slate-100 rounded-xl p-4">
+                  <div className="flex justify-between items-center mb-1">
+                    <p className="text-xs font-bold text-slate-800">{item.name}</p>
+                    <span className="text-xs font-mono font-bold text-primary">{item.score} / {item.max}</span>
+                  </div>
+                  <p className="text-[11px] text-slate-500 leading-relaxed mb-2.5">{item.desc}</p>
+                  <div className="w-full bg-slate-200/80 h-1.5 rounded-full overflow-hidden">
+                    <div className="bg-gradient-to-r from-blue-500 to-purple-500 h-full rounded-full" style={{ width: `${(item.score / item.max) * 100}%` }}></div>
+                  </div>
+                </div>
+              ))}
+            </div>
 
-        <!-- Registration status -->
-        <div class="card card-hover p-5">
-          <div class="flex items-center justify-between mb-4">
-            <p class="text-xs font-semibold uppercase tracking-wide text-axslate">Registration status</p>
-            <svg class="w-4.5 h-4.5 text-axslate" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"/></svg>
-          </div>
-          <span class="badge badge-success mb-2">Submitted</span>
-          <p class="text-sm text-axslate">Participant ID <span class="font-mono font-semibold text-axink">AXFE26-482913</span></p>
-        </div>
-
-        <!-- Assessment status -->
-        <div class="card card-hover p-5">
-          <div class="flex items-center justify-between mb-4">
-            <p class="text-xs font-semibold uppercase tracking-wide text-axslate">Assessment status</p>
-            <svg class="w-4.5 h-4.5 text-axslate" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M9 17.25v1.007a3 3 0 0 1-.879 2.122L7.5 21h9l-.621-.621A3 3 0 0 1 15 18.257V17.25m6-12V15a2.25 2.25 0 0 1-2.25 2.25H5.25A2.25 2.25 0 0 1 3 15V5.25m18 0A2.25 2.25 0 0 0 18.75 3H5.25A2.25 2.25 0 0 0 3 5.25m18 0V12a2.25 2.25 0 0 1-2.25 2.25H5.25A2.25 2.25 0 0 1 3 12V5.25"/></svg>
-          </div>
-          <span class="badge badge-warning mb-2">Under review</span>
-          <p class="text-sm text-axslate">Evaluator feedback expected in 5–7 days</p>
-        </div>
-
-        <!-- Zone assignment -->
-        <div class="card card-hover p-5">
-          <div class="flex items-center justify-between mb-4">
-            <p class="text-xs font-semibold uppercase tracking-wide text-axslate">Zone assignment</p>
-            <svg class="w-4.5 h-4.5 text-axslate" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"/><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1 1 15 0Z"/></svg>
-          </div>
-          <p class="font-display text-lg font-semibold">Zone C · SaaS &amp; AI</p>
-          <p class="text-sm text-axslate mt-1">Bengaluru evaluation track</p>
-        </div>
-
-        <!-- Mentor assignment -->
-        <div class="card card-hover p-5">
-          <div class="flex items-center justify-between mb-4">
-            <p class="text-xs font-semibold uppercase tracking-wide text-axslate">Mentor assignment</p>
-            <svg class="w-4.5 h-4.5 text-axslate" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M18 18.72a9.094 9.094 0 0 0 3.741-.479 3 3 0 0 0-4.682-2.72m.94 3.198.001.031c0 .225-.012.447-.037.666A11.944 11.944 0 0 1 12 21c-2.17 0-4.207-.576-5.963-1.584A6.062 6.062 0 0 1 6 18.719m12 0a5.971 5.971 0 0 0-.941-3.197m0 0A5.995 5.995 0 0 0 12 12.75a5.995 5.995 0 0 0-5.058 2.772m0 0a3 3 0 0 0-4.681 2.72 8.986 8.986 0 0 0 3.74.477m.94-3.197a5.971 5.971 0 0 0-.94 3.197M15 6.75a3 3 0 1 1-6 0 3 3 0 0 1 6 0Zm6 3a2.25 2.25 0 1 1-4.5 0 2.25 2.25 0 0 1 4.5 0Zm-13.5 0a2.25 2.25 0 1 1-4.5 0 2.25 2.25 0 0 1 4.5 0Z"/></svg>
-          </div>
-          <div class="flex items-center gap-3">
-            <div class="w-9 h-9 rounded-full bg-gradient-to-br from-axviolet to-axblue flex items-center justify-center text-white text-xs font-semibold">PS</div>
-            <div>
-              <p class="text-sm font-semibold">Priya Sharma</p>
-              <p class="text-xs text-axslate">Product &amp; GTM mentor</p>
+            <div className="flex justify-end">
+              <button 
+                onClick={onClose} 
+                className="px-5 py-2.5 text-xs font-bold text-white bg-primary hover:bg-primary-dark rounded-xl transition-colors duration-150"
+              >
+                Close Scorecard
+              </button>
             </div>
           </div>
         </div>
+      );
+    };
 
-        <!-- Stage progress -->
-        <div class="card card-hover p-5">
-          <div class="flex items-center justify-between mb-4">
-            <p class="text-xs font-semibold uppercase tracking-wide text-axslate">Stage progress</p>
-          </div>
-          <div class="flex items-center gap-4">
-            <div class="relative w-16 h-16 shrink-0">
-              <svg viewBox="0 0 64 64" class="eval-dial w-16 h-16">
-                <circle cx="32" cy="32" r="27" fill="none" stroke="#E2E6F3" stroke-width="6"/>
-                <circle cx="32" cy="32" r="27" fill="none" stroke="url(#dg3)" stroke-width="6" stroke-linecap="round" stroke-dasharray="169.6" stroke-dashoffset="59.4"/>
-                <defs><linearGradient id="dg3" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#3B5BFF"/><stop offset="1" stop-color="#7C3AED"/></linearGradient></defs>
-              </svg>
-              <span class="absolute inset-0 flex items-center justify-center text-xs font-mono font-semibold">65%</span>
+    const BookMentorModal = ({ isOpen, onClose, onBook }) => {
+      const [date, setDate] = useState('2026-07-10');
+      const [timeSlot, setTimeSlot] = useState('11:00 AM - 11:30 AM');
+
+      if (!isOpen) return null;
+
+      const handleSubmit = (e) => {
+        e.preventDefault();
+        onBook({ date, timeSlot });
+        onClose();
+      };
+
+      return (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <div className="absolute inset-0 bg-slate-900/40 backdrop-blur-sm" onClick={onClose}></div>
+          <div className="bg-white rounded-2xl p-6 sm:p-8 max-w-md w-full shadow-lg-custom relative z-10 glass-card animate-fade-in border border-white/40">
+            <div className="flex justify-between items-center mb-6">
+              <div>
+                <h3 className="text-lg font-bold text-slate-900 font-display">Schedule Mentor Session</h3>
+                <p className="text-xs text-slate-500">1:1 review call with Priya Sharma</p>
+              </div>
+              <button onClick={onClose} className="text-slate-400 hover:text-slate-600">
+                <CloseIcon />
+              </button>
             </div>
-            <div class="text-sm">
-              <p class="font-semibold">Stage 2 of 4</p>
-              <p class="text-axslate">Screening interview</p>
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <div>
+                <label className="block text-xs font-semibold text-slate-600 uppercase tracking-wider mb-2">Available Date</label>
+                <input 
+                  type="date" 
+                  value={date}
+                  onChange={(e) => setDate(e.target.value)}
+                  min="2026-07-06"
+                  className="w-full bg-white border border-slate-200 rounded-xl px-4 py-3 text-sm input-glow"
+                  required
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-semibold text-slate-600 uppercase tracking-wider mb-2">Select Time Slot</label>
+                <select 
+                  value={timeSlot}
+                  onChange={(e) => setTimeSlot(e.target.value)}
+                  className="w-full bg-white border border-slate-200 rounded-xl px-4 py-3 text-sm input-glow appearance-none"
+                >
+                  <option value="10:00 AM - 10:30 AM">10:00 AM - 10:30 AM</option>
+                  <option value="11:00 AM - 11:30 AM">11:00 AM - 11:30 AM</option>
+                  <option value="02:30 PM - 03:00 PM">02:30 PM - 03:00 PM</option>
+                  <option value="04:00 PM - 04:30 PM">04:00 PM - 04:30 PM</option>
+                </select>
+              </div>
+              <div className="flex gap-3 justify-end pt-4">
+                <button 
+                  type="button" 
+                  onClick={onClose}
+                  className="px-4 py-2.5 text-sm font-semibold text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-xl transition-all duration-150"
+                >
+                  Cancel
+                </button>
+                <button 
+                  type="submit" 
+                  className="px-5 py-2.5 text-sm font-semibold text-white bg-primary hover:bg-primary-dark rounded-xl transition-all duration-150 shadow-md shadow-blue-500/10 hover:shadow-blue-500/20"
+                >
+                  Schedule Slot
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      );
+    };
+
+    const InvestorRequestsModal = ({ isOpen, onClose, requests, onApprove, onDecline }) => {
+      if (!isOpen) return null;
+
+      return (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <div className="absolute inset-0 bg-slate-900/40 backdrop-blur-sm" onClick={onClose}></div>
+          <div className="bg-white rounded-2xl p-6 sm:p-8 max-w-lg w-full shadow-lg-custom relative z-10 glass-card animate-fade-in border border-white/40">
+            <div className="flex justify-between items-center mb-6">
+              <div>
+                <h3 className="text-lg font-bold text-slate-900 font-display font-bold">Inbound Investor Requests</h3>
+                <p className="text-xs text-slate-500">Review connection requests sent via Pitch QR Code scanning</p>
+              </div>
+              <button onClick={onClose} className="text-slate-400 hover:text-slate-600">
+                <CloseIcon />
+              </button>
+            </div>
+            
+            <div className="space-y-3 max-h-[350px] overflow-y-auto no-scrollbar mb-6">
+              {requests.length === 0 ? (
+                <p className="text-xs text-slate-400 text-center py-6">No requests received yet.</p>
+              ) : (
+                requests.map((req) => (
+                  <div key={req.id} className="flex justify-between items-center p-3 border border-slate-100 rounded-xl bg-slate-50/30 hover:bg-slate-50 transition-colors">
+                    <div className="min-w-0">
+                      <p className="text-xs font-bold text-slate-800 truncate">{req.name}</p>
+                      <p className="text-[10px] text-slate-500 font-semibold truncate mt-0.5">{req.firm}</p>
+                      <span className="text-[9px] text-slate-400 font-semibold mt-1 block">{req.date}</span>
+                    </div>
+                    <div className="shrink-0 flex items-center gap-1.5 pl-2">
+                      {req.status === 'Pending' ? (
+                        <>
+                          <button
+                            onClick={() => onApprove(req.id, req.name)}
+                            className="p-1.5 text-xs font-bold text-green-600 bg-green-50 hover:bg-green-100 border border-green-100 rounded-lg transition-colors cursor-pointer"
+                            title="Approve Connection"
+                          >
+                            <svg className="w-4.5 h-4.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5"><path strokeLinecap="round" strokeLinejoin="round" d="m4.5 12.75 6 6 9-13.5" /></svg>
+                          </button>
+                          <button
+                            onClick={() => onDecline(req.id, req.name)}
+                            className="p-1.5 text-xs font-bold text-slate-400 hover:text-slate-600 bg-slate-50 hover:bg-slate-100 border border-slate-100 rounded-lg transition-colors cursor-pointer"
+                            title="Decline Connection"
+                          >
+                            <svg className="w-4.5 h-4.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5"><path strokeLinecap="round" strokeLinejoin="round" d="M6 18 18 6M6 6l12 12" /></svg>
+                          </button>
+                        </>
+                      ) : (
+                        <span className="px-2.5 py-1 text-[9px] font-bold text-green-600 bg-green-50 border border-green-100 rounded-full flex items-center gap-1">
+                          <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5"><path strokeLinecap="round" strokeLinejoin="round" d="m4.5 12.75 6 6 9-13.5" /></svg>
+                          Connected
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                ))
+              )}
+            </div>
+
+            <div className="flex justify-end">
+              <button 
+                onClick={onClose}
+                className="px-5 py-2.5 text-sm font-semibold text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-xl transition-all duration-150"
+              >
+                Close Portal
+              </button>
             </div>
           </div>
         </div>
+      );
+    };
 
-        <!-- Notifications -->
-        <div class="card card-hover p-5 sm:col-span-2 xl:col-span-1">
-          <div class="flex items-center justify-between mb-4">
-            <p class="text-xs font-semibold uppercase tracking-wide text-axslate">Notifications</p>
+    // ==========================================
+    // MAIN APP COMPONENT
+    // ==========================================
+    function App() {
+      const [activePage, setActivePage] = useState('dashboard');
+      const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
+      const [isMobileOpen, setIsMobileOpen] = useState(false);
+      const [isNotifOpen, setIsNotifOpen] = useState(false);
+      const [isUserDropdownOpen, setIsUserDropdownOpen] = useState(false);
+      const [toasts, setToasts] = useState([]);
+      const [searchQuery, setSearchQuery] = useState('');
+
+      // Modals
+      const [isScorecardOpen, setIsScorecardOpen] = useState(false);
+      const [isBookOpen, setIsBookOpen] = useState(false);
+      const [isStageModeOpen, setIsStageModeOpen] = useState(false);
+      const [isRequestsOpen, setIsRequestsOpen] = useState(false);
+
+      // Simulation upload states
+      const [isUploading, setIsUploading] = useState(false);
+      const [uploadProgress, setUploadProgress] = useState(0);
+
+      // Calendar events list
+      const [sessions, setSessions] = useState([
+        { id: 1, mentor: 'Priya Sharma', topic: 'Product & GTM Strategy', date: '2026-07-08', time: '11:00 AM - 11:30 AM', status: 'Confirmed' }
+      ]);
+
+      // Document Vault Files
+      const [files, setFiles] = useState([
+        { id: 1, name: 'pitch_deck_nimbus_ai.pdf', type: 'Pitch Deck', size: '4.8 MB', date: '2026-07-04', status: 'Approved' },
+        { id: 2, name: 'incorporation_certificate.pdf', type: 'Legal', size: '2.1 MB', date: '2026-07-04', status: 'Approved' },
+      ]);
+
+      // Notifications state
+      const [notifications, setNotifications] = useState([
+        { id: 1, type: 'success', title: 'Pitch Deck Approved', desc: 'Your uploaded Pitch Deck has been approved by the evaluation committee.', time: '1 hour ago', unread: true },
+        { id: 2, type: 'primary', title: 'Mentor Assignment Complete', desc: 'Priya Sharma (GTM Mentor) is assigned to Nimbus AI.', time: '2 hours ago', unread: true },
+        { id: 3, type: 'warning', title: 'Stage 2 Judging Live', desc: 'Bengaluru Zone C evaluation has entered Stage 2 review.', time: '1 day ago', unread: false },
+      ]);
+
+      const [investorRequests, setInvestorRequests] = useState([
+        { id: 1, name: 'Ananya Sen', firm: 'Elevation Capital', date: 'Just now', status: 'Pending' },
+        { id: 2, name: 'Michael Chang', firm: 'Matrix Partners', date: '10 mins ago', status: 'Pending' },
+        { id: 3, name: 'David Miller', firm: 'Accel India', date: '2 hours ago', status: 'Approved' }
+      ]);
+
+      const unreadCount = notifications.filter(n => n.unread).length;
+
+      // Toast helpers
+      const showToast = (type, title, message) => {
+        const id = Date.now().toString();
+        setToasts((prev) => [...prev, { id, type, title, message }]);
+      };
+
+      const removeToast = (id) => {
+        setToasts((prev) => prev.filter((t) => t.id !== id));
+      };
+
+      const handleNotifClick = (id) => {
+        setNotifications((prev) =>
+          prev.map((n) => (n.id === id ? { ...n, unread: false } : n))
+        );
+      };
+
+      // Book session handler
+      const handleBookSession = (data) => {
+        const newSession = {
+          id: Date.now(),
+          mentor: 'Priya Sharma',
+          topic: 'Pitch Practice & GTM',
+          date: data.date,
+          time: data.timeSlot,
+          status: 'Confirmed'
+        };
+        setSessions(prev => [...prev, newSession]);
+        showToast('success', 'Session Scheduled', `Call with Priya Sharma booked for ${data.date} at ${data.timeSlot}`);
+      };
+
+      // Investor connection actions
+      const handleApproveInvestor = (id, name) => {
+        setInvestorRequests(prev => prev.map(r => r.id === id ? { ...r, status: 'Approved' } : r));
+        showToast('success', 'Connection Approved', `Pitch deck access granted to ${name}.`);
+      };
+
+      const handleDeclineInvestor = (id, name) => {
+        setInvestorRequests(prev => prev.filter(r => r.id !== id));
+        showToast('info', 'Connection Declined', `Request from ${name} has been removed.`);
+      };
+
+      // Upload file simulation handler
+      const handleUploadSimulate = (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        setIsUploading(true);
+        setUploadProgress(0);
+
+        const interval = setInterval(() => {
+          setUploadProgress((prev) => {
+            if (prev >= 100) {
+              clearInterval(interval);
+              setIsUploading(false);
+              const newFile = {
+                id: Date.now(),
+                name: file.name,
+                type: 'Evaluation Attachment',
+                size: `${(file.size / (1024 * 1024)).toFixed(1)} MB`,
+                date: new Date().toISOString().split('T')[0],
+                status: 'Under Review'
+              };
+              setFiles(prevFiles => [newFile, ...prevFiles]);
+              showToast('success', 'File Uploaded', `${file.name} successfully submitted for review.`);
+              return 100;
+            }
+            return prev + 25;
+          });
+        }, 300);
+      };
+
+      const handleLogout = (e) => {
+        e.preventDefault();
+        showToast('success', 'Logging Out', 'Closing session...');
+        setTimeout(() => {
+          window.location.href = 'login.html';
+        }, 1000);
+      };
+
+      React.useEffect(() => {
+        const handleKeyDown = (e) => {
+          if (e.key === 'Escape') {
+            setIsStageModeOpen(false);
+          }
+        };
+        window.addEventListener('keydown', handleKeyDown);
+        return () => window.removeEventListener('keydown', handleKeyDown);
+      }, []);
+
+      // Configuration for views
+      const PAGES = {
+        dashboard: { title: 'Dashboard', subtitle: 'Live track summary and evaluation updates.' },
+        registration: { title: 'Registration Status', subtitle: 'View cohort registration details.' },
+        assessment: { title: 'Assessment & Rubric', subtitle: 'Evaluation criteria status and metrics.' },
+        mentors: { title: 'Mentors Hub', subtitle: 'Schedule calls and chat with assigned advisors.' },
+        documents: { title: 'Document Vault', subtitle: 'Upload and organize startup document review criteria.' },
+        settings: { title: 'Settings', subtitle: 'Manage email preferences and participant details.' },
+        help: { title: 'Help & Guides', subtitle: 'AX Exchange event calendar, schedules, and tech support.' },
+      };
+
+      return (
+        <div className="min-h-screen flex bg-slate-50 relative overflow-x-hidden">
+
+          {/* Accessibility skip link */}
+          <a href="#main-content" className="sr-only focus:not-sr-only focus:absolute focus:top-0 focus:left-0 focus:z-50 focus:bg-slate-900 focus:text-white focus:p-4 focus:rounded-br-xl">
+            Skip to main content
+          </a>
+
+          {/* ============ SIDEBAR ============ */}
+          <aside className={`fixed top-0 bottom-0 left-0 z-50 bg-white border-r border-slate-200/80 flex flex-col transition-all duration-300 ${
+            isSidebarCollapsed ? 'w-[76px]' : 'w-[264px]'
+          } ${isMobileOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}`}>
+            
+            {/* Sidebar Logo */}
+            <div className="h-16 flex items-center gap-3 px-5 border-b border-slate-100 flex-shrink-0">
+              <div className="w-8 h-8 rounded-lg bg-axnavy flex items-center justify-center flex-shrink-0 shadow-md">
+                <svg className="w-4.5 h-4.5 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M13 2 3 14h7l-1 8 10-12h-7l1-8Z"/>
+                </svg>
+              </div>
+              {!isSidebarCollapsed && (
+                <div className="min-w-0 overflow-hidden">
+                  <p className="font-bold text-sm text-slate-800 tracking-tight leading-tight">AX Founder Exchange</p>
+                  <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider mt-0.5">Participant Portal</p>
+                </div>
+              )}
+
+              {/* Collapse Switcher */}
+              <button 
+                onClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
+                className="hidden lg:flex items-center justify-center w-7 h-7 rounded-lg border border-slate-200/60 bg-white text-slate-400 hover:text-slate-600 ml-auto transition-transform duration-300"
+                style={{ transform: isSidebarCollapsed ? 'rotate(180deg)' : 'none' }}
+                aria-label="Collapse sidebar"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M18.75 19.5l-7.5-7.5 7.5-7.5m-6 15L5.25 12l7.5-7.5" />
+                </svg>
+              </button>
+            </div>
+
+            {/* Sidebar Nav */}
+            <nav className="flex-1 overflow-y-auto no-scrollbar p-3 space-y-4">
+              
+              {/* Category */}
+              <div>
+                {!isSidebarCollapsed && (
+                  <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400 px-3 mb-2">Founder Hub</p>
+                )}
+                <div className="space-y-0.5">
+                  <button 
+                    onClick={() => { setActivePage('dashboard'); setIsMobileOpen(false); }}
+                    className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-150 ${
+                      activePage === 'dashboard'
+                        ? 'bg-blue-50 text-primary font-bold'
+                        : 'text-slate-500 hover:bg-slate-50 hover:text-slate-800 font-semibold'
+                    } ${isSidebarCollapsed ? 'justify-center' : ''}`}
+                  >
+                    <DashboardIcon />
+                    {!isSidebarCollapsed && <span>Dashboard</span>}
+                  </button>
+                  <button 
+                    onClick={() => { setActivePage('registration'); setIsMobileOpen(false); }}
+                    className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-150 ${
+                      activePage === 'registration'
+                        ? 'bg-blue-50 text-primary font-bold'
+                        : 'text-slate-500 hover:bg-slate-50 hover:text-slate-800 font-semibold'
+                    } ${isSidebarCollapsed ? 'justify-center' : ''}`}
+                  >
+                    <RegistrationIcon />
+                    {!isSidebarCollapsed && <span>Registration</span>}
+                  </button>
+                </div>
+              </div>
+
+              {/* Operations Category */}
+              <div>
+                {!isSidebarCollapsed && (
+                  <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400 px-3 mb-2">Evaluation</p>
+                )}
+                <div className="space-y-0.5">
+                  <button 
+                    onClick={() => { setActivePage('assessment'); setIsMobileOpen(false); }}
+                    className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-150 ${
+                      activePage === 'assessment'
+                        ? 'bg-blue-50 text-primary font-bold'
+                        : 'text-slate-500 hover:bg-slate-50 hover:text-slate-800 font-semibold'
+                    } ${isSidebarCollapsed ? 'justify-center' : ''}`}
+                  >
+                    <AssessmentIcon />
+                    {!isSidebarCollapsed && <span>Assessment Status</span>}
+                  </button>
+                  <button 
+                    onClick={() => { setActivePage('mentors'); setIsMobileOpen(false); }}
+                    className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-150 ${
+                      activePage === 'mentors'
+                        ? 'bg-blue-50 text-primary font-bold'
+                        : 'text-slate-500 hover:bg-slate-50 hover:text-slate-800 font-semibold'
+                    } ${isSidebarCollapsed ? 'justify-center' : ''}`}
+                  >
+                    <MentorsIcon />
+                    {!isSidebarCollapsed && <span>Mentors Hub</span>}
+                  </button>
+                  <button 
+                    onClick={() => { setActivePage('documents'); setIsMobileOpen(false); }}
+                    className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-150 ${
+                      activePage === 'documents'
+                        ? 'bg-blue-50 text-primary font-bold'
+                        : 'text-slate-500 hover:bg-slate-50 hover:text-slate-800 font-semibold'
+                    } ${isSidebarCollapsed ? 'justify-center' : ''}`}
+                  >
+                    <DocumentsIcon />
+                    {!isSidebarCollapsed && <span>Document Vault</span>}
+                  </button>
+                </div>
+              </div>
+
+            </nav>
+
+            {/* Sidebar Bottom */}
+            <div className="border-t border-slate-100 p-3 space-y-0.5 flex-shrink-0">
+              <button 
+                onClick={() => { setActivePage('settings'); setIsMobileOpen(false); }}
+                className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-150 ${
+                  activePage === 'settings'
+                    ? 'bg-blue-50 text-primary font-bold'
+                    : 'text-slate-500 hover:bg-slate-50 hover:text-slate-800 font-semibold'
+                } ${isSidebarCollapsed ? 'justify-center' : ''}`}
+              >
+                <SettingsIcon />
+                {!isSidebarCollapsed && <span>Settings</span>}
+              </button>
+              <button 
+                onClick={() => { setActivePage('help'); setIsMobileOpen(false); }}
+                className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-150 ${
+                  activePage === 'help'
+                    ? 'bg-blue-50 text-primary font-bold'
+                    : 'text-slate-500 hover:bg-slate-50 hover:text-slate-800 font-semibold'
+                } ${isSidebarCollapsed ? 'justify-center' : ''}`}
+              >
+                <HelpIcon />
+                {!isSidebarCollapsed && <span>Help & Guides</span>}
+              </button>
+              
+              <a 
+                href="#"
+                onClick={handleLogout}
+                className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-red-500 hover:bg-red-50 font-semibold transition-all duration-150 ${
+                  isSidebarCollapsed ? 'justify-center' : ''
+                }`}
+              >
+                <LogoutIcon />
+                {!isSidebarCollapsed && <span>Logout</span>}
+              </a>
+            </div>
+
+            {/* User Profile Summary */}
+            {!isSidebarCollapsed && (
+              <div className="border-t border-slate-100 p-4 bg-slate-50/50">
+                <div className="flex items-center gap-3">
+                  <div className="w-9 h-9 rounded-full bg-gradient-to-br from-axblue to-axviolet flex items-center justify-center text-white text-xs font-semibold shrink-0">
+                    AK
+                  </div>
+                  <div className="min-w-0">
+                    <p className="text-xs font-bold text-slate-800 truncate">Aarav Kapoor</p>
+                    <p className="text-[10px] text-slate-400 font-semibold truncate">Nimbus AI · Founder</p>
+                  </div>
+                </div>
+              </div>
+            )}
+          </aside>
+
+          {/* Mobile Draw Overlay */}
+          {isMobileOpen && (
+            <div 
+              onClick={() => setIsMobileOpen(false)}
+              className="fixed inset-0 bg-slate-900/30 backdrop-blur-xs z-40 lg:hidden"
+            ></div>
+          )}
+
+          {/* ============ MAIN FRAME COLUMN ============ */}
+          <div className={`flex-1 min-w-0 flex flex-col transition-all duration-300 ${
+            isSidebarCollapsed ? 'lg:ml-[76px]' : 'lg:ml-[264px]'
+          }`}>
+            
+            {/* ============ TOPBAR ============ */}
+            <header className="h-16 bg-white border-b border-slate-200/80 flex items-center justify-between px-6 sticky top-0 z-30">
+              
+              <div className="flex items-center gap-4">
+                <button 
+                  onClick={() => setIsMobileOpen(true)}
+                  className="lg:hidden p-2 -ml-2 rounded-lg text-slate-500 hover:bg-slate-100"
+                  aria-label="Open sidebar drawer"
+                >
+                  <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h16" />
+                  </svg>
+                </button>
+                <h2 className="font-display font-bold text-slate-800 text-lg capitalize sm:block hidden">
+                  {activePage.replace('-', ' ')}
+                </h2>
+              </div>
+
+              {/* Right Menu Icons */}
+              <div className="flex items-center gap-3 ml-auto">
+                
+                {/* Notification Trigger Button */}
+                <button 
+                  onClick={() => { setIsNotifOpen(true); }}
+                  className="w-10 h-10 rounded-xl hover:bg-slate-50 border border-transparent hover:border-slate-100 flex items-center justify-center text-slate-500 hover:text-slate-700 relative"
+                  aria-label="Open notifications"
+                >
+                  <svg className="w-5.5 h-5.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M14.857 17.082a23.848 23.848 0 0 0 5.454-1.31A8.967 8.967 0 0 1 18 9.75V9A6 6 0 0 0 6 9v.75a8.967 8.967 0 0 1-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 0 1-5.714 0m5.714 0a3 3 0 1 1-5.714 0" />
+                  </svg>
+                  {unreadCount > 0 && (
+                    <span className="absolute top-2 right-2.5 w-4 h-4 bg-danger text-white text-[9px] font-bold rounded-full border border-white flex items-center justify-center">
+                      {unreadCount}
+                    </span>
+                  )}
+                </button>
+
+                {/* User Dropdown */}
+                <div className="relative">
+                  <button 
+                    onClick={() => setIsUserDropdownOpen(!isUserDropdownOpen)}
+                    className="flex items-center gap-3 p-1 pr-3 rounded-xl border border-transparent hover:border-slate-100 hover:bg-slate-50 transition-colors duration-150"
+                  >
+                    <div className="w-8 h-8 rounded-full bg-gradient-to-br from-axblue to-axviolet flex items-center justify-center text-white text-xs font-bold font-display">
+                      AK
+                    </div>
+                    <div className="text-left md:block hidden">
+                      <p className="text-xs font-semibold text-slate-800 leading-tight">Aarav Kapoor</p>
+                      <span className="inline-block text-[9px] font-bold text-violet-600 bg-violet-50 border border-violet-100 px-1.5 py-0.5 rounded-full mt-0.5 uppercase tracking-wider">
+                        Founder
+                      </span>
+                    </div>
+                    <svg className="w-3.5 h-3.5 text-slate-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" />
+                    </svg>
+                  </button>
+
+                  {isUserDropdownOpen && (
+                    <>
+                      <div className="fixed inset-0 z-30" onClick={() => setIsUserDropdownOpen(false)}></div>
+                      <div className="absolute right-0 mt-2 w-52 bg-white rounded-xl shadow-lg-custom border border-slate-100 p-1 z-40 animate-fade-in">
+                        <button 
+                          onClick={() => { setIsUserDropdownOpen(false); setActivePage('settings'); }}
+                          className="w-full flex items-center gap-2 px-3 py-2 text-xs font-semibold text-slate-600 hover:bg-slate-50 hover:text-slate-800 rounded-lg transition-colors"
+                        >
+                          <svg className="w-4.5 h-4.5 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.8">
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z" />
+                          </svg>
+                          My Profile Settings
+                        </button>
+                        <button 
+                          onClick={() => { setIsUserDropdownOpen(false); window.location.href = 'reset-password.html'; }}
+                          className="w-full flex items-center gap-2 px-3 py-2 text-xs font-semibold text-slate-600 hover:bg-slate-50 hover:text-slate-800 rounded-lg transition-colors"
+                        >
+                          <svg className="w-4.5 h-4.5 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 1 0-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 0 0 2.25-2.25v-6.75a2.25 2.25 0 0 0-2.25-2.25H6.75a2.25 2.25 0 0 0-2.25 2.25v6.75a2.25 2.25 0 0 0 2.25 2.25Z" />
+                          </svg>
+                          Reset Password
+                        </button>
+                        <div className="h-px bg-slate-100 my-1"></div>
+                        <button 
+                          onClick={handleLogout}
+                          className="w-full flex items-center gap-2 px-3 py-2 text-xs font-semibold text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                        >
+                          <svg className="w-4.5 h-4.5 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0 0 13.5 3h-6a2.25 2.25 0 0 0-2.25 2.25v13.5A2.25 2.25 0 0 0 7.5 21h6a2.25 2.25 0 0 0 2.25-2.25V15M12 9l3 3m0 0-3 3m3-3H3" />
+                          </svg>
+                          Logout
+                        </button>
+                      </div>
+                    </>
+                  )}
+                </div>
+
+              </div>
+
+            </header>
+
+            {/* ============ MAIN CONTENT AREA ============ */}
+            <main id="main-content" className="flex-1 p-6 sm:p-8 max-w-[1200px] mx-auto w-full">
+              
+              {/* Breadcrumbs */}
+              <nav className="flex items-center gap-2 text-xs font-semibold text-slate-400 mb-6">
+                <span>Home</span>
+                <svg className="w-3 h-3 text-slate-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5" />
+                </svg>
+                <span className="text-slate-800 capitalize">{activePage.replace('-', ' ')}</span>
+              </nav>
+
+              {/* Title Header */}
+              <div className="flex flex-wrap items-start justify-between gap-4 mb-8">
+                <div>
+                  <h1 className="font-display text-2xl font-bold tracking-tight text-slate-800">
+                    {activePage === 'dashboard' ? 'Welcome back, Aarav' : PAGES[activePage].title}
+                  </h1>
+                  <p className="text-sm text-slate-500 mt-1.5">
+                    {activePage === 'dashboard' ? "Here's where Nimbus AI stands in the AX Founder Exchange 2026 evaluation." : PAGES[activePage].subtitle}
+                  </p>
+                </div>
+              </div>
+
+              {/* ============ ACTIVE VIEWS ============ */}
+              {activePage === 'dashboard' && (
+                <div className="space-y-6 animate-fade-in">
+                  
+                  {/* Stage Presentation Mode Banner */}
+                  <div className="bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 border border-indigo-900 rounded-2xl p-6 text-white shadow-lg relative overflow-hidden flex flex-col md:flex-row items-center justify-between gap-6">
+                    {/* Glowing background circles */}
+                    <div className="absolute -top-12 -right-12 w-48 h-48 bg-primary/20 rounded-full blur-2xl pointer-events-none"></div>
+                    <div className="absolute -bottom-12 -left-12 w-48 h-48 bg-axviolet/20 rounded-full blur-2xl pointer-events-none"></div>
+
+                    <div className="flex-1 text-center md:text-left space-y-2 relative z-10">
+                      <div className="flex flex-wrap items-center justify-center md:justify-start gap-2">
+                        <span className="px-2.5 py-0.5 text-[10px] font-bold tracking-wider uppercase bg-red-500/20 text-red-400 border border-red-500/30 rounded-full flex items-center gap-1.5 animate-pulse">
+                          <span className="w-1.5 h-1.5 rounded-full bg-red-500"></span>
+                          Stage Pitch Live
+                        </span>
+                        <span className="px-2.5 py-0.5 text-[10px] font-bold tracking-wider uppercase bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 rounded-full">
+                          Investor Connect Portal
+                        </span>
+                      </div>
+                      <h2 className="text-xl font-bold tracking-tight">Stage Pitch Presentation Mode</h2>
+                      <p className="text-xs text-indigo-200 max-w-xl">
+                        Presenting Nimbus AI Solutions from the main stage? Turn on Presentation Mode to show a high-contrast, giant QR code optimized for investors scanning from the audience seats.
+                      </p>
+                      
+                      <div className="pt-2 flex flex-wrap justify-center md:justify-start gap-3">
+                        <button 
+                          onClick={() => setIsStageModeOpen(true)}
+                          className="px-4 py-2 text-xs font-bold text-slate-900 bg-white hover:bg-slate-100 rounded-xl flex items-center gap-2 transition-all shadow-md active:scale-95 cursor-pointer"
+                        >
+                          <svg className="w-4 h-4 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M3.75 3v11.25A2.25 2.25 0 0 0 6 16.5h2.25M19.5 21l-3.75-3.75m0 0a3 3 0 1 1 4.243-4.243 3 3 0 0 1-4.243 4.243Z" /><path strokeLinecap="round" strokeLinejoin="round" d="M12 3v18" /></svg>
+                          Open Stage Presentation Mode
+                        </button>
+                        <button 
+                          onClick={() => {
+                            navigator.clipboard.writeText('https://investors.founder-exchange.ax/startup/AXFE26-482913');
+                            showToast('success', 'Link Copied', 'Investor connection link copied to clipboard.');
+                          }}
+                          className="px-4 py-2 text-xs font-bold text-white hover:text-indigo-100 bg-indigo-900/60 hover:bg-indigo-900 border border-indigo-700/80 rounded-xl flex items-center gap-2 transition-all active:scale-95 cursor-pointer"
+                        >
+                          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M15.666 3.888A2.25 2.25 0 0 0 13.5 2.25h-3c-1.03 0-1.9.693-2.166 1.638m7.332 0c.055.194.084.4.084.612v0a.75.75 0 0 1-.75.75H9a.75 0 0 1-.75-.75v0c0-.212.03-.418.084-.612m7.332 0c.646.049 1.288.11 1.927.184 1.1.128 1.907 1.077 1.907 2.185V19.5a2.25 2.25 0 0 1-2.25 2.25H6.75A2.25 2.25 0 0 1 4.5 19.5V6.257c0-1.108.806-2.057 1.907-2.185a48.208 48.208 0 0 1 1.927-.184" /></svg>
+                          Copy Investor Share Link
+                        </button>
+                      </div>
+                    </div>
+
+                    {/* Centered QR Container */}
+                    <div className="flex flex-col items-center shrink-0 bg-white/10 p-3 rounded-2xl border border-white/10 backdrop-blur-sm relative z-10">
+                      <div 
+                        onClick={() => setIsStageModeOpen(true)}
+                        className="bg-white p-3 rounded-xl shadow-md hover:scale-105 transition-transform duration-200 cursor-pointer"
+                        title="Click to zoom for stage screen"
+                      >
+                        {/* High contrast QR */}
+                        <svg viewBox="0 0 100 100" className="w-24 h-24" fill="#0F172A">
+                          {/* Corner Squares */}
+                          <rect x="10" y="10" width="22" height="22" rx="3" fill="none" stroke="#0F172A" strokeWidth="4" />
+                          <rect x="16" y="16" width="10" height="10" rx="1.5" fill="#0F172A" />
+                          <rect x="68" y="10" width="22" height="22" rx="3" fill="none" stroke="#0F172A" strokeWidth="4" />
+                          <rect x="74" y="16" width="10" height="10" rx="1.5" fill="#0F172A" />
+                          <rect x="10" y="68" width="22" height="22" rx="3" fill="none" stroke="#0F172A" strokeWidth="4" />
+                          <rect x="16" y="74" width="10" height="10" rx="1.5" fill="#0F172A" />
+                          
+                          {/* Dummy QR Matrix */}
+                          <rect x="36" y="10" width="6" height="6" rx="1" fill="#0F172A" />
+                          <rect x="46" y="10" width="12" height="6" rx="1" fill="#0F172A" />
+                          <rect x="36" y="20" width="6" height="12" rx="1" fill="#0F172A" />
+                          <rect x="46" y="20" width="12" height="6" rx="1" fill="#0F172A" />
+                          <rect x="60" y="20" width="6" height="6" rx="1" fill="#0F172A" />
+                          
+                          <rect x="10" y="36" width="6" height="6" rx="1" fill="#0F172A" />
+                          <rect x="20" y="36" width="12" height="6" rx="1" fill="#0F172A" />
+                          <rect x="36" y="36" width="6" height="6" rx="1" fill="#0F172A" />
+                          <rect x="46" y="36" width="6" height="12" rx="1" fill="#0F172A" />
+                          <rect x="56" y="36" width="12" height="6" rx="1" fill="#0F172A" />
+                          <rect x="72" y="36" width="6" height="6" rx="1" fill="#0F172A" />
+                          <rect x="82" y="36" width="8" height="6" rx="1" fill="#0F172A" />
+
+                          <rect x="10" y="46" width="6" height="12" rx="1" fill="#0F172A" />
+                          <rect x="20" y="46" width="6" height="6" rx="1" fill="#0F172A" />
+                          <rect x="30" y="46" width="12" height="6" rx="1" fill="#0F172A" />
+                          <rect x="46" y="52" width="6" height="6" rx="1" fill="#0F172A" />
+                          <rect x="56" y="46" width="6" height="12" rx="1" fill="#0F172A" />
+                          <rect x="66" y="46" width="12" height="6" rx="1" fill="#0F172A" />
+                          <rect x="82" y="46" width="8" height="12" rx="1" fill="#0F172A" />
+
+                          <rect x="36" y="68" width="6" height="12" rx="1" fill="#0F172A" />
+                          <rect x="46" y="68" width="12" height="6" rx="1" fill="#0F172A" />
+                          <rect x="62" y="68" width="6" height="6" rx="1" fill="#0F172A" />
+                          <rect x="46" y="78" width="6" height="12" rx="1" fill="#0F172A" />
+                          <rect x="56" y="78" width="12" height="6" rx="1" fill="#0F172A" />
+                          <rect x="72" y="78" width="6" height="6" rx="1" fill="#0F172A" />
+                          <rect x="82" y="78" width="8" height="6" rx="1" fill="#0F172A" />
+                          
+                          {/* Center Logo */}
+                          <rect x="40" y="40" width="20" height="20" rx="5" fill="#FFFFFF" stroke="#0F172A" strokeWidth="2" />
+                          <circle cx="50" cy="50" r="7" fill="#0F172A" />
+                          <text x="50" y="53" fill="#FFFFFF" fontSize="9" fontWeight="bold" textAnchor="middle" fontFamily="sans-serif">N</text>
+                        </svg>
+                      </div>
+                      <span className="text-[9px] text-indigo-300 font-bold uppercase tracking-wider mt-2">Click to Maximize</span>
+                    </div>
+                  </div>
+
+                  {/* Participant Stats Grid */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                    
+                    {/* Stat Card 1: Registration Status Badge */}
+                    <div className="bg-gradient-to-br from-white to-green-50/20 border border-slate-200/80 rounded-2xl p-6 shadow-sm-custom hover:shadow-md-custom hover:-translate-y-0.5 transition-all duration-300 relative overflow-hidden flex flex-col justify-between group">
+                      <div className="absolute top-0 left-0 w-2 h-full bg-success"></div>
+                      
+                      <div>
+                        <div className="flex items-center justify-between mb-4 pl-2">
+                          <span className="text-[10px] font-extrabold uppercase tracking-wider text-green-600 bg-green-50 border border-green-100 rounded-full px-2 py-0.5">
+                            Active Cohort
+                          </span>
+                          <div className="w-8 h-8 rounded-xl bg-green-50 text-green-600 flex items-center justify-center group-hover:scale-110 transition-transform">
+                            <RegistrationIcon />
+                          </div>
+                        </div>
+
+                        {/* Event Pass Mock */}
+                        <div className="border border-dashed border-slate-200 rounded-xl p-3 bg-white/60 pl-4 relative">
+                          <p className="text-[9px] text-slate-400 font-extrabold uppercase tracking-widest">Registration Code</p>
+                          <div className="flex items-center justify-between gap-2 mt-1">
+                            <span className="text-base font-extrabold text-slate-800 font-mono tracking-wide select-all">AXFE26-482913</span>
+                            <button 
+                              onClick={() => {
+                                navigator.clipboard.writeText('AXFE26-482913');
+                                showToast('success', 'Code Copied', 'Registration code copied to clipboard!');
+                              }}
+                              className="p-1.5 rounded-lg border border-slate-100 hover:border-slate-200 bg-slate-50 hover:bg-slate-100 text-slate-500 hover:text-slate-700 transition-all shrink-0"
+                              title="Copy code"
+                            >
+                              <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M15.666 3.888A2.25 2.25 0 0 0 13.5 2.25h-3c-1.03 0-1.9.693-2.166 1.638m7.332 0c.055.194.084.4.084.612v0a.75.75 0 0 1-.75.75H9a.75 0 0 1-.75-.75v0c0-.212.03-.418.084-.612m7.332 0c.646.049 1.288.11 1.927.184 1.1.128 1.907 1.077 1.907 2.185V19.5a2.25 2.25 0 0 1-2.25 2.25H6.75A2.25 2.25 0 0 1 4.5 19.5V6.257c0-1.108.806-2.057 1.907-2.185a48.208 48.208 0 0 1 1.927-.184" /></svg>
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between pl-2">
+                        <span className="text-[10px] text-slate-400 font-semibold">Registered: Jul 4</span>
+                        <button 
+                          onClick={() => setActivePage('registration')}
+                          className="text-xs text-primary font-bold hover:text-blue-700 hover:underline flex items-center gap-1 transition-colors"
+                        >
+                          Details
+                          <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5"><path strokeLinecap="round" strokeLinejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5" /></svg>
+                        </button>
+                      </div>
+                    </div>
+
+                    {/* Stat Card 2: Assessment Stage Progress */}
+                    <div className="bg-gradient-to-br from-white to-amber-50/20 border border-slate-200/80 rounded-2xl p-6 shadow-sm-custom hover:shadow-md-custom hover:-translate-y-0.5 transition-all duration-300 relative overflow-hidden flex flex-col justify-between group">
+                      <div className="absolute top-0 left-0 w-2 h-full bg-warning"></div>
+
+                      <div>
+                        <div className="flex items-center justify-between mb-4 pl-2">
+                          <span className="text-[10px] font-extrabold uppercase tracking-wider text-amber-600 bg-amber-50 border border-amber-100 rounded-full px-2 py-0.5">
+                            Under Evaluation
+                          </span>
+                          <div className="w-8 h-8 rounded-xl bg-amber-50 text-warning flex items-center justify-center group-hover:scale-110 transition-transform">
+                            <AssessmentIcon />
+                          </div>
+                        </div>
+
+                        {/* Interactive Steps Visualizer */}
+                        <div className="space-y-3 pl-2">
+                          <div className="flex justify-between items-baseline">
+                            <span className="text-xs font-bold text-slate-700">Interview Stage</span>
+                            <span className="text-[10px] font-mono text-slate-400 font-bold">2 of 4 Steps</span>
+                          </div>
+                          
+                          <div className="flex items-center gap-2 py-1">
+                            <div className="w-4.5 h-4.5 rounded-full bg-success flex items-center justify-center text-white text-[9px] font-bold">✓</div>
+                            <div className="h-0.5 flex-1 bg-success"></div>
+                            <div className="w-4.5 h-4.5 rounded-full bg-primary border-2 border-primary-light flex items-center justify-center text-white text-[9px] font-bold">2</div>
+                            <div className="h-0.5 flex-1 bg-slate-200"></div>
+                            <div className="w-4.5 h-4.5 rounded-full bg-slate-100 border border-slate-200 text-slate-400 text-[9px] font-bold flex items-center justify-center">3</div>
+                            <div className="h-0.5 flex-1 bg-slate-200"></div>
+                            <div className="w-4.5 h-4.5 rounded-full bg-slate-100 border border-slate-200 text-slate-400 text-[9px] font-bold flex items-center justify-center">4</div>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between pl-2">
+                        <span className="text-[10px] text-slate-400 font-semibold">65% Progress Score</span>
+                        <button 
+                          onClick={() => setIsScorecardOpen(true)}
+                          className="text-xs text-primary font-bold hover:text-blue-700 hover:underline flex items-center gap-1 transition-colors"
+                        >
+                          Rubric Scorecard
+                          <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5"><path strokeLinecap="round" strokeLinejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5" /></svg>
+                        </button>
+                      </div>
+                    </div>
+
+                    {/* Stat Card 3: Zone Assignment Location Details */}
+                    <div className="bg-gradient-to-br from-white to-blue-50/20 border border-slate-200/80 rounded-2xl p-6 shadow-sm-custom hover:shadow-md-custom hover:-translate-y-0.5 transition-all duration-300 relative overflow-hidden flex flex-col justify-between group">
+                      <div className="absolute top-0 left-0 w-2 h-full bg-primary"></div>
+
+                      <div>
+                        <div className="flex items-center justify-between mb-4 pl-2">
+                          <span className="text-[10px] font-extrabold uppercase tracking-wider text-primary bg-blue-50 border border-blue-100 rounded-full px-2 py-0.5">
+                            Hub Assigned
+                          </span>
+                          <div className="w-8 h-8 rounded-xl bg-blue-50 text-primary flex items-center justify-center group-hover:scale-110 transition-transform">
+                            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"/><path strokeLinecap="round" strokeLinejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1 1 15 0Z"/></svg>
+                          </div>
+                        </div>
+
+                        {/* Location Details Widget */}
+                        <div className="pl-2 space-y-1.5">
+                          <p className="text-[10px] text-slate-400 font-extrabold uppercase tracking-wider">Evaluation Hub</p>
+                          <p className="text-sm font-bold text-slate-800 leading-tight">Zone C · SaaS &amp; AI</p>
+                          <p className="text-[11px] text-slate-500 font-semibold truncate">Whitefield Technology Hub, Bengaluru</p>
+                        </div>
+                      </div>
+
+                      <div className="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between pl-2">
+                        <span className="text-[10px] text-slate-400 font-semibold">Offline Track Location</span>
+                        <span className="text-[10px] font-bold text-primary bg-blue-50/50 px-2 py-0.5 rounded-md border border-blue-100">
+                          Bengaluru Cohort
+                        </span>
+                      </div>
+                    </div>
+
+                  </div>
+
+                  {/* Splits Row */}
+                  <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
+                    
+                    {/* Left: Mentor Roster Card */}
+                    <div className="bg-white border border-slate-200/80 rounded-2xl p-5 shadow-sm-custom xl:col-span-2 flex flex-col justify-between">
+                      <div>
+                        <div className="flex justify-between items-center pb-4 mb-4 border-b border-slate-100">
+                          <h3 className="text-sm font-bold text-slate-800">Assigned Mentor &amp; Schedules</h3>
+                          <button 
+                            onClick={() => setIsBookOpen(true)}
+                            className="btn bg-primary hover:bg-primary-dark text-white rounded-xl px-3 py-1.5 text-xs font-bold flex items-center gap-1.5 transition-all duration-150"
+                          >
+                            <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.2"><path strokeLinecap="round" strokeLinejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 0 1 2.25-2.25h13.5A2.25 2.25 0 0 1 21 7.5v11.25m-18 0A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75m-18 0v-7.5A2.25 2.25 0 0 1 5.25 9h13.5A2.25 2.25 0 0 1 21 11.25v7.5m-9-6h.008v.008H12v-.008ZM12 15h.008v.008H12V15Zm0 2.25h.008v.008H12v-.008ZM9.75 15h.008v.008H9.75V15Zm0 2.25h.008v.008H9.75v-.008ZM7.5 15h.008v.008H7.5V15Zm0 2.25h.008v.008H7.5v-.008Zm6.75-4.5h.008v.008h-.008v-.008Zm0 2.25h.008v.008h-.008V15Zm0 2.25h.008v.008h-.008v-.008Zm2.25-4.5h.008v.008H16.5v-.008Zm0 2.25h.008v.008H16.5V15Z" /></svg>
+                            Book Session
+                          </button>
+                        </div>
+
+                        <div className="flex flex-col sm:flex-row gap-5 items-start bg-slate-50/50 p-4 border border-slate-100 rounded-xl mb-4">
+                          <div className="w-12 h-12 rounded-full bg-gradient-to-br from-axviolet to-axblue flex items-center justify-center text-white text-sm font-bold shrink-0">
+                            PS
+                          </div>
+                          <div className="min-w-0">
+                            <h4 className="text-sm font-bold text-slate-800">Priya Sharma</h4>
+                            <p className="text-xs text-primary font-semibold mt-0.5">Product &amp; GTM Mentor</p>
+                            <p className="text-xs text-slate-500 mt-2 leading-relaxed">
+                              Partner at Redridge Ventures. Specialist in B2B enterprise sales pipelines, seed structuring, and scalable SaaS business development.
+                            </p>
+                          </div>
+                        </div>
+
+                        <div className="space-y-2.5">
+                          <p className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Upcoming 1:1 Calendar Calls</p>
+                          {sessions.map((session) => (
+                            <div key={session.id} className="flex justify-between items-center p-3 border border-slate-100 rounded-xl bg-white hover:bg-slate-50 transition-colors">
+                              <div>
+                                <p className="text-xs font-bold text-slate-800">{session.topic}</p>
+                                <p className="text-[10px] text-slate-400 font-semibold mt-1">{session.date} @ {session.time}</p>
+                              </div>
+                              <span className="px-2 py-0.5 text-[9px] font-bold text-green-600 bg-green-50 border border-green-100 rounded-full">
+                                {session.status}
+                              </span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Right: Stage Dial Progress & Investor Connect Cards */}
+                    <div className="space-y-6">
+                      
+                      {/* Stage Dial Progress Card */}
+                      <div className="bg-white border border-slate-200/80 rounded-2xl p-5 shadow-sm-custom flex flex-col justify-between">
+                        <div className="pb-4 mb-4 border-b border-slate-100">
+                          <h3 className="text-sm font-bold text-slate-800">Current Stage Evaluation Progress</h3>
+                        </div>
+
+                        <div className="flex-1 flex flex-col items-center justify-center py-6">
+                          <div className="relative w-28 h-28 shrink-0 mb-4">
+                            <svg viewBox="0 0 64 64" className="w-full h-full transform -rotate-90">
+                              <circle cx="32" cy="32" r="27" fill="none" stroke="#F1F5F9" strokeWidth="6"/>
+                              <circle cx="32" cy="32" r="27" fill="none" stroke="url(#blueGrad)" strokeWidth="6" strokeLinecap="round" strokeDasharray="169.6" strokeDashoffset="59.4"/>
+                              <defs>
+                                <linearGradient id="blueGrad" x1="0" y1="0" x2="1" y2="1">
+                                  <stop offset="0" stopColor="#3B5BFF"/>
+                                  <stop offset="1" stopColor="#7C3AED"/>
+                                </linearGradient>
+                              </defs>
+                            </svg>
+                            <span className="absolute inset-0 flex items-center justify-center text-lg font-mono font-bold text-slate-800">
+                              65%
+                            </span>
+                          </div>
+                          
+                          <div className="text-center">
+                            <h4 className="text-sm font-bold text-slate-800">Screening Interview Phase</h4>
+                            <p className="text-xs text-slate-400 mt-1 max-w-[200px] mx-auto leading-relaxed">
+                              Interviews completed. Evaluators are compiling final scores for Stage 3 validation.
+                            </p>
+                          </div>
+                        </div>
+
+                        <button 
+                          onClick={() => setIsScorecardOpen(true)}
+                          className="w-full mt-4 py-2.5 text-xs font-bold text-slate-600 hover:text-slate-800 border border-slate-200 hover:bg-slate-50 rounded-xl transition-all duration-150"
+                        >
+                          View rubrics scorecard
+                        </button>
+                      </div>
+
+                      {/* Investor Request QR Card */}
+                      <div className="bg-white border border-slate-200/80 rounded-2xl p-5 shadow-sm-custom">
+                        <div className="pb-4 mb-4 border-b border-slate-100 flex items-center justify-between">
+                          <h3 className="text-sm font-bold text-slate-800">Investor Connection Access</h3>
+                          <span className="inline-flex items-center gap-1">
+                            <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
+                            <span className="text-[10px] font-bold text-green-600 uppercase tracking-wider">Active</span>
+                          </span>
+                        </div>
+
+                        <div className="py-4 flex flex-col items-center justify-center bg-slate-50/50 rounded-xl border border-slate-100 mb-4">
+                          {/* SVG QR Code */}
+                          <svg viewBox="0 0 100 100" className="w-28 h-28 mx-auto" fill="currentColor">
+                            {/* Corner Squares */}
+                            <rect x="10" y="10" width="22" height="22" rx="3" fill="none" stroke="#2563EB" strokeWidth="4" />
+                            <rect x="16" y="16" width="10" height="10" rx="1.5" fill="#2563EB" />
+                            <rect x="68" y="10" width="22" height="22" rx="3" fill="none" stroke="#2563EB" strokeWidth="4" />
+                            <rect x="74" y="16" width="10" height="10" rx="1.5" fill="#2563EB" />
+                            <rect x="10" y="68" width="22" height="22" rx="3" fill="none" stroke="#2563EB" strokeWidth="4" />
+                            <rect x="16" y="74" width="10" height="10" rx="1.5" fill="#2563EB" />
+                            
+                            {/* Dummy QR Matrix */}
+                            <rect x="36" y="10" width="6" height="6" rx="1" fill="#1E293B" />
+                            <rect x="46" y="10" width="12" height="6" rx="1" fill="#1E293B" />
+                            <rect x="36" y="20" width="6" height="12" rx="1" fill="#1E293B" />
+                            <rect x="46" y="20" width="12" height="6" rx="1" fill="#1E293B" />
+                            <rect x="60" y="20" width="6" height="6" rx="1" fill="#1E293B" />
+                            
+                            <rect x="10" y="36" width="6" height="6" rx="1" fill="#1E293B" />
+                            <rect x="20" y="36" width="12" height="6" rx="1" fill="#1E293B" />
+                            <rect x="36" y="36" width="6" height="6" rx="1" fill="#2563EB" />
+                            <rect x="46" y="36" width="6" height="12" rx="1" fill="#1E293B" />
+                            <rect x="56" y="36" width="12" height="6" rx="1" fill="#1E293B" />
+                            <rect x="72" y="36" width="6" height="6" rx="1" fill="#1E293B" />
+                            <rect x="82" y="36" width="8" height="6" rx="1" fill="#1E293B" />
+
+                            <rect x="10" y="46" width="6" height="12" rx="1" fill="#1E293B" />
+                            <rect x="20" y="46" width="6" height="6" rx="1" fill="#1E293B" />
+                            <rect x="30" y="46" width="12" height="6" rx="1" fill="#1E293B" />
+                            <rect x="46" y="52" width="6" height="6" rx="1" fill="#1E293B" />
+                            <rect x="56" y="46" width="6" height="12" rx="1" fill="#1E293B" />
+                            <rect x="66" y="46" width="12" height="6" rx="1" fill="#1E293B" />
+                            <rect x="82" y="46" width="8" height="12" rx="1" fill="#1E293B" />
+
+                            <rect x="36" y="68" width="6" height="12" rx="1" fill="#1E293B" />
+                            <rect x="46" y="68" width="12" height="6" rx="1" fill="#2563EB" />
+                            <rect x="62" y="68" width="6" height="6" rx="1" fill="#1E293B" />
+                            <rect x="46" y="78" width="6" height="12" rx="1" fill="#1E293B" />
+                            <rect x="56" y="78" width="12" height="6" rx="1" fill="#1E293B" />
+                            <rect x="72" y="78" width="6" height="6" rx="1" fill="#1E293B" />
+                            <rect x="82" y="78" width="8" height="6" rx="1" fill="#1E293B" />
+                            
+                            {/* Center Logo Badge */}
+                            <rect x="40" y="40" width="20" height="20" rx="5" fill="#FFFFFF" stroke="#E2E8F0" strokeWidth="2" />
+                            <circle cx="50" cy="50" r="7" fill="#2563EB" />
+                            <text x="50" y="53" fill="#FFFFFF" fontSize="9" fontWeight="bold" textAnchor="middle" fontFamily="sans-serif">N</text>
+                          </svg>
+                          <p className="text-[10px] text-slate-400 mt-3 font-semibold text-center uppercase tracking-wider">AXFE26-482913 · NIMBUS AI</p>
+                        </div>
+
+                        <p className="text-xs text-slate-500 leading-relaxed text-center mb-4">
+                          Interested investors can scan this QR code to view your profile and request secure connection access to your pitch assets.
+                        </p>
+
+                        <button 
+                          onClick={() => {
+                            navigator.clipboard.writeText('https://investors.founder-exchange.ax/startup/AXFE26-482913');
+                            showToast('success', 'Connection Link Copied', 'Investor sharing link copied to clipboard.');
+                          }}
+                          className="w-full py-2.5 text-xs font-bold text-white bg-primary hover:bg-primary-dark rounded-xl flex items-center justify-center gap-1.5 transition-all duration-150"
+                        >
+                          <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M7.217 10.907a2.25 2.25 0 1 0 0 2.186m0-2.186c.18.324.283.696.283 1.093s-.103.77-.283 1.093m0-2.186 9.566-5.314m-9.566 7.5 9.566 5.314m0 0a2.25 2.25 0 1 0 3.935 2.186 2.25 2.25 0 0 0-3.935-2.186Zm0-12.814a2.25 2.25 0 1 0 3.933-2.185 2.25 2.25 0 0 0-3.933 2.185Z" /></svg>
+                          Copy Investor Share Link
+                        </button>
+                      </div>
+
+                      {/* Investor Requests Log Card */}
+                      <div className="bg-white border border-slate-200/80 rounded-2xl p-5 shadow-sm-custom">
+                        <div className="pb-4 mb-4 border-b border-slate-100 flex items-center justify-between">
+                          <div className="flex items-center gap-2">
+                            <h3 className="text-sm font-bold text-slate-800">Investor Requests</h3>
+                          </div>
+                          <span className="text-[10px] text-slate-400 font-semibold">Live Feed</span>
+                        </div>
+
+                        <div className="space-y-4">
+                          <div className="flex items-center justify-between p-3 bg-slate-50/50 border border-slate-100 rounded-xl">
+                            <div>
+                              <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Pending Review</p>
+                              <p className="text-lg font-mono font-bold text-slate-800 mt-0.5">
+                                {investorRequests.filter(r => r.status === 'Pending').length} Requests
+                              </p>
+                            </div>
+                            <div className="w-10 h-10 rounded-xl bg-indigo-50 text-axviolet flex items-center justify-center">
+                              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M18 18.72a9.094 9.094 0 0 0 3.741-.479 3 3 0 0 0-4.682-2.72m.94 3.198.001.031c0 .225-.012.447-.037.666A11.944 11.944 0 0 1 12 21c-2.17 0-4.207-.576-5.963-1.584A6.062 6.062 0 0 1 6 18.719m12 0a5.971 5.971 0 0 0-.941-3.197m0 0A5.995 5.995 0 0 0 12 12.75a5.995 5.995 0 0 0-5.058 2.772m0 0a3 3 0 0 0-4.681 2.72 8.986 8.986 0 0 0 3.74.477m.94-3.197a5.971 5.971 0 0 0-.94 3.197M15 6.75a3 3 0 1 1-6 0 3 3 0 0 1 6 0Zm6 3a2.25 2.25 0 1 1-4.5 0 2.25 2.25 0 0 1 4.5 0Zm-13.5 0a2.25 2.25 0 1 1-4.5 0 2.25 2.25 0 0 1 4.5 0Z" /></svg>
+                            </div>
+                          </div>
+
+                          <div className="flex items-center justify-between p-3 bg-slate-50/50 border border-slate-100 rounded-xl">
+                            <div>
+                              <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Connected Investors</p>
+                              <p className="text-lg font-mono font-bold text-slate-800 mt-0.5">
+                                {investorRequests.filter(r => r.status === 'Approved').length} Approved
+                              </p>
+                            </div>
+                            <div className="w-10 h-10 rounded-xl bg-green-50 text-green-600 flex items-center justify-center">
+                              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="m4.5 12.75 6 6 9-13.5" /></svg>
+                            </div>
+                          </div>
+
+                          <button 
+                            onClick={() => setIsRequestsOpen(true)}
+                            className="w-full py-2.5 text-xs font-bold text-primary hover:text-primary-dark border border-primary-line bg-primary-light/50 hover:bg-primary-light rounded-xl transition-all duration-150 flex items-center justify-center gap-1.5 cursor-pointer"
+                          >
+                            <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M2.036 12.322a1.012 1.012 0 0 1 0-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178Z" /><path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" /></svg>
+                            View Connection Requests
+                          </button>
+                        </div>
+                      </div>
+
+                    </div>
+
+                  </div>
+
+                </div>
+              )}
+
+              {/* Registration Tab View (Founder Profile) */}
+              {activePage === 'registration' && (
+                <div className="bg-white border border-slate-200/80 rounded-2xl p-6 sm:p-8 shadow-sm-custom animate-fade-in">
+                  <div className="flex justify-between items-center pb-4 mb-6 border-b border-slate-100">
+                    <div>
+                      <h3 className="text-base font-bold text-slate-800 font-display">Founder &amp; Startup Profile</h3>
+                      <p className="text-xs text-slate-400">Your approved registration data</p>
+                    </div>
+                    <span className="px-2.5 py-0.5 text-xs font-bold text-green-600 bg-green-50 border border-green-100 rounded-full">
+                      Verified Profile
+                    </span>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                      <p className="text-xs font-bold text-slate-400 uppercase tracking-wider">Startup Legal Name</p>
+                      <p className="text-sm font-bold text-slate-800 mt-1">Nimbus AI Solutions Private Limited</p>
+                    </div>
+                    <div>
+                      <p className="text-xs font-bold text-slate-400 uppercase tracking-wider">Participant ID</p>
+                      <p className="text-sm font-bold text-slate-800 font-mono mt-1">AXFE26-482913</p>
+                    </div>
+                    <div>
+                      <p className="text-xs font-bold text-slate-400 uppercase tracking-wider">Founder / CEO</p>
+                      <p className="text-sm font-bold text-slate-800 mt-1">Aarav Kapoor</p>
+                    </div>
+                    <div>
+                      <p className="text-xs font-bold text-slate-400 uppercase tracking-wider">Co-Founder / CTO</p>
+                      <p className="text-sm font-bold text-slate-800 mt-1">Devika Rao</p>
+                    </div>
+                    <div>
+                      <p className="text-xs font-bold text-slate-400 uppercase tracking-wider">Registered Email</p>
+                      <p className="text-sm font-bold text-slate-800 mt-1 font-mono">aarav.kapoor@nimbusai.io</p>
+                    </div>
+                    <div>
+                      <p className="text-xs font-bold text-slate-400 uppercase tracking-wider">Contact Number</p>
+                      <p className="text-sm font-bold text-slate-800 mt-1">+91 98765 43210</p>
+                    </div>
+                    <div>
+                      <p className="text-xs font-bold text-slate-400 uppercase tracking-wider">Primary Track Category</p>
+                      <p className="text-sm font-bold text-slate-800 mt-1">Enterprise SaaS · ML Infrastructure</p>
+                    </div>
+                    <div>
+                      <p className="text-xs font-bold text-slate-400 uppercase tracking-wider">Registered Date</p>
+                      <p className="text-sm font-bold text-slate-800 mt-1">July 4, 2026</p>
+                    </div>
+                    <div className="md:col-span-2">
+                      <p className="text-xs font-bold text-slate-400 uppercase tracking-wider">Product Pitch Deck Link</p>
+                      <a href="https://pitch.nimbusai.io" target="_blank" rel="noopener noreferrer" className="text-sm font-bold text-primary hover:text-blue-700 mt-1 block truncate">
+                        https://pitch.nimbusai.io
+                      </a>
+                    </div>
+                    <div className="md:col-span-2">
+                      <p className="text-xs font-bold text-slate-400 uppercase tracking-wider">Product Summary</p>
+                      <p className="text-sm text-slate-600 leading-relaxed mt-1">
+                        Nimbus AI delivers specialized developer orchestration tools for monitoring and optimizing token usage pipelines on production LLM cluster runtimes, reducing latencies by up to 40% while preventing token over-allocation.
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="mt-8 pt-6 border-t border-slate-100 flex items-center gap-2 text-slate-400">
+                    <svg className="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.57-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z" />
+                    </svg>
+                    <span className="text-[10px] font-bold uppercase tracking-wider">Access Scope: Restricted to Own Approved Data Only</span>
+                  </div>
+                </div>
+              )}
+
+              {/* Assessment Scorecard View */}
+              {activePage === 'assessment' && (
+                <div className="space-y-6 animate-fade-in">
+                  
+                  {/* Scope warning notification */}
+                  <div className="bg-blue-50 border border-blue-100 rounded-2xl p-4 flex items-start gap-3">
+                    <svg className="w-5 h-5 text-primary shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                    </svg>
+                    <div>
+                      <p className="text-xs font-bold text-slate-800">Approved Scorecard access</p>
+                      <p className="text-[11px] text-slate-500 mt-1 leading-relaxed">
+                        Below are the scores and feedback notes approved for release by the panel. If you have questions regarding evaluator remarks, please schedule a 1:1 meeting with your GTM Mentor.
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="bg-white border border-slate-200/80 rounded-2xl p-6 sm:p-8 shadow-sm-custom">
+                    <div className="flex justify-between items-center pb-4 mb-6 border-b border-slate-100">
+                      <div>
+                        <h3 className="text-base font-bold text-slate-800 font-display">Evaluation &amp; Remarks</h3>
+                        <p className="text-xs text-slate-400">Scorecard updates across criteria rubrics</p>
+                      </div>
+                      <div className="text-right">
+                        <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Overall Weighted Score</p>
+                        <p className="text-lg font-extrabold text-primary font-display mt-0.5">8.4 / 10.0</p>
+                      </div>
+                    </div>
+
+                    <div className="space-y-6">
+                      
+                      {/* Rubric Card 1 */}
+                      <div className="border border-slate-200/60 rounded-2xl p-5 bg-slate-50/50 hover:bg-slate-50 transition-colors">
+                        <div className="flex justify-between items-start flex-wrap gap-2 mb-4 pb-3 border-b border-slate-100/80">
+                          <div>
+                            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Phase Status</span>
+                            <span className="inline-flex items-center gap-1 mt-1 px-2.5 py-0.5 text-xs font-bold text-green-700 bg-green-50 border border-green-100 rounded-full">
+                              Verified &amp; Passed
+                            </span>
+                          </div>
+                          <div className="text-right">
+                            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Visible Score</span>
+                            <span className="text-sm font-bold text-slate-700 mt-1 block">Criteria Met</span>
+                          </div>
+                        </div>
+
+                        <div className="space-y-3">
+                          <div>
+                            <p className="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider">Evaluation Notes</p>
+                            <p className="text-xs text-slate-600 mt-0.5">Onboarding registration compliance check, company credentials, and legal check-in verified.</p>
+                          </div>
+                          <div>
+                            <p className="text-[10px] font-extrabold text-primary uppercase tracking-wider">Mentor Recommendations</p>
+                            <p className="text-xs text-slate-600 mt-0.5">Prepare updated investor status sheets and capitalization table for Stage 3 reviews.</p>
+                          </div>
+                          <div>
+                            <p className="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider">Remarks</p>
+                            <p className="text-xs text-slate-500 font-semibold italic mt-0.5">"Registration compliance approved. Startup is confirmed for Bengaluru cohort entry."</p>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Rubric Card 2 */}
+                      <div className="border border-slate-200/60 rounded-2xl p-5 bg-slate-50/50 hover:bg-slate-50 transition-colors">
+                        <div className="flex justify-between items-start flex-wrap gap-2 mb-4 pb-3 border-b border-slate-100/80">
+                          <div>
+                            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Phase Status</span>
+                            <span className="inline-flex items-center gap-1 mt-1 px-2.5 py-0.5 text-xs font-bold text-blue-700 bg-blue-50 border border-blue-100 rounded-full">
+                              Evaluated
+                            </span>
+                          </div>
+                          <div className="text-right">
+                            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Visible Score</span>
+                            <span className="text-base font-extrabold text-primary mt-0.5 block">8.5 / 10.0 <span className="text-xs text-slate-400 font-normal">(Weight: 30%)</span></span>
+                          </div>
+                        </div>
+
+                        <div className="space-y-3">
+                          <div>
+                            <p className="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider">Evaluation Notes</p>
+                            <p className="text-xs text-slate-600 mt-0.5">Product depth, problem validation, addressable market size (TAM), and GTM sales cycles assessed.</p>
+                          </div>
+                          <div>
+                            <p className="text-[10px] font-extrabold text-primary uppercase tracking-wider">Mentor Recommendations</p>
+                            <p className="text-xs text-slate-600 mt-0.5">Configure tiered pricing packages (Standard, Enterprise) to match developer consumption levels.</p>
+                          </div>
+                          <div>
+                            <p className="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider">Remarks</p>
+                            <p className="text-xs text-slate-500 font-semibold italic mt-0.5">"Excellent product-market fit demonstrated with developer-facing APIs. Priya Sharma recommends exploring key developer partnerships."</p>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Rubric Card 3 */}
+                      <div className="border border-slate-200/60 rounded-2xl p-5 bg-slate-50/50 hover:bg-slate-50 transition-colors">
+                        <div className="flex justify-between items-start flex-wrap gap-2 mb-4 pb-3 border-b border-slate-100/80">
+                          <div>
+                            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Phase Status</span>
+                            <span className="inline-flex items-center gap-1 mt-1 px-2.5 py-0.5 text-xs font-bold text-blue-700 bg-blue-50 border border-blue-100 rounded-full">
+                              Evaluated
+                            </span>
+                          </div>
+                          <div className="text-right">
+                            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Visible Score</span>
+                            <span className="text-base font-extrabold text-primary mt-0.5 block">9.0 / 10.0 <span className="text-xs text-slate-400 font-normal">(Weight: 30%)</span></span>
+                          </div>
+                        </div>
+
+                        <div className="space-y-3">
+                          <div>
+                            <p className="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider">Evaluation Notes</p>
+                            <p className="text-xs text-slate-600 mt-0.5">Technical architectural review, backend clustering efficiency, failover triggers, and database design.</p>
+                          </div>
+                          <div>
+                            <p className="text-[10px] font-extrabold text-primary uppercase tracking-wider">Mentor Recommendations</p>
+                            <p className="text-xs text-slate-600 mt-0.5">Schedule a key rotation cycle for production LLM credential APIs to guarantee token safety.</p>
+                          </div>
+                          <div>
+                            <p className="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider">Remarks</p>
+                            <p className="text-xs text-slate-500 font-semibold italic mt-0.5">"Highly optimized developer toolkit framework with latency benchmarks. Built-in caching is outstanding. Arjun Nair."</p>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Rubric Card 4 */}
+                      <div className="border border-slate-200/60 rounded-2xl p-5 bg-slate-50/50 hover:bg-slate-50 transition-colors">
+                        <div className="flex justify-between items-start flex-wrap gap-2 mb-4 pb-3 border-b border-slate-100/80">
+                          <div>
+                            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Phase Status</span>
+                            <span className="inline-flex items-center gap-1 mt-1 px-2.5 py-0.5 text-xs font-bold text-amber-700 bg-amber-50 border border-amber-100 rounded-full">
+                              Pending Panel Review
+                            </span>
+                          </div>
+                          <div className="text-right">
+                            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Visible Score</span>
+                            <span className="text-sm font-bold text-slate-400 mt-1 block">- / 10.0 <span className="text-xs text-slate-400 font-normal">(Weight: 30%)</span></span>
+                          </div>
+                        </div>
+
+                        <div className="space-y-3">
+                          <div>
+                            <p className="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider">Evaluation Notes</p>
+                            <p className="text-xs text-slate-600 mt-0.5">Startup co-founder team synergy, communication matrix, and capital expenditure alignment.</p>
+                          </div>
+                          <div>
+                            <p className="text-[10px] font-extrabold text-primary uppercase tracking-wider">Mentor Recommendations</p>
+                            <p className="text-xs text-slate-600 mt-0.5">Review core leadership responsibilities split and equity matrices prior to the upcoming panel.</p>
+                          </div>
+                          <div>
+                            <p className="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider">Remarks</p>
+                            <p className="text-xs text-slate-500 font-semibold italic mt-0.5">"Evaluation scheduled during stage 3 mentor pairings."</p>
+                          </div>
+                        </div>
+                      </div>
+
+                    </div>
+                  </div>
+
+                </div>
+              )}
+
+              {/* Mentors View */}
+              {activePage === 'mentors' && (
+                <div className="bg-white border border-slate-200/80 rounded-2xl p-6 sm:p-8 shadow-sm-custom animate-fade-in">
+                  <div className="flex justify-between items-center pb-4 mb-6 border-b border-slate-100">
+                    <h3 className="text-base font-bold text-slate-800 font-display">Your Advisors &amp; Support</h3>
+                    <button 
+                      onClick={() => setIsBookOpen(true)}
+                      className="px-4 py-2 text-xs font-bold text-white bg-primary hover:bg-primary-dark rounded-xl transition-all"
+                    >
+                      Book 1:1 Session
+                    </button>
+                  </div>
+
+                  <div className="flex flex-col md:flex-row gap-6 p-5 border border-slate-100 rounded-2xl bg-slate-50/50">
+                    <div className="w-14 h-14 rounded-full bg-gradient-to-br from-axviolet to-axblue flex items-center justify-center text-white text-base font-bold shrink-0">
+                      PS
+                    </div>
+                    <div>
+                      <h4 className="text-base font-bold text-slate-800">Priya Sharma</h4>
+                      <p className="text-xs text-primary font-semibold mt-0.5">Product &amp; GTM Mentor</p>
+                      <p className="text-xs text-slate-500 mt-3 leading-relaxed">
+                        Priya advises B2B startups on product management, customer acquisition pipelines, pricing optimizations, and investment readiness. Let her know if you need to review your seed pitch deck before Stage 3 panels.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Documents Vault View */}
+              {activePage === 'documents' && (
+                <div className="bg-white border border-slate-200/80 rounded-2xl p-6 sm:p-8 shadow-sm-custom animate-fade-in">
+                  
+                  <div className="flex flex-wrap justify-between items-center pb-4 mb-6 border-b border-slate-100 gap-4">
+                    <div>
+                      <h3 className="text-base font-bold text-slate-800 font-display font-bold">Document Vault</h3>
+                      <p className="text-xs text-slate-400">Required slides, certificates, and compliance attachments.</p>
+                    </div>
+                    
+                    <div className="relative">
+                      <input 
+                        type="file" 
+                        id="file-upload-input"
+                        onChange={handleUploadSimulate}
+                        disabled={isUploading}
+                        className="hidden"
+                      />
+                      <label 
+                        htmlFor="file-upload-input"
+                        className={`cursor-pointer inline-flex items-center gap-2 px-4 py-2.5 text-xs font-bold text-white bg-primary hover:bg-primary-dark rounded-xl transition-all shadow-sm ${
+                          isUploading ? 'opacity-50 cursor-not-allowed' : ''
+                        }`}
+                      >
+                        <svg className="w-4.5 h-4.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5m-13.5-9L12 3m0 0 4.5 4.5M12 3v13.5" /></svg>
+                        {isUploading ? 'Uploading...' : 'Upload Attachment'}
+                      </label>
+                    </div>
+                  </div>
+
+                  {/* Progress Simulation Bar */}
+                  {isUploading && (
+                    <div className="mb-6 p-4 border border-blue-50 bg-blue-50/20 rounded-xl animate-fade-in">
+                      <div className="flex justify-between items-center mb-2">
+                        <span className="text-xs font-bold text-primary">Simulating File Upload progress...</span>
+                        <span className="text-xs font-mono font-bold text-primary">{uploadProgress}%</span>
+                      </div>
+                      <div className="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
+                        <div className="bg-primary h-full transition-all duration-300" style={{ width: `${uploadProgress}%` }}></div>
+                      </div>
+                    </div>
+                  )}
+
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-left border-collapse">
+                      <thead>
+                        <tr className="border-b border-slate-100 text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                          <th className="pb-3 font-semibold">Filename</th>
+                          <th className="pb-3 font-semibold">Document Type</th>
+                          <th className="pb-3 font-semibold">File Size</th>
+                          <th className="pb-3 font-semibold">Upload Date</th>
+                          <th className="pb-3 font-semibold">Status</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-slate-100/50">
+                        {files.map((file) => (
+                          <tr key={file.id} className="text-xs text-slate-700 hover:bg-slate-50/50 transition-colors">
+                            <td className="py-4 font-bold text-slate-800">{file.name}</td>
+                            <td className="py-4 font-semibold text-slate-500">{file.type}</td>
+                            <td className="py-4 font-mono font-semibold text-slate-400">{file.size}</td>
+                            <td className="py-4 font-semibold text-slate-400">{file.date}</td>
+                            <td className="py-4">
+                              <span className={`px-2 py-0.5 text-[9px] font-bold rounded-full border ${
+                                file.status === 'Approved' ? 'text-green-600 bg-green-50 border-green-100' : 'text-warning bg-warning-bg border-amber-100'
+                              }`}>
+                                {file.status}
+                              </span>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+
+                </div>
+              )}
+
+              {/* Settings View */}
+              {activePage === 'settings' && (
+                <div className="bg-white border border-slate-200/80 rounded-2xl p-6 sm:p-8 shadow-sm-custom animate-fade-in">
+                  <h3 className="text-base font-bold text-slate-800 font-display pb-4 mb-6 border-b border-slate-100">Preferences Settings</h3>
+                  <div className="space-y-4">
+                    <div className="flex items-center justify-between p-3 border border-slate-100 rounded-xl">
+                      <div>
+                        <p className="text-xs font-bold text-slate-800">Email Alerts</p>
+                        <p className="text-[10px] text-slate-400 font-semibold mt-0.5">Receive evaluations, notifications and reports updates in your inbox.</p>
+                      </div>
+                      <input type="checkbox" defaultChecked className="w-4 h-4 rounded text-primary focus:ring-primary" />
+                    </div>
+                    <div className="flex items-center justify-between p-3 border border-slate-100 rounded-xl">
+                      <div>
+                        <p className="text-xs font-bold text-slate-800">2FA SMS Verification</p>
+                        <p className="text-[10px] text-slate-400 font-semibold mt-0.5">Prompt OTP security code on each login request.</p>
+                      </div>
+                      <input type="checkbox" defaultChecked className="w-4 h-4 rounded text-primary focus:ring-primary" />
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Help & Guides View */}
+              {activePage === 'help' && (
+                <div className="bg-white border border-slate-200/80 rounded-2xl p-6 sm:p-8 shadow-sm-custom animate-fade-in">
+                  <h3 className="text-base font-bold text-slate-800 font-display pb-4 mb-6 border-b border-slate-100">Guides &amp; FAQ</h3>
+                  <div className="space-y-4 text-xs leading-relaxed text-slate-600">
+                    <div>
+                      <h4 className="font-bold text-slate-800 mb-1">How is the 65% stage progress computed?</h4>
+                      <p>The evaluation dial summarizes completions across required checklists, interview feedback logs, and pitch slides approvals.</p>
+                    </div>
+                    <hr className="border-slate-100" />
+                    <div>
+                      <h4 className="font-bold text-slate-800 mb-1">When will I meet the Stage 3 panel?</h4>
+                      <p>Once Stage 2 review is finalized, your advisor Priya Sharma will invite you to book a Slot on the dashboard calendars.</p>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+            </main>
           </div>
-          <div class="space-y-4">
-            <div class="timeline-item">
-              <span class="timeline-dot"></span>
-              <p class="text-sm font-medium">Mentor assigned</p>
-              <p class="text-xs text-axslate">Priya Sharma will reach out this week</p>
+
+          {/* ============ NOTIFICATION CENTER DRAWER ============ */}
+          {isNotifOpen && (
+            <>
+              <div 
+                onClick={() => setIsNotifOpen(false)}
+                className="fixed inset-0 bg-slate-900/35 backdrop-blur-xs z-50 transition-opacity duration-300"
+              ></div>
+              <aside className="fixed top-0 right-0 bottom-0 w-[400px] max-w-[90vw] bg-white shadow-lg-custom z-55 flex flex-col animate-fade-in">
+                
+                <div className="h-16 flex items-center justify-between px-5 border-b border-slate-100 flex-shrink-0">
+                  <h3 className="font-display font-bold text-slate-800 text-base">Notifications</h3>
+                  <button 
+                    onClick={() => setIsNotifOpen(false)}
+                    className="w-8 h-8 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-50 flex items-center justify-center transition-colors"
+                  >
+                    <CloseIcon />
+                  </button>
+                </div>
+
+                <div className="flex-1 overflow-y-auto p-4 space-y-3">
+                  {notifications.map((notif) => (
+                    <div 
+                      key={notif.id}
+                      onClick={() => handleNotifClick(notif.id)}
+                      className={`flex gap-3.5 p-3.5 rounded-xl border border-slate-100 transition-all duration-150 cursor-pointer ${
+                        notif.unread ? 'bg-blue-50/70 hover:bg-blue-50/90 border-blue-50' : 'bg-white hover:bg-slate-50'
+                      }`}
+                    >
+                      <div className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 ${
+                        notif.type === 'success' ? 'bg-green-50 text-success' :
+                        notif.type === 'warning' ? 'bg-amber-50 text-warning' : 'bg-blue-50 text-primary'
+                      }`}>
+                        {notif.type === 'success' && (
+                          <svg className="w-4.5 h-4.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+                            <path strokeLinecap="round" strokeLinejoin="round" d="m4.5 12.75 6 6 9-13.5" />
+                          </svg>
+                        )}
+                        {notif.type === 'warning' && (
+                          <svg className="w-4.5 h-4.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                          </svg>
+                        )}
+                        {notif.type === 'primary' && (
+                          <svg className="w-4.5 h-4.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M15 19.128a9.38 9.38 0 0 0 2.625.372 9.337 9.337 0 0 0 4.121-.952 4.125 4.125 0 0 0-7.533-2.493" />
+                          </svg>
+                        )}
+                      </div>
+
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center justify-between gap-2">
+                          <p className="text-xs font-bold text-slate-800 truncate">{notif.title}</p>
+                          {notif.unread && (
+                            <span className="w-1.5 h-1.5 bg-primary rounded-full shrink-0"></span>
+                          )}
+                        </div>
+                        <p className="text-[11px] text-slate-500 mt-1 leading-normal">{notif.desc}</p>
+                        <p className="text-[9px] font-semibold text-slate-400 mt-2">{notif.time}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+              </aside>
+            </>
+          )}
+
+          {/* ============ MODAL PORTALS ============ */}
+          <ScorecardModal 
+            isOpen={isScorecardOpen} 
+            onClose={() => setIsScorecardOpen(false)} 
+          />
+
+          <BookMentorModal 
+            isOpen={isBookOpen} 
+            onClose={() => setIsBookOpen(false)} 
+            onBook={handleBookSession} 
+          />
+
+          <InvestorRequestsModal 
+            isOpen={isRequestsOpen} 
+            onClose={() => setIsRequestsOpen(false)} 
+            requests={investorRequests}
+            onApprove={handleApproveInvestor}
+            onDecline={handleDeclineInvestor}
+          />
+
+          {/* Render Toasts */}
+          {ReactDOM.createPortal(
+            <div className="flex flex-col gap-3 pointer-events-none">
+              {toasts.map((toast) => (
+                <Toast
+                  key={toast.id}
+                  id={toast.id}
+                  type={toast.type}
+                  title={toast.title}
+                  message={toast.message}
+                  onClose={removeToast}
+                />
+              ))}
+            </div>,
+            document.getElementById('toast-root')
+          )}
+
+          {/* ============ STAGE PRESENTATION QR OVERLAY MODAL ============ */}
+          {isStageModeOpen && (
+            <div className="fixed inset-0 z-[100] bg-slate-950/98 backdrop-blur-md flex flex-col items-center justify-center p-6 text-white text-center animate-fade-in">
+              
+              {/* Close button */}
+              <button 
+                onClick={() => setIsStageModeOpen(false)}
+                className="absolute top-6 right-6 p-3 rounded-full hover:bg-white/10 text-white/70 hover:text-white transition-colors cursor-pointer border border-white/10"
+                title="Exit Presentation Mode"
+              >
+                <svg className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5"><path strokeLinecap="round" strokeLinejoin="round" d="M6 18 18 6M6 6l12 12" /></svg>
+              </button>
+
+              <div className="max-w-2xl mx-auto space-y-8 flex flex-col items-center">
+                {/* Heading / Info */}
+                <div className="space-y-3">
+                  <div className="flex items-center justify-center gap-2">
+                    <span className="w-3 h-3 rounded-full bg-red-500 animate-pulse"></span>
+                    <span className="text-xs font-black tracking-widest text-red-500 uppercase">Stage Pitching Live</span>
+                  </div>
+                  <h2 className="text-4xl font-extrabold tracking-tight font-display bg-clip-text text-transparent bg-gradient-to-r from-blue-400 via-indigo-200 to-purple-400">
+                    Nimbus AI Solutions
+                  </h2>
+                  <p className="text-sm font-bold text-slate-400 tracking-wider uppercase">
+                    AXFE26-482913 · Enterprise SaaS &amp; ML Infrastructure
+                  </p>
+                </div>
+
+                {/* Massive QR Code Card */}
+                <div className="bg-white p-8 rounded-3xl shadow-[0_0_50px_rgba(37,99,235,0.25)] border-4 border-blue-500 hover:scale-[1.02] transition-transform duration-300">
+                  <svg viewBox="0 0 100 100" className="w-[320px] h-[320px] mx-auto text-[#0F172A]" fill="currentColor">
+                    {/* Corner Squares */}
+                    <rect x="10" y="10" width="22" height="22" rx="3" fill="none" stroke="#0F172A" strokeWidth="4" />
+                    <rect x="16" y="16" width="10" height="10" rx="1.5" fill="#0F172A" />
+                    <rect x="68" y="10" width="22" height="22" rx="3" fill="none" stroke="#0F172A" strokeWidth="4" />
+                    <rect x="74" y="16" width="10" height="10" rx="1.5" fill="#0F172A" />
+                    <rect x="10" y="68" width="22" height="22" rx="3" fill="none" stroke="#0F172A" strokeWidth="4" />
+                    <rect x="16" y="74" width="10" height="10" rx="1.5" fill="#0F172A" />
+                    
+                    {/* Dummy QR Matrix */}
+                    <rect x="36" y="10" width="6" height="6" rx="1" fill="#0F172A" />
+                    <rect x="46" y="10" width="12" height="6" rx="1" fill="#0F172A" />
+                    <rect x="36" y="20" width="6" height="12" rx="1" fill="#0F172A" />
+                    <rect x="46" y="20" width="12" height="6" rx="1" fill="#0F172A" />
+                    <rect x="60" y="20" width="6" height="6" rx="1" fill="#0F172A" />
+                    
+                    <rect x="10" y="36" width="6" height="6" rx="1" fill="#0F172A" />
+                    <rect x="20" y="36" width="12" height="6" rx="1" fill="#0F172A" />
+                    <rect x="36" y="36" width="6" height="6" rx="1" fill="#0F172A" />
+                    <rect x="46" y="36" width="6" height="12" rx="1" fill="#0F172A" />
+                    <rect x="56" y="36" width="12" height="6" rx="1" fill="#0F172A" />
+                    <rect x="72" y="36" width="6" height="6" rx="1" fill="#0F172A" />
+                    <rect x="82" y="36" width="8" height="6" rx="1" fill="#0F172A" />
+
+                    <rect x="10" y="46" width="6" height="12" rx="1" fill="#0F172A" />
+                    <rect x="20" y="46" width="6" height="6" rx="1" fill="#0F172A" />
+                    <rect x="30" y="46" width="12" height="6" rx="1" fill="#0F172A" />
+                    <rect x="46" y="52" width="6" height="6" rx="1" fill="#0F172A" />
+                    <rect x="56" y="46" width="6" height="12" rx="1" fill="#0F172A" />
+                    <rect x="66" y="46" width="12" height="6" rx="1" fill="#0F172A" />
+                    <rect x="82" y="46" width="8" height="12" rx="1" fill="#0F172A" />
+
+                    <rect x="36" y="68" width="6" height="12" rx="1" fill="#0F172A" />
+                    <rect x="46" y="68" width="12" height="6" rx="1" fill="#0F172A" />
+                    <rect x="62" y="68" width="6" height="6" rx="1" fill="#0F172A" />
+                    <rect x="46" y="78" width="6" height="12" rx="1" fill="#0F172A" />
+                    <rect x="56" y="78" width="12" height="6" rx="1" fill="#0F172A" />
+                    <rect x="72" y="78" width="6" height="6" rx="1" fill="#0F172A" />
+                    <rect x="82" y="78" width="8" height="6" rx="1" fill="#0F172A" />
+                    
+                    {/* Center Logo */}
+                    <rect x="40" y="40" width="20" height="20" rx="5" fill="#FFFFFF" stroke="#0F172A" strokeWidth="2" />
+                    <circle cx="50" cy="50" r="7" fill="#0F172A" />
+                    <text x="50" y="53" fill="#FFFFFF" fontSize="9" fontWeight="bold" textAnchor="middle" fontFamily="sans-serif">N</text>
+                  </svg>
+                </div>
+
+                {/* Footer instructions */}
+                <div className="space-y-4">
+                  <p className="text-xl font-medium text-slate-300 max-w-lg mx-auto">
+                    Interested Investors: Scan this code to immediately connect with the founders and request secure pitch deck access.
+                  </p>
+                  <p className="text-xs text-slate-500 uppercase tracking-widest font-mono">
+                    Press <span className="bg-slate-800 px-2 py-1 rounded text-slate-300">ESC</span> key or click close to exit
+                  </p>
+                </div>
+              </div>
             </div>
-            <div class="timeline-item">
-              <span class="timeline-dot" style="background:var(--axviolet)"></span>
-              <p class="text-sm font-medium">Documents verified</p>
-              <p class="text-xs text-axslate">Pitch deck and registration certificate approved</p>
-            </div>
-            <div class="timeline-item">
-              <span class="timeline-dot" style="background:var(--axslate-light)"></span>
-              <p class="text-sm font-medium">Registration received</p>
-              <p class="text-xs text-axslate">2 days ago</p>
-            </div>
-          </div>
+          )}
+
         </div>
-      </div>
-    </main>
-  </div>
-</div>
+      );
+    }
 
-<!-- Mobile nav drawer -->
-<div id="mobile-nav" class="hidden fixed inset-0 z-50 lg:hidden">
-  <div class="absolute inset-0 bg-axnavy/50" data-toggle="mobile-nav"></div>
-  <div class="absolute left-0 top-0 bottom-0 w-72 bg-white p-5">
-    <div class="flex items-center justify-between mb-6">
-      <span class="font-display font-semibold">Menu</span>
-      <button data-toggle="mobile-nav" aria-label="Close menu"><svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12"/></svg></button>
-    </div>
-    <nav class="space-y-1 text-sm">
-      <a href="#" class="block px-3 py-2.5 rounded-lg bg-axlavender text-axbluedark font-semibold">Dashboard</a>
-      <a href="register.html" class="block px-3 py-2.5 rounded-lg text-axslate font-medium">Registration</a>
-      <a href="#" class="block px-3 py-2.5 rounded-lg text-axslate font-medium">Assessment</a>
-      <a href="#" class="block px-3 py-2.5 rounded-lg text-axslate font-medium">Mentors</a>
-      <a href="#" class="block px-3 py-2.5 rounded-lg text-axslate font-medium">Documents</a>
-      <a href="#" class="block px-3 py-2.5 rounded-lg text-axslate font-medium">Settings</a>
-    </nav>
-  </div>
-</div>
-
-<script src="assets/js/main.js"></script>
-<script>
-  setTimeout(() => {
-    document.getElementById('skeleton-grid').classList.add('hidden');
-    document.getElementById('real-grid').classList.remove('hidden');
-  }, 650);
-</script>
+    const root = ReactDOM.createRoot(document.getElementById('root'));
+    root.render(<App />);
+  </script>
 </body>
 </html>
