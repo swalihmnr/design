@@ -330,6 +330,42 @@
       const [toasts, setToasts] = useState([]);
       const [searchQuery, setSearchQuery] = useState('');
 
+      // Dynamic Mentor Evaluation for Nimbus AI (AXFE26-118490)
+      const [nimbusEvaluation, setNimbusEvaluation] = useState(() => {
+        const local = localStorage.getItem('axfe26_mentor_startups');
+        if (local) {
+          const list = JSON.parse(local);
+          const nimbus = list.find(p => p.id === 'AXFE26-118490');
+          if (nimbus) return nimbus;
+        }
+        return {
+          score: 8.4,
+          scores: { valueProp: 8, gtm: 9, team: 8, tech: 9, finance: 8 },
+          notes: "Excellent product market fit for LLM orchestration. GTM strategy is solid in enterprise space.",
+          recommendations: "Build out custom API pricing options to win pilot partners.",
+          status: "Completed"
+        };
+      });
+
+      useEffect(() => {
+        const handleStorageChange = () => {
+          const local = localStorage.getItem('axfe26_mentor_startups');
+          if (local) {
+            const list = JSON.parse(local);
+            const nimbus = list.find(p => p.id === 'AXFE26-118490');
+            if (nimbus) {
+              setNimbusEvaluation(nimbus);
+            }
+          }
+        };
+        window.addEventListener('storage', handleStorageChange);
+        window.addEventListener('focus', handleStorageChange);
+        return () => {
+          window.removeEventListener('storage', handleStorageChange);
+          window.removeEventListener('focus', handleStorageChange);
+        };
+      }, []);
+
       // Modals
       const [isScorecardOpen, setIsScorecardOpen] = useState(false);
       const [isStageModeOpen, setIsStageModeOpen] = useState(false);
@@ -1289,7 +1325,7 @@
                       </div>
                       <div className="text-right">
                         <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Overall Weighted Score</p>
-                        <p className="text-lg font-extrabold text-primary font-display mt-0.5">8.4 / 10.0</p>
+                        <p className="text-lg font-extrabold text-primary font-display mt-0.5">{nimbusEvaluation.score !== null ? `${nimbusEvaluation.score} / 10.0` : 'Pending'}</p>
                       </div>
                     </div>
 
@@ -1332,27 +1368,27 @@
                           <div>
                             <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Phase Status</span>
                             <span className="inline-flex items-center gap-1 mt-1 px-2.5 py-0.5 text-xs font-bold text-blue-700 bg-blue-50 border border-blue-100 rounded-full">
-                              Evaluated
+                              {nimbusEvaluation.status === 'Completed' ? 'Evaluated' : 'Pending Evaluation'}
                             </span>
                           </div>
                           <div className="text-right">
                             <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Visible Score</span>
-                            <span className="text-base font-extrabold text-primary mt-0.5 block">8.5 / 10.0 <span className="text-xs text-slate-400 font-normal">(Weight: 30%)</span></span>
+                            <span className="text-base font-extrabold text-primary mt-0.5 block">{nimbusEvaluation.status === 'Completed' ? `${((nimbusEvaluation.scores.valueProp + nimbusEvaluation.scores.gtm) / 2).toFixed(1)} / 10.0` : '- / 10.0'} <span className="text-xs text-slate-400 font-normal">(Weight: 30%)</span></span>
                           </div>
                         </div>
 
                         <div className="space-y-3">
                           <div>
                             <p className="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider">Evaluation Notes</p>
-                            <p className="text-xs text-slate-600 mt-0.5">Product depth, problem validation, addressable market size (TAM), and GTM sales cycles assessed.</p>
+                            <p className="text-xs text-slate-600 mt-0.5">{nimbusEvaluation.status === 'Completed' ? `Value Proposition score: ${nimbusEvaluation.scores.valueProp}/10. GTM Strategy score: ${nimbusEvaluation.scores.gtm}/10. Product depth, problem validation, addressable market size (TAM), and sales cycles assessed.` : 'Pending product/GTM evaluation by Priya Sharma.'}</p>
                           </div>
                           <div>
                             <p className="text-[10px] font-extrabold text-primary uppercase tracking-wider">Mentor Recommendations</p>
-                            <p className="text-xs text-slate-600 mt-0.5">Configure tiered pricing packages (Standard, Enterprise) to match developer consumption levels.</p>
+                            <p className="text-xs text-slate-600 mt-0.5">{nimbusEvaluation.recommendations || 'Recommendations pending evaluation.'}</p>
                           </div>
                           <div>
                             <p className="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider">Remarks</p>
-                            <p className="text-xs text-slate-500 font-semibold italic mt-0.5">"Excellent product-market fit demonstrated with developer-facing APIs. Priya Sharma recommends exploring key developer partnerships."</p>
+                            <p className="text-xs text-slate-500 font-semibold italic mt-0.5">"{nimbusEvaluation.notes || 'Evaluation pending schedule.'}"</p>
                           </div>
                         </div>
                       </div>
@@ -1363,19 +1399,19 @@
                           <div>
                             <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Phase Status</span>
                             <span className="inline-flex items-center gap-1 mt-1 px-2.5 py-0.5 text-xs font-bold text-blue-700 bg-blue-50 border border-blue-100 rounded-full">
-                              Evaluated
+                              {nimbusEvaluation.status === 'Completed' ? 'Evaluated' : 'Pending Evaluation'}
                             </span>
                           </div>
                           <div className="text-right">
                             <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Visible Score</span>
-                            <span className="text-base font-extrabold text-primary mt-0.5 block">9.0 / 10.0 <span className="text-xs text-slate-400 font-normal">(Weight: 30%)</span></span>
+                            <span className="text-base font-extrabold text-primary mt-0.5 block">{nimbusEvaluation.status === 'Completed' ? `${nimbusEvaluation.scores.tech} / 10.0` : '- / 10.0'} <span className="text-xs text-slate-400 font-normal">(Weight: 30%)</span></span>
                           </div>
                         </div>
 
                         <div className="space-y-3">
                           <div>
                             <p className="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider">Evaluation Notes</p>
-                            <p className="text-xs text-slate-600 mt-0.5">Technical architectural review, backend clustering efficiency, failover triggers, and database design.</p>
+                            <p className="text-xs text-slate-600 mt-0.5">Technical architectural review, backend clustering efficiency, failover triggers, database design, and scaling benchmarks.</p>
                           </div>
                           <div>
                             <p className="text-[10px] font-extrabold text-primary uppercase tracking-wider">Mentor Recommendations</p>
@@ -1394,19 +1430,19 @@
                           <div>
                             <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Phase Status</span>
                             <span className="inline-flex items-center gap-1 mt-1 px-2.5 py-0.5 text-xs font-bold text-amber-700 bg-amber-50 border border-amber-100 rounded-full">
-                              Pending Panel Review
+                              {nimbusEvaluation.status === 'Completed' ? 'Evaluated' : 'Pending Panel Review'}
                             </span>
                           </div>
                           <div className="text-right">
                             <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Visible Score</span>
-                            <span className="text-sm font-bold text-slate-400 mt-1 block">- / 10.0 <span className="text-xs text-slate-400 font-normal">(Weight: 30%)</span></span>
+                            <span className="text-base font-extrabold text-primary mt-0.5 block">{nimbusEvaluation.status === 'Completed' ? `${nimbusEvaluation.scores.finance} / 10.0` : '- / 10.0'} <span className="text-xs text-slate-400 font-normal">(Weight: 30%)</span></span>
                           </div>
                         </div>
 
                         <div className="space-y-3">
                           <div>
                             <p className="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider">Evaluation Notes</p>
-                            <p className="text-xs text-slate-600 mt-0.5">Startup co-founder team synergy, communication matrix, and capital expenditure alignment.</p>
+                            <p className="text-xs text-slate-600 mt-0.5">Startup co-founder team synergy, communication matrix, and capital expenditure alignment, cash runway, and financials.</p>
                           </div>
                           <div>
                             <p className="text-[10px] font-extrabold text-primary uppercase tracking-wider">Mentor Recommendations</p>
@@ -1414,7 +1450,7 @@
                           </div>
                           <div>
                             <p className="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider">Remarks</p>
-                            <p className="text-xs text-slate-500 font-semibold italic mt-0.5">"Evaluation scheduled during stage 3 mentor pairings."</p>
+                            <p className="text-xs text-slate-500 font-semibold italic mt-0.5">"Evaluation complete. Sync data published to local database."</p>
                           </div>
                         </div>
                       </div>
