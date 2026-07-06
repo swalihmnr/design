@@ -1,0 +1,856 @@
+<!doctype html>
+<html lang="en" class="h-full">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin Dashboard — AX Founder Exchange 2026</title>
+  <meta name="description" content="Admin evaluation and zone management portal for organizers of the AX Founder Exchange 2026." />
+  
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <!-- Tailwind Configuration -->
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: '#2563EB',
+            secondary: '#7C3AED',
+            success: '#16A34A',
+            warning: '#F59E0B',
+            danger: '#DC2626',
+            axnavy: '#0F1A4D',
+            axblue: '#3B5BFF',
+            axviolet: '#7C3AED',
+            axlavender: '#EEF1FF',
+            axpaper: '#F7F8FC',
+            axink: '#0F172A',
+            axslate: '#64748B',
+            axline: '#E2E6F3'
+          },
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+            display: ['Space Grotesk', 'sans-serif'],
+          },
+          boxShadow: {
+            'sm-custom': '0 1px 2px rgba(17,24,39,0.05)',
+            'md-custom': '0 4px 12px -2px rgba(17,24,39,0.08), 0 2px 4px rgba(17,24,39,0.04)',
+            'lg-custom': '0 16px 32px -8px rgba(17,24,39,0.14), 0 4px 8px rgba(17,24,39,0.05)',
+          }
+        }
+      }
+    }
+  </script>
+  
+  <!-- React & Babel CDNs -->
+  <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+  <style>
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .animate-fade-in {
+      animation: fadeIn 0.3s ease-out forwards;
+    }
+    .no-scrollbar::-webkit-scrollbar {
+      display: none;
+    }
+    .no-scrollbar {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+    .glass-card {
+      background: rgba(255, 255, 255, 0.7);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+    }
+    .input-glow:focus {
+      outline: none;
+      border-color: #2563EB;
+      box-shadow: 0 0 0 4px rgba(37,99,235,0.1);
+    }
+  </style>
+</head>
+<body className="h-full bg-slate-50 text-slate-800">
+  <div id="root"></div>
+
+  <!-- Toast Root -->
+  <div id="toast-root" className="fixed bottom-4 right-4 z-50 flex flex-col gap-3 pointer-events-none"></div>
+
+  <script type="text/babel">
+    const { useState, useEffect } = React;
+
+    // ==========================================
+    // SHARED UTILITY COMPONENTS
+    // ==========================================
+    const Toast = ({ id, type, title, message, onClose }) => {
+      useEffect(() => {
+        const timer = setTimeout(() => onClose(id), 4000);
+        return () => clearTimeout(timer);
+      }, [id, onClose]);
+
+      const colors = {
+        success: 'border-green-500 bg-green-50 text-green-800',
+        danger: 'border-red-500 bg-red-50 text-red-800',
+        warning: 'border-amber-500 bg-amber-50 text-amber-800',
+        info: 'border-blue-500 bg-blue-50 text-blue-800',
+      };
+
+      return (
+        <div className={`p-4 rounded-xl border shadow-md flex gap-3 max-w-sm pointer-events-auto animate-fade-in ${colors[type]}`}>
+          <div className="flex-1">
+            <p className="text-xs font-bold font-display">{title}</p>
+            <p className="text-[11px] font-medium mt-0.5 leading-normal opacity-90">{message}</p>
+          </div>
+          <button onClick={() => onClose(id)} className="text-slate-400 hover:text-slate-600 self-start">
+            <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5"><path strokeLinecap="round" strokeLinejoin="round" d="M6 18 18 6M6 6l12 12" /></svg>
+          </button>
+        </div>
+      );
+    };
+
+    // ==========================================
+    // DIALOG MODALS
+    // ==========================================
+    const PromoteModal = ({ isOpen, onClose, participant, onConfirm }) => {
+      if (!isOpen || !participant) return null;
+      return (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <div className="absolute inset-0 bg-slate-900/40 backdrop-blur-sm" onClick={onClose}></div>
+          <div className="bg-white rounded-2xl p-6 sm:p-8 max-w-md w-full shadow-lg-custom relative z-10 animate-fade-in border border-slate-100">
+            <h3 className="text-base font-bold text-slate-900 font-display">Manage Final Shortlist</h3>
+            <p className="text-xs text-slate-500 mt-1">
+              Toggle final selection status for <strong>{participant.name}</strong>.
+            </p>
+            <div className="my-5 p-3.5 bg-slate-50 border border-slate-100 rounded-xl space-y-2">
+              <div className="flex justify-between text-xs">
+                <span className="font-semibold text-slate-500">Startup Code</span>
+                <span className="font-mono font-bold text-slate-800">{participant.code}</span>
+              </div>
+              <div className="flex justify-between text-xs">
+                <span className="font-semibold text-slate-500">Zone Track</span>
+                <span className="font-bold text-slate-800">{participant.zone} · {participant.track}</span>
+              </div>
+              <div className="flex justify-between text-xs">
+                <span className="font-semibold text-slate-500">Scorecard Grade</span>
+                <span className="font-mono font-bold text-primary">{participant.score} / 10</span>
+              </div>
+            </div>
+            <div className="flex gap-3 justify-end">
+              <button onClick={onClose} className="px-4 py-2.5 text-xs font-bold text-slate-600 bg-slate-100 hover:bg-slate-200 rounded-xl">
+                Cancel
+              </button>
+              <button 
+                onClick={() => { onConfirm(participant.id); onClose(); }} 
+                className={`px-5 py-2.5 text-xs font-bold text-white rounded-xl shadow-md ${
+                  participant.shortlisted ? 'bg-red-600 hover:bg-red-700' : 'bg-success hover:bg-success-dark'
+                }`}
+              >
+                {participant.shortlisted ? 'Remove from Shortlist' : 'Promote to Shortlist'}
+              </button>
+            </div>
+          </div>
+        </div>
+      );
+    };
+
+    // ==========================================
+    // MAIN APP COMPONENT
+    // ==========================================
+    function App() {
+      const [activePage, setActivePage] = useState('home');
+      const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
+      const [isMobileOpen, setIsMobileOpen] = useState(false);
+      const [toasts, setToasts] = useState([]);
+      const [searchQuery, setSearchQuery] = useState('');
+      const [zoneFilter, setZoneFilter] = useState('All');
+
+      // Promote modal state
+      const [selectedParticipant, setSelectedParticipant] = useState(null);
+      const [isPromoteOpen, setIsPromoteOpen] = useState(false);
+
+      // Report generation state
+      const [isGenerating, setIsGenerating] = useState(false);
+
+      // Mock Data
+      const [participants, setParticipants] = useState([
+        { id: 1, name: 'Nimbus AI Solutions', code: 'AXFE26-482913', zone: 'Zone C', track: 'SaaS & AI', score: 8.5, progress: 65, status: 'Active Review', shortlisted: true },
+        { id: 2, name: 'Apex Robotics Labs', code: 'AXFE26-102948', zone: 'Zone A', track: 'DeepTech', score: 7.4, progress: 100, status: 'Evaluated', shortlisted: false },
+        { id: 3, name: 'MediQuick Care', code: 'AXFE26-883921', zone: 'Zone B', track: 'HealthTech', score: 8.9, progress: 80, status: 'Active Review', shortlisted: true },
+        { id: 4, name: 'FinFlow Pay', code: 'AXFE26-726481', zone: 'Zone C', track: 'FinTech', score: 6.8, progress: 50, status: 'Drafting', shortlisted: false },
+        { id: 5, name: 'Zetta AgriTech Systems', code: 'AXFE26-339281', zone: 'Zone D', track: 'Agritech', score: 8.2, progress: 75, status: 'Active Review', shortlisted: true },
+        { id: 6, name: 'Optima Logi Solutions', code: 'AXFE26-554812', zone: 'Zone A', track: 'Logistic AI', score: 7.9, progress: 100, status: 'Evaluated', shortlisted: false }
+      ]);
+
+      const [alerts, setAlerts] = useState([
+        { id: 1, type: 'danger', message: 'Stage 2 Judging review pending for Zone C FinTech track.', time: '10 mins ago', actionLabel: 'Review Track' },
+        { id: 2, type: 'warning', message: 'Evaluation grade mismatch detected for FinFlow Pay.', time: '1 hour ago', actionLabel: 'Resolve Grade' },
+        { id: 3, type: 'info', message: 'Nimbus AI uploaded Pitch Deck updates in Document Vault.', time: '2 hours ago', actionLabel: 'View Deck' }
+      ]);
+
+      const [activities, setActivities] = useState([
+        { id: 1, text: 'Rajesh Varma updated evaluations for Nimbus AI Solutions in Zone C.', time: '5 mins ago' },
+        { id: 2, text: 'Zetta AgriTech Solutions added to the Final Shortlist.', time: '1 hour ago' },
+        { id: 3, text: 'Arjun Nair signed off evaluations for Zone A DeepTech track.', time: '4 hours ago' },
+        { id: 4, text: 'Priya Sharma assigned calendar sync logs for Zone B.', time: '1 day ago' }
+      ]);
+
+      const zones = [
+        { id: 'Zone A', name: 'Zone A · DeepTech', lead: 'Arjun Nair', progress: 100, count: 2, status: 'Completed' },
+        { id: 'Zone B', name: 'Zone B · HealthTech', lead: 'Priya Sharma', progress: 80, count: 1, status: 'Active' },
+        { id: 'Zone C', name: 'Zone C · SaaS & AI', lead: 'Rajesh Varma', progress: 58, count: 2, status: 'Active' },
+        { id: 'Zone D', name: 'Zone D · Agritech', lead: 'Meera Sen', progress: 75, count: 1, status: 'Active' }
+      ];
+
+      // Toast helpers
+      const showToast = (type, title, message) => {
+        const id = Date.now().toString();
+        setToasts((prev) => [...prev, { id, type, title, message }]);
+      };
+
+      const removeToast = (id) => {
+        setToasts((prev) => prev.filter((t) => t.id !== id));
+      };
+
+      // Promote action
+      const handleToggleShortlist = (id) => {
+        setParticipants(prev => prev.map(p => {
+          if (p.id === id) {
+            const updated = !p.shortlisted;
+            showToast('success', updated ? 'Added to Shortlist' : 'Removed from Shortlist', `${p.name} status updated.`);
+            return { ...p, shortlisted: updated };
+          }
+          return p;
+        }));
+      };
+
+      // Dismiss Alert
+      const handleDismissAlert = (id) => {
+        setAlerts(prev => prev.filter(a => a.id !== id));
+        showToast('info', 'Alert Dismissed', 'The alert has been removed from your feed.');
+      };
+
+      // Trigger Export Simulation
+      const handleExportCSV = () => {
+        setIsGenerating(true);
+        setTimeout(() => {
+          setIsGenerating(false);
+          showToast('success', 'Report Exported', 'Evaluation database downloaded successfully as CSV.');
+        }, 1500);
+      };
+
+      const handleLogout = (e) => {
+        e.preventDefault();
+        showToast('success', 'Logging Out', 'Closing session...');
+        setTimeout(() => {
+          window.location.href = 'login.html';
+        }, 1000);
+      };
+
+      // Computed statistics
+      const totalParticipants = participants.length;
+      const averageProgress = Math.round(participants.reduce((sum, p) => sum + p.progress, 0) / totalParticipants);
+      const shortlistedCount = participants.filter(p => p.shortlisted).length;
+
+      // Filtered participants
+      const filteredParticipants = participants.filter(p => {
+        const matchesSearch = p.name.toLowerCase().includes(searchQuery.toLowerCase()) || p.code.toLowerCase().includes(searchQuery.toLowerCase());
+        const matchesZone = zoneFilter === 'All' || p.zone === zoneFilter;
+        return matchesSearch && matchesZone;
+      });
+
+      return (
+        <div className="min-h-screen flex bg-slate-50 relative overflow-x-hidden">
+          
+          {/* Sidebar */}
+          <aside className={`fixed top-0 bottom-0 left-0 z-50 bg-white border-r border-slate-200/80 flex flex-col transition-all duration-300 ${
+            isSidebarCollapsed ? 'w-[76px]' : 'w-[264px]'
+          } ${isMobileOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}`}>
+            
+            {/* Sidebar Logo */}
+            <div className="h-16 flex items-center gap-3 px-5 border-b border-slate-100 flex-shrink-0">
+              <div className="w-8 h-8 rounded-lg bg-indigo-950 flex items-center justify-center flex-shrink-0 shadow-md">
+                <svg className="w-4.5 h-4.5 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M12 21a9.004 9.004 0 0 0 8.716-6.747M12 21a9.004 9.004 0 0 1-8.716-6.747M12 21c2.485 0 4.5-4.03 4.5-9S14.485 3 12 3m0 18c-2.485 0-4.5-4.03-4.5-9S9.515 3 12 3m0 0a8.997 8.997 0 0 1 7.843 4.582M12 3a8.997 8.997 0 0 0-7.843 4.582m15.686 0A11.953 11.953 0 0 1 12 10.5c-2.998 0-5.74-1.1-7.843-2.918m15.686 0A8.959 8.959 0 0 1 21 12c0 .778-.099 1.533-.284 2.253m0 0A17.919 17.919 0 0 1 12 16.5c-3.162 0-6.133-.815-8.716-2.247m0 0A9.015 9.015 0 0 1 3 12c0-.778.099-1.533.284-2.253" />
+                </svg>
+              </div>
+              {!isSidebarCollapsed && (
+                <div className="min-w-0 overflow-hidden">
+                  <p className="font-bold text-sm text-slate-800 tracking-tight leading-tight">AX Admin Console</p>
+                  <p className="text-[10px] font-semibold text-indigo-500 uppercase tracking-wider mt-0.5">AXFE26 Evaluator</p>
+                </div>
+              )}
+            </div>
+
+            {/* Sidebar Nav */}
+            <nav className="flex-1 overflow-y-auto no-scrollbar p-3 space-y-4">
+              <div>
+                {!isSidebarCollapsed && (
+                  <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400 px-3 mb-2 font-display">Control Center</p>
+                )}
+                <div className="space-y-0.5">
+                  <button 
+                    onClick={() => { setActivePage('home'); setIsMobileOpen(false); }}
+                    className={`w-full flex items-center gap-3.5 px-3 py-2.5 rounded-xl text-xs font-bold transition-all ${
+                      activePage === 'home' 
+                        ? 'bg-indigo-50 text-indigo-700' 
+                        : 'text-slate-500 hover:text-slate-800 hover:bg-slate-50'
+                    }`}
+                  >
+                    <svg className="w-4.5 h-4.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="m2.25 12 8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25" /></svg>
+                    {!isSidebarCollapsed && 'Dashboard Home'}
+                  </button>
+
+                  <button 
+                    onClick={() => { setActivePage('roster'); setIsMobileOpen(false); }}
+                    className={`w-full flex items-center gap-3.5 px-3 py-2.5 rounded-xl text-xs font-bold transition-all ${
+                      activePage === 'roster' 
+                        ? 'bg-indigo-50 text-indigo-700' 
+                        : 'text-slate-500 hover:text-slate-800 hover:bg-slate-50'
+                    }`}
+                  >
+                    <svg className="w-4.5 h-4.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M18 18.72a9.094 9.094 0 0 0 3.741-.479 3 3 0 0 0-4.682-2.72m.94 3.198.001.031c0 .225-.012.447-.037.666A11.944 11.944 0 0 1 12 21c-2.17 0-4.207-.576-5.963-1.584A6.062 6.062 0 0 1 6 18.719m12 0a5.971 5.971 0 0 0-.941-3.197m0 0A5.995 5.995 0 0 0 12 12.75a5.995 5.995 0 0 0-5.058 2.772m0 0a3 3 0 0 0-4.681 2.72 8.986 8.986 0 0 0 3.74.477m.94-3.197a5.971 5.971 0 0 0-.94 3.197M15 6.75a3 3 0 1 1-6 0 3 3 0 0 1 6 0Zm6 3a2.25 2.25 0 1 1-4.5 0 2.25 2.25 0 0 1 4.5 0Zm-13.5 0a2.25 2.25 0 1 1-4.5 0 2.25 2.25 0 0 1 4.5 0Z" /></svg>
+                    {!isSidebarCollapsed && 'Participants Roster'}
+                  </button>
+
+                  <button 
+                    onClick={() => { setActivePage('zones'); setIsMobileOpen(false); }}
+                    className={`w-full flex items-center gap-3.5 px-3 py-2.5 rounded-xl text-xs font-bold transition-all ${
+                      activePage === 'zones' 
+                        ? 'bg-indigo-50 text-indigo-700' 
+                        : 'text-slate-500 hover:text-slate-800 hover:bg-slate-50'
+                    }`}
+                  >
+                    <svg className="w-4.5 h-4.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"/><path strokeLinecap="round" strokeLinejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1 1 15 0Z"/></svg>
+                    {!isSidebarCollapsed && 'Zone Status'}
+                  </button>
+
+                  <button 
+                    onClick={() => { setActivePage('shortlist'); setIsMobileOpen(false); }}
+                    className={`w-full flex items-center gap-3.5 px-3 py-2.5 rounded-xl text-xs font-bold transition-all ${
+                      activePage === 'shortlist' 
+                        ? 'bg-indigo-50 text-indigo-700' 
+                        : 'text-slate-500 hover:text-slate-800 hover:bg-slate-50'
+                    }`}
+                  >
+                    <svg className="w-4.5 h-4.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" /></svg>
+                    {!isSidebarCollapsed && 'Final Shortlist'}
+                  </button>
+
+                  <button 
+                    onClick={() => { setActivePage('reports'); setIsMobileOpen(false); }}
+                    className={`w-full flex items-center gap-3.5 px-3 py-2.5 rounded-xl text-xs font-bold transition-all ${
+                      activePage === 'reports' 
+                        ? 'bg-indigo-50 text-indigo-700' 
+                        : 'text-slate-500 hover:text-slate-800 hover:bg-slate-50'
+                    }`}
+                  >
+                    <svg className="w-4.5 h-4.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 0 0-3.375-3.375h-1.5A1.125 1.125 0 0 1 13.5 7.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 0 0-9-9Z" /></svg>
+                    {!isSidebarCollapsed && 'Evaluation Reports'}
+                  </button>
+                </div>
+              </div>
+            </nav>
+
+            {/* Logout Footer */}
+            <div className="p-4 border-t border-slate-100 flex-shrink-0">
+              <button 
+                onClick={handleLogout}
+                className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-bold text-red-600 hover:bg-red-50 transition-colors"
+              >
+                <svg className="w-4.5 h-4.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0 0 13.5 3h-6a2.25 2.25 0 0 0-2.25 2.25v13.5A2.25 2.25 0 0 0 7.5 21h6a2.25 2.25 0 0 0 2.25-2.25V15M12 9l-3 3m0 0 3 3m-3-3h12.75" /></svg>
+                {!isSidebarCollapsed && 'Log Out'}
+              </button>
+            </div>
+          </aside>
+
+          {/* Main Content Area */}
+          <div className="flex-1 flex flex-col min-w-0 lg:pl-[264px] transition-all duration-300">
+            
+            {/* Header */}
+            <header className="h-16 border-b border-slate-200/80 bg-white/70 backdrop-blur-md flex items-center justify-between px-6 sticky top-0 z-40">
+              <div className="flex items-center gap-3">
+                <button 
+                  onClick={() => setIsMobileOpen(!isMobileOpen)}
+                  className="lg:hidden p-2 -ml-2 text-slate-400 hover:text-slate-600"
+                >
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h16" /></svg>
+                </button>
+                <h1 className="text-sm font-bold text-slate-800 font-display">
+                  AXFE26 Assessment Manager
+                </h1>
+              </div>
+
+              {/* User Dropdown Profile */}
+              <div className="flex items-center gap-3">
+                <span className="text-xs text-slate-400 font-bold hidden sm:inline">Admin Session</span>
+                <div className="w-8 h-8 rounded-full bg-gradient-to-br from-indigo-950 to-indigo-800 text-white flex items-center justify-center font-bold text-xs shadow-sm">
+                  AD
+                </div>
+              </div>
+            </header>
+
+            {/* Main Content Container */}
+            <main className="flex-1 p-6 md:p-8 space-y-6 max-w-7xl w-full mx-auto">
+              
+              {/* Active Page Renders */}
+              
+              {/* PAGE 1: Dashboard Home */}
+              {activePage === 'home' && (
+                <div className="space-y-6 animate-fade-in">
+                  
+                  {/* Title Welcome */}
+                  <div>
+                    <h2 className="text-xl font-bold text-slate-800 font-display">Organizer Command Dashboard</h2>
+                    <p className="text-xs text-slate-500 mt-1">Live status, zone tracks checkpoints, and final shortlists metrics.</p>
+                  </div>
+
+                  {/* Dashboard Statistics Grid */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                    
+                    {/* Stat Card 1: Participant Count */}
+                    <div className="bg-white border border-slate-200/80 rounded-2xl p-5 shadow-sm-custom flex justify-between items-center relative overflow-hidden group">
+                      <div className="absolute top-0 left-0 w-1.5 h-full bg-primary"></div>
+                      <div>
+                        <p className="text-[10px] font-extrabold uppercase tracking-wider text-slate-400">Total Participants</p>
+                        <p className="text-3xl font-mono font-bold text-slate-800 mt-2">{totalParticipants}</p>
+                      </div>
+                      <div className="w-12 h-12 bg-blue-50 text-primary rounded-xl flex items-center justify-center">
+                        <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M15 19.128a9.38 9.38 0 0 0 2.625.372 9.337 9.337 0 0 0 4.121-.952 4.125 4.125 0 0 0-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.109A11.386 11.386 0 0 1 8.25 21a11.386 11.386 0 0 1-6.75-1.763v-.109A3.75 3.75 0 0 1 5.25 15.5h6.75a3.75 3.75 0 0 1 3 3.625M15 9.75a3 3 0 1 1-6 0 3 3 0 0 1 6 0Zm6 3a2.25 2.25 0 1 1-4.5 0 2.25 2.25 0 0 1 4.5 0Zm-13.5 0a2.25 2.25 0 1 1-4.5 0 2.25 2.25 0 0 1 4.5 0Z" /></svg>
+                      </div>
+                    </div>
+
+                    {/* Stat Card 2: Assessment Progress */}
+                    <div className="bg-white border border-slate-200/80 rounded-2xl p-5 shadow-sm-custom flex justify-between items-center relative overflow-hidden group">
+                      <div className="absolute top-0 left-0 w-1.5 h-full bg-secondary"></div>
+                      <div>
+                        <p className="text-[10px] font-extrabold uppercase tracking-wider text-slate-400">Assessment Progress</p>
+                        <p className="text-3xl font-mono font-bold text-slate-800 mt-2">{averageProgress}%</p>
+                      </div>
+                      <div className="w-12 h-12 bg-purple-50 text-secondary rounded-xl flex items-center justify-center">
+                        <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M10.5 6a7.5 7.5 0 1 0 7.5 7.5h-7.5V6Z" /><path strokeLinecap="round" strokeLinejoin="round" d="M13.5 10.5H21A7.5 7.5 0 0 0 13.5 3v7.5Z" /></svg>
+                      </div>
+                    </div>
+
+                    {/* Stat Card 3: Final Shortlist */}
+                    <div className="bg-white border border-slate-200/80 rounded-2xl p-5 shadow-sm-custom flex justify-between items-center relative overflow-hidden group">
+                      <div className="absolute top-0 left-0 w-1.5 h-full bg-success"></div>
+                      <div>
+                        <p className="text-[10px] font-extrabold uppercase tracking-wider text-slate-400">Final Shortlist</p>
+                        <p className="text-3xl font-mono font-bold text-slate-800 mt-2">{shortlistedCount}</p>
+                      </div>
+                      <div className="w-12 h-12 bg-green-50 text-success rounded-xl flex items-center justify-center">
+                        <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" /></svg>
+                      </div>
+                    </div>
+
+                    {/* Stat Card 4: Active Alerts */}
+                    <div className="bg-white border border-slate-200/80 rounded-2xl p-5 shadow-sm-custom flex justify-between items-center relative overflow-hidden group">
+                      <div className="absolute top-0 left-0 w-1.5 h-full bg-danger"></div>
+                      <div>
+                        <p className="text-[10px] font-extrabold uppercase tracking-wider text-slate-400">Active Alerts</p>
+                        <p className="text-3xl font-mono font-bold text-slate-800 mt-2">{alerts.length}</p>
+                      </div>
+                      <div className="w-12 h-12 bg-red-50 text-danger rounded-xl flex items-center justify-center">
+                        <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126ZM12 15.75h.007v.008H12v-.008Z" /></svg>
+                      </div>
+                    </div>
+
+                  </div>
+
+                  {/* Splits: Alerts & Activities */}
+                  <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    
+                    {/* Left 2 Columns: Alerts & Zone Status Overview */}
+                    <div className="lg:col-span-2 space-y-6">
+                      
+                      {/* Alerts list */}
+                      <div className="bg-white border border-slate-200/80 rounded-2xl p-5 shadow-sm-custom">
+                        <div className="pb-4 mb-4 border-b border-slate-100 flex items-center justify-between">
+                          <h3 className="text-sm font-bold text-slate-800 font-display">System Alerts</h3>
+                          <span className="px-2 py-0.5 text-[10px] font-bold text-red-600 bg-red-50 rounded-full">Live Monitor</span>
+                        </div>
+
+                        <div className="space-y-3">
+                          {alerts.length === 0 ? (
+                            <p className="text-xs text-slate-400 text-center py-4">All alerts resolved.</p>
+                          ) : (
+                            alerts.map(a => (
+                              <div key={a.id} className="p-3.5 border border-slate-100 rounded-xl bg-slate-50/50 flex justify-between items-start gap-4">
+                                <div className="flex gap-3">
+                                  <span className={`w-2 h-2 rounded-full mt-1.5 shrink-0 ${
+                                    a.type === 'danger' ? 'bg-danger' : a.type === 'warning' ? 'bg-warning' : 'bg-primary'
+                                  }`}></span>
+                                  <div>
+                                    <p className="text-xs font-semibold text-slate-700 leading-relaxed">{a.message}</p>
+                                    <span className="text-[9px] text-slate-400 mt-1 block">{a.time}</span>
+                                  </div>
+                                </div>
+                                <div className="flex gap-2 shrink-0">
+                                  <button 
+                                    onClick={() => showToast('info', 'Routing to Action', `Redirecting to action portal for alert #${a.id}`)}
+                                    className="px-2.5 py-1 text-[10px] font-bold text-white bg-indigo-950 hover:bg-slate-900 rounded-md transition-colors"
+                                  >
+                                    {a.actionLabel}
+                                  </button>
+                                  <button 
+                                    onClick={() => handleDismissAlert(a.id)}
+                                    className="p-1 hover:bg-slate-100 rounded text-slate-400 hover:text-slate-600"
+                                    title="Dismiss"
+                                  >
+                                    <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5"><path strokeLinecap="round" strokeLinejoin="round" d="M6 18 18 6M6 6l12 12" /></svg>
+                                  </button>
+                                </div>
+                              </div>
+                            ))
+                          )}
+                        </div>
+                      </div>
+
+                      {/* Zone Status summary grid */}
+                      <div className="bg-white border border-slate-200/80 rounded-2xl p-5 shadow-sm-custom">
+                        <div className="pb-4 mb-4 border-b border-slate-100 flex items-center justify-between">
+                          <h3 className="text-sm font-bold text-slate-800 font-display">Evaluation Zone status</h3>
+                          <span className="text-xs text-slate-400 font-semibold">Active Locations</span>
+                        </div>
+
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                          {zones.map(z => (
+                            <div key={z.id} className="p-4 border border-slate-100 rounded-xl bg-white hover:bg-slate-50/50 transition-colors flex flex-col justify-between h-36">
+                              <div className="flex justify-between items-start">
+                                <div>
+                                  <h4 className="text-xs font-bold text-slate-800">{z.name}</h4>
+                                  <p className="text-[10px] text-slate-400 font-semibold mt-0.5">Lead: {z.lead}</p>
+                                </div>
+                                <span className={`px-2 py-0.5 text-[9px] font-bold rounded-full border ${
+                                  z.status === 'Completed' ? 'text-green-600 bg-green-50 border-green-100' : 'text-primary bg-blue-50 border-blue-100'
+                                }`}>
+                                  {z.status}
+                                </span>
+                              </div>
+                              
+                              <div>
+                                <div className="flex justify-between text-[10px] text-slate-400 font-bold mb-1.5">
+                                  <span>Checklist Progress</span>
+                                  <span>{z.progress}%</span>
+                                </div>
+                                <div className="w-full bg-slate-100 h-1.5 rounded-full overflow-hidden">
+                                  <div className="bg-primary h-full transition-all duration-300" style={{ width: `${z.progress}%` }}></div>
+                                </div>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+
+                    </div>
+
+                    {/* Right 1 Column: Recent Activities */}
+                    <div className="bg-white border border-slate-200/80 rounded-2xl p-5 shadow-sm-custom">
+                      <div className="pb-4 mb-4 border-b border-slate-100">
+                        <h3 className="text-sm font-bold text-slate-800 font-display">Recent Activities</h3>
+                      </div>
+                      
+                      <div className="space-y-4">
+                        {activities.map(act => (
+                          <div key={act.id} className="flex gap-3 text-xs leading-relaxed border-l-2 border-slate-100 pl-3.5 relative py-1">
+                            <span className="absolute -left-1.5 top-2 w-2.5 h-2.5 rounded-full bg-slate-300 border border-white"></span>
+                            <div>
+                              <p className="text-slate-600 font-medium">{act.text}</p>
+                              <span className="text-[10px] text-slate-400 font-semibold block mt-1">{act.time}</span>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+
+                  </div>
+
+                </div>
+              )}
+
+              {/* PAGE 2: Participants Roster */}
+              {activePage === 'roster' && (
+                <div className="bg-white border border-slate-200/80 rounded-2xl p-6 sm:p-8 shadow-sm-custom animate-fade-in">
+                  
+                  {/* Search and Filters */}
+                  <div className="flex flex-wrap gap-4 justify-between items-center pb-4 mb-6 border-b border-slate-100">
+                    <div>
+                      <h3 className="text-base font-bold text-slate-800 font-display">Participants Grid Database</h3>
+                      <p className="text-xs text-slate-400">Total verified startup applications listed</p>
+                    </div>
+
+                    <div className="flex flex-wrap gap-3 items-center">
+                      <input 
+                        type="text" 
+                        placeholder="Search startup name / code..." 
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                        className="border border-slate-200 rounded-xl px-4 py-2 text-xs w-48 input-glow font-semibold"
+                      />
+                      <select 
+                        value={zoneFilter}
+                        onChange={(e) => setZoneFilter(e.target.value)}
+                        className="border border-slate-200 rounded-xl px-3 py-2 text-xs bg-white font-bold"
+                      >
+                        <option value="All">All Zones</option>
+                        <option value="Zone A">Zone A</option>
+                        <option value="Zone B">Zone B</option>
+                        <option value="Zone C">Zone C</option>
+                        <option value="Zone D">Zone D</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-left border-collapse">
+                      <thead>
+                        <tr className="border-b border-slate-100 text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                          <th className="pb-3 pl-2 font-semibold">Startup Name</th>
+                          <th className="pb-3 font-semibold">Reg Code</th>
+                          <th className="pb-3 font-semibold">Zone</th>
+                          <th className="pb-3 font-semibold">Grade Score</th>
+                          <th className="pb-3 font-semibold">Progress</th>
+                          <th className="pb-3 font-semibold">Status</th>
+                          <th className="pb-3 pr-2 text-right font-semibold">Actions</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-slate-100/50">
+                        {filteredParticipants.map((p) => (
+                          <tr key={p.id} className="text-xs text-slate-700 hover:bg-slate-50/50 transition-colors">
+                            <td className="py-4 pl-2 font-bold text-slate-800">{p.name}</td>
+                            <td className="py-4 font-mono font-bold text-slate-500">{p.code}</td>
+                            <td className="py-4">
+                              <span className="font-semibold text-slate-500">{p.zone}</span>
+                              <span className="text-[10px] text-slate-400 font-semibold block mt-0.5">{p.track}</span>
+                            </td>
+                            <td className="py-4 font-mono font-bold text-primary">{p.score} / 10</td>
+                            <td className="py-4">
+                              <div className="flex items-center gap-2">
+                                <span className="font-semibold font-mono">{p.progress}%</span>
+                                <div className="w-16 bg-slate-100 h-1.5 rounded-full overflow-hidden">
+                                  <div className="bg-primary h-full" style={{ width: `${p.progress}%` }}></div>
+                                </div>
+                              </div>
+                            </td>
+                            <td className="py-4">
+                              <span className={`px-2 py-0.5 text-[9px] font-bold rounded-full border ${
+                                p.status === 'Evaluated' ? 'text-green-600 bg-green-50 border-green-100' : 'text-warning bg-warning-bg border-amber-100'
+                              }`}>
+                                {p.status}
+                              </span>
+                            </td>
+                            <td className="py-4 pr-2 text-right">
+                              <button 
+                                onClick={() => { setSelectedParticipant(p); setIsPromoteOpen(true); }}
+                                className={`px-3 py-1.5 text-[10px] font-bold border rounded-lg transition-colors cursor-pointer ${
+                                  p.shortlisted 
+                                    ? 'text-red-600 border-red-200 bg-red-50/30 hover:bg-red-50' 
+                                    : 'text-primary border-primary-line bg-primary-light/50 hover:bg-primary-light'
+                                }`}
+                              >
+                                {p.shortlisted ? 'Manage Shortlist' : 'Promote'}
+                              </button>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+
+                </div>
+              )}
+
+              {/* PAGE 3: Zone Status */}
+              {activePage === 'zones' && (
+                <div className="space-y-6 animate-fade-in">
+                  <div>
+                    <h3 className="text-xl font-bold text-slate-800 font-display">Evaluation Zone Locations</h3>
+                    <p className="text-xs text-slate-500 mt-1">Live status of zone leads and evaluation checks completion rate.</p>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    {zones.map(z => (
+                      <div key={z.id} className="bg-white border border-slate-200/80 rounded-2xl p-6 shadow-sm-custom space-y-4">
+                        <div className="flex justify-between items-center pb-3 border-b border-slate-100">
+                          <div>
+                            <h4 className="text-sm font-bold text-slate-800">{z.name}</h4>
+                            <p className="text-xs text-slate-400 font-semibold mt-0.5">Location Supervisor: {z.lead}</p>
+                          </div>
+                          <span className={`px-2.5 py-0.5 text-xs font-bold rounded-full ${
+                            z.status === 'Completed' ? 'text-green-600 bg-green-50' : 'text-primary bg-blue-50'
+                          }`}>
+                            {z.status}
+                          </span>
+                        </div>
+
+                        <div className="space-y-3">
+                          <div className="flex justify-between text-xs">
+                            <span className="font-semibold text-slate-500">Track Starts</span>
+                            <span className="font-bold text-slate-800">{z.count} Cohorts</span>
+                          </div>
+                          <div className="flex justify-between text-xs">
+                            <span className="font-semibold text-slate-500">Supervisor Status</span>
+                            <span className="font-bold text-slate-800">Assigned &amp; Signed-off</span>
+                          </div>
+                        </div>
+
+                        <div>
+                          <div className="flex justify-between text-xs text-slate-400 font-bold mb-1.5">
+                            <span>Checklist Completed Rate</span>
+                            <span>{z.progress}%</span>
+                          </div>
+                          <div className="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
+                            <div className="bg-primary h-full transition-all duration-300" style={{ width: `${z.progress}%` }}></div>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* PAGE 4: Final Shortlist */}
+              {activePage === 'shortlist' && (
+                <div className="bg-white border border-slate-200/80 rounded-2xl p-6 sm:p-8 shadow-sm-custom animate-fade-in">
+                  <div className="flex justify-between items-center pb-4 mb-6 border-b border-slate-100">
+                    <div>
+                      <h3 className="text-base font-bold text-slate-800 font-display">Final Shortlisted Startups</h3>
+                      <p className="text-xs text-slate-400">List of startups promoted for final judging round</p>
+                    </div>
+                    <span className="bg-green-50 border border-green-100 text-green-600 text-xs font-bold px-3 py-1 rounded-full">
+                      {shortlistedCount} Selected
+                    </span>
+                  </div>
+
+                  <div className="space-y-4">
+                    {participants.filter(p => p.shortlisted).length === 0 ? (
+                      <p className="text-xs text-slate-400 text-center py-6">No participants promoted to shortlist yet.</p>
+                    ) : (
+                      participants.filter(p => p.shortlisted).map((p) => (
+                        <div key={p.id} className="flex justify-between items-center p-4 border border-slate-100 rounded-2xl bg-white hover:bg-slate-50/50 transition-all flex-col sm:flex-row gap-4">
+                          <div className="flex gap-4 items-center">
+                            <div className="w-10 h-10 rounded-xl bg-green-50 text-green-600 flex items-center justify-center font-bold">
+                              ✓
+                            </div>
+                            <div>
+                              <h4 className="text-sm font-bold text-slate-800">{p.name}</h4>
+                              <p className="text-xs text-slate-400 mt-0.5">{p.zone} · {p.track} · Reg: {p.code}</p>
+                            </div>
+                          </div>
+
+                          <div className="flex gap-4 items-center self-end sm:self-center">
+                            <div className="text-right">
+                              <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Weighted score</span>
+                              <p className="text-sm font-bold font-mono text-primary mt-0.5">{p.score} / 10</p>
+                            </div>
+                            <button 
+                              onClick={() => { setSelectedParticipant(p); setIsPromoteOpen(true); }}
+                              className="px-3 py-1.5 text-xs font-bold text-red-600 border border-red-200 bg-red-50/20 hover:bg-red-50 rounded-xl transition-all cursor-pointer"
+                            >
+                              Remove
+                            </button>
+                          </div>
+                        </div>
+                      ))
+                    )}
+                  </div>
+                </div>
+              )}
+
+              {/* PAGE 5: Reports */}
+              {activePage === 'reports' && (
+                <div className="bg-white border border-slate-200/80 rounded-2xl p-6 sm:p-8 shadow-sm-custom animate-fade-in">
+                  <div className="pb-4 mb-6 border-b border-slate-100">
+                    <h3 className="text-base font-bold text-slate-800 font-display">Evaluation Reports Center</h3>
+                    <p className="text-xs text-slate-400">Generate and export official assessment summaries for AX Founder Exchange 2026</p>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    
+                    {/* Report Card 1 */}
+                    <div className="p-5 border border-slate-100 rounded-2xl bg-slate-50/30 hover:bg-slate-50/70 transition-all flex flex-col justify-between h-44">
+                      <div>
+                        <h4 className="text-xs font-bold text-slate-800 uppercase tracking-wider">Zone Evaluation Database</h4>
+                        <p className="text-[11px] text-slate-500 leading-normal mt-2">
+                          Detailed grid sheet summary containing scores, remarks, rubrics, and team progress of all locations.
+                        </p>
+                      </div>
+                      <button 
+                        onClick={handleExportCSV}
+                        disabled={isGenerating}
+                        className="px-4 py-2.5 text-xs font-bold text-white bg-primary hover:bg-primary-dark disabled:opacity-50 rounded-xl flex items-center justify-center gap-1.5 transition-all self-start"
+                      >
+                        <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5M16.5 12 12 16.5m0 0L7.5 12m4.5 4.5V3" /></svg>
+                        {isGenerating ? 'Generating...' : 'Export Database CSV'}
+                      </button>
+                    </div>
+
+                    {/* Report Card 2 */}
+                    <div className="p-5 border border-slate-100 rounded-2xl bg-slate-50/30 hover:bg-slate-50/70 transition-all flex flex-col justify-between h-44">
+                      <div>
+                        <h4 className="text-xs font-bold text-slate-800 uppercase tracking-wider">Final Shortlist Sign-off</h4>
+                        <p className="text-[11px] text-slate-500 leading-normal mt-2">
+                          Official executive report containing shortlisted startups, GTM assessment details, and mentor recommendations for final committee review.
+                        </p>
+                      </div>
+                      <button 
+                        onClick={handleExportCSV}
+                        disabled={isGenerating}
+                        className="px-4 py-2.5 text-xs font-bold text-white bg-primary hover:bg-primary-dark disabled:opacity-50 rounded-xl flex items-center justify-center gap-1.5 transition-all self-start"
+                      >
+                        <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5M16.5 12 12 16.5m0 0L7.5 12m4.5 4.5V3" /></svg>
+                        {isGenerating ? 'Generating...' : 'Download PDF Sign-off'}
+                      </button>
+                    </div>
+
+                  </div>
+                </div>
+              )}
+
+            </main>
+          </div>
+
+          {/* ============ PORTAL MODALS ============ */}
+          <PromoteModal 
+            isOpen={isPromoteOpen} 
+            onClose={() => setIsPromoteOpen(false)} 
+            participant={selectedParticipant}
+            onConfirm={handleToggleShortlist}
+          />
+
+          {/* Render Toasts */}
+          {ReactDOM.createPortal(
+            <div className="flex flex-col gap-3 pointer-events-none">
+              {toasts.map((toast) => (
+                <Toast
+                  key={toast.id}
+                  id={toast.id}
+                  type={toast.type}
+                  title={toast.title}
+                  message={toast.message}
+                  onClose={removeToast}
+                />
+              ))}
+            </div>,
+            document.getElementById('toast-root')
+          )}
+
+        </div>
+      );
+    }
+
+    const root = ReactDOM.createRoot(document.getElementById('root'));
+    root.render(<App />);
+  </script>
+</body>
+</html>
