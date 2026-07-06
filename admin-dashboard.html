@@ -80,13 +80,14 @@
     }
   </style>
 </head>
-<body className="h-full bg-slate-50 text-slate-800">
+<body class="h-full bg-slate-50 text-slate-800">
   <div id="root"></div>
 
   <!-- Toast Root -->
-  <div id="toast-root" className="fixed bottom-4 right-4 z-50 flex flex-col gap-3 pointer-events-none"></div>
+  <div id="toast-root" class="fixed bottom-4 right-4 z-50 flex flex-col gap-3 pointer-events-none"></div>
 
   <script type="text/babel">
+    console.log("Admin Dashboard React App initializing...");
     const { useState, useEffect } = React;
 
     // ==========================================
