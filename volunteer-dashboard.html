@@ -1,0 +1,881 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Volunteer Dashboard — AX Founder Exchange 2026</title>
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- React and ReactDOM CDNs -->
+  <script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js" crossorigin></script>
+  <!-- Babel for JSX compilation -->
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+      background: radial-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+      min-height: 100vh;
+    }
+    .font-display {
+      font-family: 'Space Grotesk', sans-serif;
+    }
+    .glass-card {
+      background: rgba(255, 255, 255, 0.7);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(255, 255, 255, 0.5);
+    }
+    .glass-header {
+      background: rgba(255, 255, 255, 0.6);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.4);
+    }
+    .input-glow:focus {
+      outline: none;
+      border-color: #10b981;
+      box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.15);
+    }
+    .scanner-laser {
+      animation: laserMove 2s infinite ease-in-out;
+    }
+    @keyframes laserMove {
+      0%, 100% { top: 0%; opacity: 0.8; }
+      50% { top: 100%; opacity: 0.8; }
+    }
+  </style>
+</head>
+<body>
+
+  <div id="root"></div>
+
+  <script type="text/babel">
+    const { useState, useEffect, useRef } = React;
+
+    // Toast Notification Component
+    const Toast = ({ type, title, message, onClose }) => {
+      useEffect(() => {
+        const timer = setTimeout(onClose, 4000);
+        return () => clearTimeout(timer);
+      }, [onClose]);
+
+      const colors = {
+        success: { bg: 'bg-emerald-50', border: 'border-emerald-100', text: 'text-emerald-800', icon: '✓', iconBg: 'bg-emerald-100 text-emerald-600' },
+        error: { bg: 'bg-rose-50', border: 'border-rose-100', text: 'text-rose-800', icon: '✕', iconBg: 'bg-rose-100 text-rose-600' },
+        info: { bg: 'bg-blue-50', border: 'border-blue-100', text: 'text-blue-800', icon: 'ℹ', iconBg: 'bg-blue-100 text-blue-600' }
+      };
+
+      const c = colors[type] || colors.info;
+
+      return (
+        <div className={`flex items-start gap-3 p-4 rounded-xl border ${c.bg} ${c.border} shadow-lg max-w-sm w-full animate-slide-in pointer-events-auto`}>
+          <span className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold shrink-0 ${c.iconBg}`}>
+            {c.icon}
+          </span>
+          <div className="flex-1">
+            <h4 className="text-xs font-bold text-slate-800">{title}</h4>
+            <p className="text-[11px] text-slate-500 mt-0.5">{message}</p>
+          </div>
+          <button onClick={onClose} className="text-slate-400 hover:text-slate-600 text-xs font-bold shrink-0">✕</button>
+        </div>
+      );
+    };
+
+    function App() {
+      // Default Startup Data
+      const defaultStartups = [
+        { id: "AXFE26-482913", name: "Nimbus AI Solutions", founder: "Aditi Sharma", track: "SaaS & AI", zone: "Zone C", checkedIn: true, verified: true, checkInTime: "10:14 AM", email: "aditi@nimbusai.io", verificationDocs: { photoId: true, tosSigned: true, badgePrinted: true } },
+        { id: "AXFE26-726481", name: "FinFlow Pay", founder: "Rajesh Verma", track: "FinTech", zone: "Zone C", checkedIn: false, verified: false, checkInTime: "", email: "rajesh@finflowpay.com", verificationDocs: { photoId: false, tosSigned: false, badgePrinted: false } },
+        { id: "AXFE26-102948", name: "Apex Robotics Labs", founder: "Vikram Malhotra", track: "DeepTech", zone: "Zone A", checkedIn: true, verified: false, checkInTime: "11:22 AM", email: "vikram@apexrobotics.in", verificationDocs: { photoId: true, tosSigned: true, badgePrinted: false } },
+        { id: "AXFE26-883921", name: "MediQuick Care", founder: "Dr. Shalini Mukherji", track: "HealthTech", zone: "Zone B", checkedIn: false, verified: false, checkInTime: "", email: "shalini@mediquick.care", verificationDocs: { photoId: false, tosSigned: false, badgePrinted: false } },
+        { id: "AXFE26-339281", name: "Zetta AgriTech Systems", founder: "Amit Patel", track: "Agritech", zone: "Zone D", checkedIn: false, verified: false, checkInTime: "", email: "amit@zettaagri.com", verificationDocs: { photoId: false, tosSigned: false, badgePrinted: false } },
+        { id: "AXFE26-554812", name: "Optima Logi Solutions", founder: "Karan Johar", track: "Logistic AI", zone: "Zone A", checkedIn: false, verified: false, checkInTime: "", email: "karan@optimalogi.in", verificationDocs: { photoId: false, tosSigned: false, badgePrinted: false } }
+      ];
+
+      const [startups, setStartups] = useState(() => {
+        const local = localStorage.getItem('axfe26_volunteer_attendance');
+        return local ? JSON.parse(local) : defaultStartups;
+      });
+
+      const [activeTab, setActiveTab] = useState('overview'); // 'overview', 'checkin', 'verify', 'roster'
+      const [checkInSubTab, setCheckInSubTab] = useState('qr'); // 'qr', 'search'
+      const [toasts, setToasts] = useState([]);
+      const [searchQuery, setSearchQuery] = useState('');
+      const [searchResults, setSearchResults] = useState([]);
+      const [selectedVerificationStartup, setSelectedVerificationStartup] = useState(startups[1].id); // Default to FinFlow Pay
+
+      // QR Scanner Simulation States
+      const [selectedQRStartup, setSelectedQRStartup] = useState('');
+      const [isScanning, setIsScanning] = useState(false);
+
+      // Verify Identity Form States
+      const currentVerification = startups.find(s => s.id === selectedVerificationStartup) || startups[0];
+      const [photoIdChecked, setPhotoIdChecked] = useState(currentVerification.verificationDocs.photoId);
+      const [tosChecked, setTosChecked] = useState(currentVerification.verificationDocs.tosSigned);
+      const [badgeChecked, setBadgeChecked] = useState(currentVerification.verificationDocs.badgePrinted);
+
+      // Live search input handler
+      const [rosterSearch, setRosterSearch] = useState('');
+      const [rosterFilter, setRosterFilter] = useState('all'); // 'all', 'checkedin', 'pending', 'verified'
+
+      // Sync state to local storage
+      const saveState = (updatedList) => {
+        setStartups(updatedList);
+        localStorage.setItem('axfe26_volunteer_attendance', JSON.stringify(updatedList));
+      };
+
+      // Toast notification helper
+      const showToast = (type, title, message) => {
+        const id = Date.now().toString();
+        setToasts(prev => [...prev, { id, type, title, message }]);
+      };
+
+      const removeToast = (id) => {
+        setToasts(prev => prev.filter(t => t.id !== id));
+      };
+
+      // Load correct verification states when selected startup changes
+      useEffect(() => {
+        if (currentVerification) {
+          setPhotoIdChecked(currentVerification.verificationDocs.photoId);
+          setTosChecked(currentVerification.verificationDocs.tosSigned);
+          setBadgeChecked(currentVerification.verificationDocs.badgePrinted);
+        }
+      }, [selectedVerificationStartup, startups]);
+
+      // Search Participant ID Handler
+      const handleSearch = () => {
+        if (!searchQuery.trim()) {
+          setSearchResults([]);
+          return;
+        }
+        const matches = startups.filter(s => 
+          s.id.toLowerCase().includes(searchQuery.toLowerCase()) || 
+          s.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          s.founder.toLowerCase().includes(searchQuery.toLowerCase())
+        );
+        setSearchResults(matches);
+        if (matches.length === 0) {
+          showToast('error', 'No Startups Found', `No records matched "${searchQuery}".`);
+        }
+      };
+
+      // Confirm Check-in Handler
+      const performCheckIn = (id) => {
+        const updated = startups.map(s => {
+          if (s.id === id) {
+            if (s.checkedIn) {
+              showToast('info', 'Already Checked In', `${s.name} is already checked in.`);
+              return s;
+            }
+            showToast('success', 'Check-In Approved', `${s.name} successfully checked in.`);
+            return {
+              ...s,
+              checkedIn: true,
+              checkInTime: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+            };
+          }
+          return s;
+        });
+        saveState(updated);
+      };
+
+      // Simulate QR Scanning
+      const handleSimulateQRScan = () => {
+        if (!selectedQRStartup) {
+          showToast('error', 'Select Startup', 'Please select a startup first to simulate scanning.');
+          return;
+        }
+        setIsScanning(true);
+        setTimeout(() => {
+          setIsScanning(false);
+          performCheckIn(selectedQRStartup);
+          setSelectedQRStartup('');
+        }, 1800);
+      };
+
+      // Save Verification States & Approve Identity
+      const handleApproveIdentity = () => {
+        const updated = startups.map(s => {
+          if (s.id === currentVerification.id) {
+            const isAllVerified = photoIdChecked && tosChecked && badgeChecked;
+            const updatedDocs = { photoId: photoIdChecked, tosSigned: tosChecked, badgePrinted: badgeChecked };
+            showToast('success', 'Identity Status Saved', `${s.founder}'s credentials successfully saved.`);
+            return {
+              ...s,
+              verified: isAllVerified,
+              verificationDocs: updatedDocs,
+              // Auto check-in if everything is verified
+              checkedIn: isAllVerified ? true : s.checkedIn,
+              checkInTime: (isAllVerified && !s.checkedIn) ? new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : s.checkInTime
+            };
+          }
+          return s;
+        });
+        saveState(updated);
+      };
+
+      // Undo Check-in Roster Update
+      const toggleRosterStatus = (id) => {
+        const updated = startups.map(s => {
+          if (s.id === id) {
+            const nextCheckedIn = !s.checkedIn;
+            showToast('info', 'Attendance Modified', `${s.name} marked as ${nextCheckedIn ? 'Checked In' : 'Pending'}.`);
+            return {
+              ...s,
+              checkedIn: nextCheckedIn,
+              checkInTime: nextCheckedIn ? new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : "",
+              verified: nextCheckedIn ? s.verified : false,
+              verificationDocs: nextCheckedIn ? s.verificationDocs : { photoId: false, tosSigned: false, badgePrinted: false }
+            };
+          }
+          return s;
+        });
+        saveState(updated);
+      };
+
+      // Calculated stats
+      const totalStartups = startups.length;
+      const checkedInCount = startups.filter(s => s.checkedIn).length;
+      const verifiedCount = startups.filter(s => s.verified).length;
+      const pendingCount = totalStartups - checkedInCount;
+      const attendanceRate = totalStartups > 0 ? Math.round((checkedInCount / totalStartups) * 100) : 0;
+
+      // Filtered roster lists
+      const filteredRoster = startups.filter(s => {
+        const matchesSearch = s.name.toLowerCase().includes(rosterSearch.toLowerCase()) || 
+                              s.id.toLowerCase().includes(rosterSearch.toLowerCase()) ||
+                              s.founder.toLowerCase().includes(rosterSearch.toLowerCase());
+        
+        if (rosterFilter === 'checkedin') return matchesSearch && s.checkedIn;
+        if (rosterFilter === 'pending') return matchesSearch && !s.checkedIn;
+        if (rosterFilter === 'verified') return matchesSearch && s.verified;
+        return matchesSearch;
+      });
+
+      return (
+        <div className="min-h-screen flex flex-col justify-between">
+          
+          {/* Header */}
+          <header className="glass-header sticky top-0 z-30">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+              
+              <div className="flex items-center gap-3">
+                <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center shadow-md shadow-emerald-500/10">
+                  <svg className="w-5 h-5 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+                  </svg>
+                </div>
+                <div>
+                  <h1 className="font-display text-base font-bold text-slate-800">AXFE26 Volunteer Dashboard</h1>
+                  <p className="text-[10px] text-slate-400 font-semibold tracking-wider uppercase">Gate & Identity Desk</p>
+                </div>
+              </div>
+
+              {/* Navigation Links */}
+              <nav className="flex gap-2">
+                <button 
+                  onClick={() => setActiveTab('overview')}
+                  className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${activeTab === 'overview' ? 'bg-emerald-500 text-white shadow-sm' : 'text-slate-600 hover:bg-slate-100/75'}`}
+                >
+                  Overview
+                </button>
+                <button 
+                  onClick={() => setActiveTab('checkin')}
+                  className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${activeTab === 'checkin' ? 'bg-emerald-500 text-white shadow-sm' : 'text-slate-600 hover:bg-slate-100/75'}`}
+                >
+                  Check In
+                </button>
+                <button 
+                  onClick={() => setActiveTab('verify')}
+                  className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${activeTab === 'verify' ? 'bg-emerald-500 text-white shadow-sm' : 'text-slate-600 hover:bg-slate-100/75'}`}
+                >
+                  Verify Identity
+                </button>
+                <button 
+                  onClick={() => setActiveTab('roster')}
+                  className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${activeTab === 'roster' ? 'bg-emerald-500 text-white shadow-sm' : 'text-slate-600 hover:bg-slate-100/75'}`}
+                >
+                  Attendance Roster
+                </button>
+              </nav>
+
+              {/* Home Launcher */}
+              <a 
+                href="index.html" 
+                className="px-3.5 py-1.5 border border-slate-200 bg-white rounded-lg text-xs font-bold text-slate-600 hover:bg-slate-50 transition-colors flex items-center gap-1.5"
+              >
+                <span>Launcher</span>
+                <span className="text-[10px] opacity-60">⌘K</span>
+              </a>
+
+            </div>
+          </header>
+
+          {/* Main Content Area */}
+          <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex-grow w-full">
+            
+            {/* Tab: Overview */}
+            {activeTab === 'overview' && (
+              <div className="space-y-8 animate-fade-in">
+                
+                {/* Stats Cards */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                  
+                  <div className="glass-card p-6 rounded-2xl shadow-sm hover:translate-y-[-2px] transition-transform">
+                    <p className="text-xs text-slate-400 font-bold uppercase tracking-wider">Checked In Today</p>
+                    <div className="flex items-baseline gap-2 mt-2">
+                      <span className="text-3xl font-extrabold text-slate-800">{checkedInCount}</span>
+                      <span className="text-xs font-bold text-slate-400">/ {totalStartups} startups</span>
+                    </div>
+                    <div className="w-full bg-slate-100 h-1 rounded-full mt-4 overflow-hidden">
+                      <div className="bg-emerald-500 h-full" style={{ width: `${(checkedInCount / totalStartups) * 100}%` }}></div>
+                    </div>
+                  </div>
+
+                  <div className="glass-card p-6 rounded-2xl shadow-sm hover:translate-y-[-2px] transition-transform">
+                    <p className="text-xs text-slate-400 font-bold uppercase tracking-wider">Identity Verified</p>
+                    <div className="flex items-baseline gap-2 mt-2">
+                      <span className="text-3xl font-extrabold text-emerald-600">{verifiedCount}</span>
+                      <span className="text-xs font-bold text-slate-400">/ {totalStartups} profiles</span>
+                    </div>
+                    <div className="w-full bg-slate-100 h-1 rounded-full mt-4 overflow-hidden">
+                      <div className="bg-teal-500 h-full" style={{ width: `${(verifiedCount / totalStartups) * 100}%` }}></div>
+                    </div>
+                  </div>
+
+                  <div className="glass-card p-6 rounded-2xl shadow-sm hover:translate-y-[-2px] transition-transform">
+                    <p className="text-xs text-slate-400 font-bold uppercase tracking-wider">Pending Check-in</p>
+                    <div className="flex items-baseline gap-2 mt-2">
+                      <span className="text-3xl font-extrabold text-amber-500">{pendingCount}</span>
+                      <span className="text-xs font-bold text-slate-400">remaining</span>
+                    </div>
+                    <div className="w-full bg-slate-100 h-1 rounded-full mt-4 overflow-hidden">
+                      <div className="bg-amber-400 h-full" style={{ width: `${(pendingCount / totalStartups) * 100}%` }}></div>
+                    </div>
+                  </div>
+
+                  <div className="glass-card p-6 rounded-2xl shadow-sm hover:translate-y-[-2px] transition-transform">
+                    <p className="text-xs text-slate-400 font-bold uppercase tracking-wider">Attendance Rate</p>
+                    <div className="flex items-baseline gap-2 mt-2">
+                      <span className="text-3xl font-extrabold text-blue-600">{attendanceRate}%</span>
+                      <span className="text-xs font-bold text-slate-400">live percentage</span>
+                    </div>
+                    <div className="w-full bg-slate-100 h-1 rounded-full mt-4 overflow-hidden">
+                      <div className="bg-blue-500 h-full" style={{ width: `${attendanceRate}%` }}></div>
+                    </div>
+                  </div>
+
+                </div>
+
+                {/* Dashboard Modules Grid */}
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                  
+                  {/* Left: Quick Actions */}
+                  <div className="glass-card p-6 rounded-3xl shadow-sm col-span-2 space-y-6">
+                    <div>
+                      <h3 className="font-display text-lg font-bold text-slate-800">Quick Desk Actions</h3>
+                      <p className="text-xs text-slate-400 mt-1">Direct shortcut pathways to check-in gates and verification channels.</p>
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      
+                      <div 
+                        onClick={() => { setActiveTab('checkin'); setCheckInSubTab('qr'); }}
+                        className="p-5 border border-slate-100 bg-white rounded-2xl hover:border-emerald-200 hover:shadow-md transition-all cursor-pointer flex gap-4 items-center group"
+                      >
+                        <div className="w-12 h-12 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center font-bold text-xl group-hover:scale-105 transition-transform">
+                          QR
+                        </div>
+                        <div>
+                          <h4 className="text-sm font-bold text-slate-800">Scan QR Code</h4>
+                          <p className="text-xs text-slate-400 mt-0.5">Quickly check-in via participant code.</p>
+                        </div>
+                      </div>
+
+                      <div 
+                        onClick={() => { setActiveTab('checkin'); setCheckInSubTab('search'); }}
+                        className="p-5 border border-slate-100 bg-white rounded-2xl hover:border-emerald-200 hover:shadow-md transition-all cursor-pointer flex gap-4 items-center group"
+                      >
+                        <div className="w-12 h-12 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center font-bold text-xl group-hover:scale-105 transition-transform">
+                          ID
+                        </div>
+                        <div>
+                          <h4 className="text-sm font-bold text-slate-800">Search Startup ID</h4>
+                          <p className="text-xs text-slate-400 mt-0.5">Lookup profiles manually via registration database.</p>
+                        </div>
+                      </div>
+
+                      <div 
+                        onClick={() => setActiveTab('verify')}
+                        className="p-5 border border-slate-100 bg-white rounded-2xl hover:border-teal-200 hover:shadow-md transition-all cursor-pointer flex gap-4 items-center group sm:col-span-2"
+                      >
+                        <div className="w-12 h-12 rounded-xl bg-teal-50 text-teal-600 flex items-center justify-center font-bold text-xl group-hover:scale-105 transition-transform">
+                          ✓
+                        </div>
+                        <div>
+                          <h4 className="text-sm font-bold text-slate-800">Verify Founder Credentials & Identity</h4>
+                          <p className="text-xs text-slate-400 mt-0.5">Audit photo identification documents, agreement parameters, and issue access badge tokens.</p>
+                        </div>
+                      </div>
+
+                    </div>
+                  </div>
+
+                  {/* Right: Desk Roster Feed */}
+                  <div className="glass-card p-6 rounded-3xl shadow-sm space-y-6">
+                    <div>
+                      <h3 className="font-display text-base font-bold text-slate-800">Latest Gate Actions</h3>
+                      <p className="text-xs text-slate-400 mt-1">Real-time attendance checklist audits.</p>
+                    </div>
+
+                    <div className="space-y-4">
+                      {startups.filter(s => s.checkedIn).slice(0, 4).map(s => (
+                        <div key={s.id} className="flex justify-between items-center p-3 border border-slate-50 bg-white/50 rounded-xl">
+                          <div className="flex items-center gap-3">
+                            <div className="w-8 h-8 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center text-xs font-extrabold">
+                              ✓
+                            </div>
+                            <div>
+                              <p className="text-xs font-bold text-slate-800">{s.name}</p>
+                              <p className="text-[10px] text-slate-400 font-medium">{s.founder}</p>
+                            </div>
+                          </div>
+                          <span className="text-[10px] font-mono font-bold text-slate-500">{s.checkInTime}</span>
+                        </div>
+                      ))}
+                      {startups.filter(s => s.checkedIn).length === 0 && (
+                        <p className="text-xs text-slate-400 text-center py-8 italic">No attendees checked in yet.</p>
+                      )}
+                    </div>
+                  </div>
+
+                </div>
+
+              </div>
+            )}
+
+            {/* Tab: Check In */}
+            {activeTab === 'checkin' && (
+              <div className="glass-card p-8 rounded-3xl shadow-sm max-w-4xl mx-auto space-y-8 animate-fade-in">
+                
+                <div className="flex justify-between items-center border-b border-slate-100 pb-5">
+                  <div>
+                    <h2 className="font-display text-xl font-bold text-slate-800">Check In Desk</h2>
+                    <p className="text-xs text-slate-400 mt-1">Scan visitor credentials or execute search routines.</p>
+                  </div>
+
+                  {/* Sub-tabs */}
+                  <div className="flex bg-slate-100 p-1 rounded-xl border border-slate-200/50">
+                    <button
+                      onClick={() => setCheckInSubTab('qr')}
+                      className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${checkInSubTab === 'qr' ? 'bg-white text-emerald-600 shadow-sm' : 'text-slate-500'}`}
+                    >
+                      Scan QR Code
+                    </button>
+                    <button
+                      onClick={() => setCheckInSubTab('search')}
+                      className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${checkInSubTab === 'search' ? 'bg-white text-emerald-600 shadow-sm' : 'text-slate-500'}`}
+                    >
+                      Search Roster ID
+                    </button>
+                  </div>
+                </div>
+
+                {/* SubTab: QR Code Scanner Simulation */}
+                {checkInSubTab === 'qr' && (
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+                    
+                    {/* Scanner Simulation Card */}
+                    <div className="bg-slate-900 rounded-3xl p-6 relative overflow-hidden flex flex-col items-center justify-center border border-slate-800 aspect-video shadow-inner">
+                      
+                      {/* Scanning Laser Line */}
+                      {isScanning && (
+                        <div className="absolute left-0 right-0 h-1 bg-emerald-500 scanner-laser shadow-[0_0_8px_#10b981]"></div>
+                      )}
+
+                      {/* Scanning boundary box */}
+                      <div className={`w-36 h-36 border-2 ${isScanning ? 'border-emerald-500 scale-105' : 'border-slate-600'} rounded-2xl relative transition-all duration-300 flex items-center justify-center`}>
+                        {/* QR Grid Mock */}
+                        <svg className={`w-28 h-28 ${isScanning ? 'text-emerald-400/80 animate-pulse' : 'text-slate-600'}`} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+                          <rect x="2" y="2" width="6" height="6" rx="1" />
+                          <rect x="16" y="2" width="6" height="6" rx="1" />
+                          <rect x="2" y="16" width="6" height="6" rx="1" />
+                          <path d="M10 4h4M4 10h2M14 10h4M10 14h6M16 16h4M16 20h2M20 18v2M10 18h2M14 18v2" strokeLinecap="round" />
+                        </svg>
+                        
+                        {/* Corner markers */}
+                        <div className="absolute -top-1 -left-1 w-4 h-4 border-t-4 border-l-4 border-emerald-500"></div>
+                        <div className="absolute -top-1 -right-1 w-4 h-4 border-t-4 border-r-4 border-emerald-500"></div>
+                        <div className="absolute -bottom-1 -left-1 w-4 h-4 border-b-4 border-l-4 border-emerald-500"></div>
+                        <div className="absolute -bottom-1 -right-1 w-4 h-4 border-b-4 border-r-4 border-emerald-500"></div>
+                      </div>
+
+                      <p className="text-[11px] text-slate-400 font-mono tracking-widest mt-4">
+                        {isScanning ? "READING SECURE CREDENTIAL DATA..." : "CAMERA READY FOR INCOMING SCANS"}
+                      </p>
+
+                    </div>
+
+                    {/* QR Code Action Panel */}
+                    <div className="space-y-6">
+                      <div>
+                        <h3 className="text-sm font-bold text-slate-800">Scan Simulation</h3>
+                        <p className="text-xs text-slate-400 mt-1">Select a cohort member to present their device for gate registration.</p>
+                      </div>
+
+                      <div className="space-y-2">
+                        <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider">Target Presenter</label>
+                        <select 
+                          value={selectedQRStartup} 
+                          onChange={(e) => setSelectedQRStartup(e.target.value)}
+                          className="w-full bg-white border border-slate-200 rounded-xl px-4 py-3 text-xs font-semibold focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 outline-none"
+                        >
+                          <option value="">-- Choose Startup --</option>
+                          {startups.map(s => (
+                            <option key={s.id} value={s.id}>
+                              {s.name} ({s.id}) {s.checkedIn ? '[CHECKED IN]' : '[PENDING]'}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+
+                      <button
+                        onClick={handleSimulateQRScan}
+                        disabled={isScanning || !selectedQRStartup}
+                        className={`w-full py-3.5 rounded-xl font-bold text-xs shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer ${
+                          isScanning 
+                            ? 'bg-slate-200 text-slate-400 shadow-none' 
+                            : 'bg-emerald-500 hover:bg-emerald-600 text-white shadow-emerald-500/15'
+                        }`}
+                      >
+                        {isScanning ? (
+                          <>
+                            <span className="w-3.5 h-3.5 border-2 border-slate-400 border-t-transparent rounded-full animate-spin"></span>
+                            <span>Scanning Device...</span>
+                          </>
+                        ) : (
+                          <span>Simulate scan</span>
+                        )}
+                      </button>
+                    </div>
+
+                  </div>
+                )}
+
+                {/* SubTab: Roster Search */}
+                {checkInSubTab === 'search' && (
+                  <div className="space-y-6">
+                    
+                    {/* Search Field */}
+                    <div className="flex gap-3">
+                      <div className="relative flex-1">
+                        <input
+                          type="text"
+                          value={searchQuery}
+                          onChange={(e) => setSearchQuery(e.target.value)}
+                          placeholder="Search via Startup Name, Founder Name, or registration ID (AXFE26-...)"
+                          className="w-full bg-white border border-slate-200 rounded-xl pl-4 pr-10 py-3.5 text-xs font-medium input-glow"
+                          onKeyDown={(e) => { if (e.key === 'Enter') handleSearch(); }}
+                        />
+                      </div>
+                      <button
+                        onClick={handleSearch}
+                        className="px-6 py-3.5 bg-slate-800 text-white rounded-xl text-xs font-bold hover:bg-slate-700 transition-colors shadow-sm cursor-pointer"
+                      >
+                        Search ID
+                      </button>
+                    </div>
+
+                    {/* Results lists */}
+                    <div className="space-y-4">
+                      {searchResults.map(s => (
+                        <div key={s.id} className="p-5 border border-slate-100 bg-white rounded-2xl shadow-sm flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                          
+                          <div className="space-y-1">
+                            <div className="flex items-center gap-2">
+                              <h4 className="text-sm font-bold text-slate-800">{s.name}</h4>
+                              <span className="text-[9px] font-mono px-1.5 py-0.5 rounded bg-slate-100 text-slate-500 font-bold">{s.id}</span>
+                            </div>
+                            <p className="text-xs text-slate-500">{s.founder} · {s.track} · {s.zone}</p>
+                          </div>
+
+                          <div className="flex items-center gap-3">
+                            <span className={`px-2 py-0.5 text-[9px] font-bold rounded-full border ${
+                              s.checkedIn ? 'bg-emerald-50 border-emerald-100 text-emerald-600' : 'bg-amber-50 border-amber-100 text-amber-600'
+                            }`}>
+                              {s.checkedIn ? 'Checked In' : 'Pending Check-in'}
+                            </span>
+                            
+                            <button
+                              onClick={() => performCheckIn(s.id)}
+                              disabled={s.checkedIn}
+                              className={`px-4 py-2 rounded-xl text-xs font-bold transition-all ${
+                                s.checkedIn 
+                                  ? 'bg-slate-100 text-slate-400 border border-slate-100 cursor-not-allowed' 
+                                  : 'bg-emerald-500 hover:bg-emerald-600 text-white cursor-pointer shadow-sm shadow-emerald-500/10'
+                              }`}
+                            >
+                              Confirm Check-in
+                            </button>
+                          </div>
+
+                        </div>
+                      ))}
+                      {searchQuery && searchResults.length === 0 && (
+                        <p className="text-xs text-slate-400 text-center py-6">No matching startup results displayed.</p>
+                      )}
+                    </div>
+
+                  </div>
+                )}
+
+              </div>
+            )}
+
+            {/* Tab: Verify Identity */}
+            {activeTab === 'verify' && (
+              <div className="glass-card p-8 rounded-3xl shadow-sm max-w-4xl mx-auto space-y-8 animate-fade-in">
+                
+                <div>
+                  <h2 className="font-display text-xl font-bold text-slate-800">Verify Identity Module</h2>
+                  <p className="text-xs text-slate-400 mt-1">Cross-check official identity document assets and terms alignment checklists.</p>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                  
+                  {/* Left Column: Selector */}
+                  <div className="space-y-4">
+                    <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider">Select Cohort Member</label>
+                    <div className="space-y-2 max-h-[300px] overflow-y-auto pr-2">
+                      {startups.map(s => (
+                        <div 
+                          key={s.id} 
+                          onClick={() => setSelectedVerificationStartup(s.id)}
+                          className={`p-3 border rounded-xl cursor-pointer transition-all ${
+                            selectedVerificationStartup === s.id 
+                              ? 'border-emerald-500 bg-emerald-50/50 shadow-sm' 
+                              : 'border-slate-100 bg-white hover:bg-slate-50'
+                          }`}
+                        >
+                          <p className="text-xs font-bold text-slate-800">{s.name}</p>
+                          <p className="text-[10px] text-slate-400 mt-0.5">{s.founder}</p>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Right Columns: Checklist */}
+                  <div className="md:col-span-2 space-y-6 border-l border-slate-100 pl-0 md:pl-8">
+                    
+                    {/* Header info */}
+                    <div className="p-4 bg-slate-50 rounded-2xl space-y-1">
+                      <span className="text-[9px] font-bold uppercase tracking-wider text-slate-400">Cohort Member Details</span>
+                      <h3 className="text-base font-bold text-slate-800">{currentVerification.founder}</h3>
+                      <p className="text-xs text-slate-500">Founder of <span className="font-semibold text-slate-700">{currentVerification.name}</span></p>
+                      <p className="text-[10px] text-slate-400 font-mono">{currentVerification.id} · {currentVerification.email}</p>
+                    </div>
+
+                    {/* Checkboxes */}
+                    <div className="space-y-4">
+                      
+                      <label className="flex items-start gap-3 p-4 border border-slate-100 bg-white rounded-xl cursor-pointer hover:bg-slate-50 transition-colors">
+                        <input 
+                          type="checkbox"
+                          checked={photoIdChecked}
+                          onChange={(e) => setPhotoIdChecked(e.target.checked)}
+                          className="mt-0.5 w-4 h-4 rounded text-emerald-500 border-slate-300 focus:ring-emerald-500"
+                        />
+                        <div>
+                          <p className="text-xs font-bold text-slate-700">Photo ID Inspection Passed</p>
+                          <p className="text-[10px] text-slate-400 mt-0.5">Verified that registration name matches legal Government-issued credentials (passport, license, etc.).</p>
+                        </div>
+                      </label>
+
+                      <label className="flex items-start gap-3 p-4 border border-slate-100 bg-white rounded-xl cursor-pointer hover:bg-slate-50 transition-colors">
+                        <input 
+                          type="checkbox"
+                          checked={tosChecked}
+                          onChange={(e) => setTosChecked(e.target.checked)}
+                          className="mt-0.5 w-4 h-4 rounded text-emerald-500 border-slate-300 focus:ring-emerald-500"
+                        />
+                        <div>
+                          <p className="text-xs font-bold text-slate-700">Signed Exchange Agreement Terms</p>
+                          <p className="text-[10px] text-slate-400 mt-0.5">Verified and checked digital log signatures acknowledging participation governance policies.</p>
+                        </div>
+                      </label>
+
+                      <label className="flex items-start gap-3 p-4 border border-slate-100 bg-white rounded-xl cursor-pointer hover:bg-slate-50 transition-colors">
+                        <input 
+                          type="checkbox"
+                          checked={badgeChecked}
+                          onChange={(e) => setBadgeChecked(e.target.checked)}
+                          className="mt-0.5 w-4 h-4 rounded text-emerald-500 border-slate-300 focus:ring-emerald-500"
+                        />
+                        <div>
+                          <p className="text-xs font-bold text-slate-700">Physical Entrance Badge Issued</p>
+                          <p className="text-[10px] text-slate-400 mt-0.5">Printed and handed over secure RFID credential badge to the participant on-site.</p>
+                        </div>
+                      </label>
+
+                    </div>
+
+                    <div className="flex justify-between items-center pt-4 border-t border-slate-100">
+                      <div className="flex gap-1.5 items-center">
+                        <span className={`w-2.5 h-2.5 rounded-full ${currentVerification.verified ? 'bg-emerald-500' : 'bg-amber-400'}`}></span>
+                        <span className="text-[10px] font-bold text-slate-500">
+                          {currentVerification.verified ? "ID status: Verified" : "ID status: Pending approval"}
+                        </span>
+                      </div>
+
+                      <button
+                        onClick={handleApproveIdentity}
+                        className="px-5 py-2.5 bg-emerald-500 hover:bg-emerald-600 text-white rounded-xl text-xs font-bold shadow-md shadow-emerald-500/10 cursor-pointer transition-colors"
+                      >
+                        Verify & Approve Attendance
+                      </button>
+                    </div>
+
+                  </div>
+
+                </div>
+
+              </div>
+            )}
+
+            {/* Tab: Attendance Roster */}
+            {activeTab === 'roster' && (
+              <div className="glass-card p-8 rounded-3xl shadow-sm space-y-6 animate-fade-in">
+                
+                <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-4 border-b border-slate-100 pb-5">
+                  <div>
+                    <h2 className="font-display text-xl font-bold text-slate-800">Attendance & Check-in Database</h2>
+                    <p className="text-xs text-slate-400 mt-1">Live management logs of participant arrivals and checklist statistics.</p>
+                  </div>
+
+                  {/* Filter Toolbar */}
+                  <div className="flex gap-3 flex-wrap">
+                    <input
+                      type="text"
+                      value={rosterSearch}
+                      onChange={(e) => setRosterSearch(e.target.value)}
+                      placeholder="Quick Roster filter..."
+                      className="px-3.5 py-1.5 bg-white border border-slate-200 rounded-lg text-xs font-semibold placeholder:text-slate-400 focus:outline-none focus:border-emerald-500"
+                    />
+
+                    <select
+                      value={rosterFilter}
+                      onChange={(e) => setRosterFilter(e.target.value)}
+                      className="px-3.5 py-1.5 bg-white border border-slate-200 rounded-lg text-xs font-semibold focus:outline-none"
+                    >
+                      <option value="all">All Statuses</option>
+                      <option value="checkedin">Checked In Only</option>
+                      <option value="pending">Pending Only</option>
+                      <option value="verified">Verified Only</option>
+                    </select>
+                  </div>
+                </div>
+
+                {/* Table */}
+                <div className="overflow-x-auto">
+                  <table className="w-full text-left border-collapse">
+                    <thead>
+                      <tr className="text-[10px] font-bold text-slate-400 uppercase border-b border-slate-100/60 pb-3">
+                        <th className="pb-3 pl-2">Startup Details</th>
+                        <th className="pb-3">Register Code</th>
+                        <th className="pb-3">Founder</th>
+                        <th className="pb-3">Attendance Status</th>
+                        <th className="pb-3">Gate check-in</th>
+                        <th className="pb-3">Credentials</th>
+                        <th className="pb-3 pr-2 text-right">Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-slate-100/60 text-xs">
+                      {filteredRoster.map(s => (
+                        <tr key={s.id} className="hover:bg-slate-50/50 transition-colors">
+                          
+                          <td className="py-4 pl-2 font-bold text-slate-800">
+                            <div>
+                              <p className="text-slate-800">{s.name}</p>
+                              <span className="text-[10px] text-slate-400 font-medium">{s.track}</span>
+                            </div>
+                          </td>
+
+                          <td className="py-4 font-mono font-bold text-slate-500">{s.id}</td>
+                          
+                          <td className="py-4 text-slate-600">{s.founder}</td>
+
+                          <td className="py-4">
+                            <span className={`px-2 py-0.5 text-[9px] font-bold rounded-full border ${
+                              s.checkedIn ? 'bg-emerald-50 border-emerald-100 text-emerald-600' : 'bg-rose-50 border-rose-100 text-rose-600'
+                            }`}>
+                              {s.checkedIn ? 'Present' : 'Absent'}
+                            </span>
+                          </td>
+
+                          <td className="py-4 font-mono font-bold text-slate-500">
+                            {s.checkedIn ? s.checkInTime : '--'}
+                          </td>
+
+                          <td className="py-4">
+                            <div className="flex gap-1.5 items-center">
+                              <span className={`w-2 h-2 rounded-full ${s.verified ? 'bg-emerald-500' : 'bg-amber-400'}`}></span>
+                              <span className="text-[10px] font-semibold text-slate-500">{s.verified ? 'Verified' : 'Pending Check'}</span>
+                            </div>
+                          </td>
+
+                          <td className="py-4 pr-2 text-right">
+                            <button
+                              onClick={() => toggleRosterStatus(s.id)}
+                              className={`px-3 py-1.5 rounded-lg text-[10px] font-bold border transition-all cursor-pointer ${
+                                s.checkedIn
+                                  ? 'bg-rose-50 hover:bg-rose-100 text-rose-600 border-rose-100'
+                                  : 'bg-emerald-50 hover:bg-emerald-100 text-emerald-600 border-emerald-100'
+                              }`}
+                            >
+                              {s.checkedIn ? 'Undo Check-in' : 'Mark Present'}
+                            </button>
+                          </td>
+
+                        </tr>
+                      ))}
+                      {filteredRoster.length === 0 && (
+                        <tr>
+                          <td colSpan="7" className="text-xs text-slate-400 text-center py-8 italic">No startup matches found.</td>
+                        </tr>
+                      )}
+                    </tbody>
+                  </table>
+                </div>
+
+              </div>
+            )}
+
+          </main>
+
+          {/* Footer */}
+          <footer className="glass-header py-4 text-center mt-12">
+            <p className="text-[10px] text-slate-400 font-semibold uppercase tracking-wider">AXFE26 gate management desk portal · powered by google deepmind</p>
+          </footer>
+
+          {/* Toast Container */}
+          <div className="fixed bottom-5 right-5 z-50 flex flex-col gap-3 pointer-events-none">
+            {toasts.map(t => (
+              <Toast key={t.id} type={t.type} title={t.title} message={t.message} onClose={() => removeToast(t.id)} />
+            ))}
+          </div>
+
+        </div>
+      );
+    }
+
+    const root = ReactDOM.createRoot(document.getElementById('root'));
+    root.render(<App />);
+  </script>
+</body>
+</html>

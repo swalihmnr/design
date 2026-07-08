@@ -335,7 +335,7 @@
         const local = localStorage.getItem('axfe26_mentor_startups');
         if (local) {
           const list = JSON.parse(local);
-          const nimbus = list.find(p => p.id === 'AXFE26-118490');
+          const nimbus = list.find(p => p.id === 'AXFE26-118490' || p.id === 'AXFE26-482913');
           if (nimbus) return nimbus;
         }
         return {
@@ -352,7 +352,7 @@
           const local = localStorage.getItem('axfe26_mentor_startups');
           if (local) {
             const list = JSON.parse(local);
-            const nimbus = list.find(p => p.id === 'AXFE26-118490');
+            const nimbus = list.find(p => p.id === 'AXFE26-118490' || p.id === 'AXFE26-482913');
             if (nimbus) {
               setNimbusEvaluation(nimbus);
             }

@@ -1,0 +1,637 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Judge Dashboard — AX Founder Exchange 2026</title>
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- React and ReactDOM CDNs -->
+  <script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js" crossorigin></script>
+  <!-- Babel for JSX compilation -->
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+      background: radial-gradient(135deg, #0f172a 0%, #1e293b 100%);
+      color: #f8fafc;
+      min-height: 100vh;
+    }
+    .font-display {
+      font-family: 'Space Grotesk', sans-serif;
+    }
+    .glass-card {
+      background: rgba(30, 41, 59, 0.7);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+    .glass-header {
+      background: rgba(15, 23, 42, 0.8);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    }
+    .input-dark {
+      background: rgba(15, 23, 42, 0.6);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      color: #f8fafc;
+    }
+    .input-dark:focus {
+      outline: none;
+      border-color: #f43f5e;
+      box-shadow: 0 0 0 3px rgba(244, 63, 94, 0.2);
+    }
+  </style>
+</head>
+<body>
+
+  <div id="root"></div>
+
+  <script type="text/babel">
+    const { useState, useEffect, useRef } = React;
+
+    function App() {
+      // Default Startups data (linked to axfe26_mentor_startups)
+      const defaultStartups = [
+        {
+          id: "AXFE26-482913",
+          name: "Nimbus AI Solutions",
+          founder: "Aditi Sharma",
+          track: "SaaS & AI",
+          description: "Nimbus AI delivers specialized developer orchestration tools for monitoring and optimizing token usage pipelines on production LLM cluster runtimes, reducing latencies by up to 40% while preventing token over-allocation.",
+          score: 8.4,
+          scores: { valueProp: 8, gtm: 9, team: 8, tech: 9, finance: 8 },
+          remarks: "Outstanding presentation quality and highly detailed TAM validation. Pitch timing was perfect.",
+          status: "Completed",
+          pitchTime: "10:00 AM"
+        },
+        {
+          id: "AXFE26-339281",
+          name: "Zetta AgriTech Systems",
+          founder: "Amit Patel",
+          track: "Agritech",
+          description: "Zetta AgriTech provides internet-of-things soil sensors paired with cloud analytics to offer real-time crop yields recommendations and water conservation guides.",
+          score: 8.2,
+          scores: { valueProp: 8, gtm: 8, team: 9, tech: 8, finance: 8 },
+          remarks: "Solid hardware validation metrics. Excellent presentation on local irrigation cooperatives.",
+          status: "Completed",
+          pitchTime: "10:15 AM"
+        },
+        {
+          id: "AXFE26-883921",
+          name: "MediQuick Care",
+          founder: "Dr. Shalini Mukherji",
+          track: "HealthTech",
+          description: "MediQuick Care is an AI-powered triage assistant that matches patient symptoms with clinic availability to optimize doctor scheduling networks.",
+          score: 8.9,
+          scores: { valueProp: 9, gtm: 8, team: 9, tech: 9, finance: 9 },
+          remarks: "Incredible pilot validation speeds. High potential to capture the local healthcare market.",
+          status: "Pitching",
+          pitchTime: "10:30 AM"
+        },
+        {
+          id: "AXFE26-102948",
+          name: "Apex Robotics Labs",
+          founder: "Vikram Malhotra",
+          track: "DeepTech",
+          description: "Apex Robotics Labs manufactures specialized collaborative pick-and-place robotic arm modules designed to integrate with automated warehouse inventory systems.",
+          score: 7.4,
+          scores: { valueProp: 8, gtm: 7, team: 8, tech: 7, finance: 7 },
+          remarks: "",
+          status: "Waiting",
+          pitchTime: "10:45 AM"
+        },
+        {
+          id: "AXFE26-726481",
+          name: "FinFlow Pay",
+          founder: "Rajesh Verma",
+          track: "FinTech",
+          description: "FinFlow Pay streamlines cross-border remittance routing and B2B vendor payments using localized UPI routing networks and automated billing ledgers for regional enterprises.",
+          score: 6.8,
+          scores: { valueProp: 7, gtm: 6, team: 7, tech: 7, finance: 7 },
+          remarks: "",
+          status: "Waiting",
+          pitchTime: "11:00 AM"
+        },
+        {
+          id: "AXFE26-554812",
+          name: "Optima Logi Solutions",
+          founder: "Karan Johar",
+          track: "Logistic AI",
+          description: "Optima Logi implements machine learning routing models to schedule fleet dispatches, reducing total travel distance for commercial shippers.",
+          score: 7.9,
+          scores: { valueProp: 8, gtm: 8, team: 8, tech: 8, finance: 7 },
+          remarks: "",
+          status: "Waiting",
+          pitchTime: "11:15 AM"
+        }
+      ];
+
+      const [startups, setStartups] = useState(() => {
+        const local = localStorage.getItem('axfe26_mentor_startups');
+        if (local) {
+          // Merge details
+          const list = JSON.parse(local);
+          return defaultStartups.map(def => {
+            const match = list.find(l => l.id === def.id);
+            if (match) {
+              return {
+                ...def,
+                score: match.score || def.score,
+                scores: match.scores || def.scores,
+                remarks: match.notes || def.remarks || "",
+                status: match.status === "Evaluated" ? "Completed" : def.status
+              };
+            }
+            return def;
+          });
+        }
+        return defaultStartups;
+      });
+
+      // Active selected startup for judging
+      const [currentId, setCurrentId] = useState("AXFE26-883921"); // MediQuick (Pitching)
+      const currentStartup = startups.find(s => s.id === currentId) || startups[0];
+
+      // Form entry states (Value Prop, GTM, Team, Tech, Finance)
+      const [valueProp, setValueProp] = useState(currentStartup.scores.valueProp);
+      const [gtm, setGtm] = useState(currentStartup.scores.gtm);
+      const [team, setTeam] = useState(currentStartup.scores.team);
+      const [tech, setTech] = useState(currentStartup.scores.tech);
+      const [finance, setFinance] = useState(currentStartup.scores.finance);
+      const [remarks, setRemarks] = useState(currentStartup.remarks);
+
+      // Auto save status feedback indicator
+      const [autoSaveStatus, setAutoSaveStatus] = useState("All changes saved");
+      const [isSaving, setIsSaving] = useState(false);
+
+      // Presentation pitch countdown timer state
+      const [timerMode, setTimerMode] = useState('pitch'); // 'pitch' (5m) or 'qa' (3m)
+      const [timeLeft, setTimeLeft] = useState(300); // 5 minutes in seconds
+      const [timerRunning, setTimerRunning] = useState(false);
+      const timerRef = useRef(null);
+
+      // Reload form states when selected startup changes
+      useEffect(() => {
+        setValueProp(currentStartup.scores.valueProp);
+        setGtm(currentStartup.scores.gtm);
+        setTeam(currentStartup.scores.team);
+        setTech(currentStartup.scores.tech);
+        setFinance(currentStartup.scores.finance);
+        setRemarks(currentStartup.remarks || "");
+      }, [currentId]);
+
+      // Timer Logic
+      useEffect(() => {
+        if (timerRunning) {
+          timerRef.current = setInterval(() => {
+            setTimeLeft(prev => {
+              if (prev <= 1) {
+                setTimerRunning(false);
+                clearInterval(timerRef.current);
+                return 0;
+              }
+              return prev - 1;
+            });
+          }, 1000);
+        } else {
+          clearInterval(timerRef.current);
+        }
+        return () => clearInterval(timerRef.current);
+      }, [timerRunning]);
+
+      const handleStartTimer = () => setTimerRunning(true);
+      const handlePauseTimer = () => setTimerRunning(false);
+      const handleResetTimer = () => {
+        setTimerRunning(false);
+        setTimeLeft(timerMode === 'pitch' ? 300 : 180);
+      };
+
+      const handleSwitchTimerMode = (mode) => {
+        setTimerMode(mode);
+        setTimerRunning(false);
+        setTimeLeft(mode === 'pitch' ? 300 : 180);
+      };
+
+      // Formatted Timer display
+      const formatTime = (secs) => {
+        const mins = Math.floor(secs / 60);
+        const remSecs = secs % 60;
+        return `${mins.toString().padStart(2, '0')}:${remSecs.toString().padStart(2, '0')}`;
+      };
+
+      // Trigger automatic save to localStorage on value edits (debounced/simulated)
+      useEffect(() => {
+        // Prevent auto-save triggering on initial mount
+        const average = Math.round(((valueProp + gtm + team + tech + finance) / 5) * 10) / 10;
+
+        setIsSaving(true);
+        setAutoSaveStatus("Saving changes...");
+
+        const timeout = setTimeout(() => {
+          const updated = startups.map(s => {
+            if (s.id === currentId) {
+              return {
+                ...s,
+                score: average,
+                scores: { valueProp, gtm, team, tech, finance },
+                remarks: remarks,
+                status: s.status === 'Waiting' ? 'Pitching' : s.status
+              };
+            }
+            return s;
+          });
+          setStartups(updated);
+          
+          // Save to localStorage in shared schema
+          const localList = updated.map(u => ({
+            id: u.id,
+            name: u.name,
+            founder: u.founder,
+            track: u.track,
+            score: u.score,
+            scores: u.scores,
+            notes: u.remarks,
+            status: u.status === 'Completed' ? 'Evaluated' : 'Pending'
+          }));
+          localStorage.setItem('axfe26_mentor_startups', JSON.stringify(localList));
+
+          setIsSaving(false);
+          setAutoSaveStatus(`Auto-saved at ${new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })}`);
+        }, 800);
+
+        return () => clearTimeout(timeout);
+      }, [valueProp, gtm, team, tech, finance, remarks, currentId]);
+
+      // Complete evaluation button
+      const handleCompleteEvaluation = () => {
+        const updated = startups.map(s => {
+          if (s.id === currentId) {
+            return { ...s, status: "Completed" };
+          }
+          return s;
+        });
+        setStartups(updated);
+        
+        const localList = updated.map(u => ({
+          id: u.id,
+          name: u.name,
+          founder: u.founder,
+          track: u.track,
+          score: u.score,
+          scores: u.scores,
+          notes: u.remarks,
+          status: u.status === 'Completed' ? 'Evaluated' : 'Pending'
+        }));
+        localStorage.setItem('axfe26_mentor_startups', JSON.stringify(localList));
+        setAutoSaveStatus("Startup status updated to Completed.");
+      };
+
+      // Set current startup from queue
+      const handleSelectStartup = (id) => {
+        setCurrentId(id);
+      };
+
+      // Ranked leaderboards preview
+      const rankedLeaderboard = [...startups].sort((a, b) => b.score - a.score);
+
+      // Timer style alerts
+      const timerColor = timeLeft > 60 ? 'text-rose-500' : timeLeft > 0 ? 'text-amber-500 animate-pulse' : 'text-slate-500';
+
+      return (
+        <div className="min-h-screen flex flex-col justify-between">
+          
+          {/* Header */}
+          <header className="glass-header sticky top-0 z-30">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+              
+              <div className="flex items-center gap-3">
+                <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-rose-500 to-pink-600 flex items-center justify-center shadow-md shadow-rose-500/20">
+                  <svg className="w-5 h-5 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M12 3v18M3 12h18" />
+                  </svg>
+                </div>
+                <div>
+                  <h1 className="font-display text-base font-bold text-white">AXFE26 Judge Panel</h1>
+                  <p className="text-[10px] text-slate-400 font-semibold tracking-wider uppercase">Main Stage Panel Evaluation</p>
+                </div>
+              </div>
+
+              {/* Center Timer Banner */}
+              <div className="hidden md:flex items-center gap-3 px-4 py-1.5 bg-slate-900/60 rounded-full border border-slate-800">
+                <span className="w-2 h-2 rounded-full bg-rose-500 animate-ping"></span>
+                <span className="text-xs font-mono font-bold tracking-wider text-slate-300">STAGE TIMER: {formatTime(timeLeft)}</span>
+              </div>
+
+              {/* Launcher link */}
+              <a 
+                href="index.html" 
+                className="px-3.5 py-1.5 border border-slate-700 bg-slate-800 rounded-lg text-xs font-bold text-slate-300 hover:bg-slate-700 transition-colors flex items-center gap-1.5"
+              >
+                <span>Launcher</span>
+                <span className="text-[10px] text-slate-500">⌘K</span>
+              </a>
+
+            </div>
+          </header>
+
+          {/* Main workspace */}
+          <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex-grow w-full grid grid-cols-1 lg:grid-cols-4 gap-8">
+            
+            {/* Column 1: Live Queue */}
+            <div className="lg:col-span-1 space-y-6">
+              <div className="glass-card p-5 rounded-2xl shadow-md space-y-4">
+                <div>
+                  <h3 className="font-display text-sm font-bold text-white tracking-wide">Live Stage Queue</h3>
+                  <p className="text-[11px] text-slate-400">Order of pitches on the central stage</p>
+                </div>
+
+                <div className="space-y-3">
+                  {startups.map((s, idx) => {
+                    const isActive = s.id === currentId;
+                    return (
+                      <div 
+                        key={s.id}
+                        onClick={() => handleSelectStartup(s.id)}
+                        className={`p-3.5 rounded-xl border cursor-pointer transition-all ${
+                          isActive 
+                            ? 'border-rose-500 bg-rose-500/10 shadow-[0_0_12px_rgba(244,63,94,0.15)]' 
+                            : 'border-slate-800 bg-slate-900/40 hover:bg-slate-900/60'
+                        }`}
+                      >
+                        <div className="flex justify-between items-start">
+                          <span className="text-[10px] font-mono text-slate-500 font-bold">#{idx + 1} Pitch</span>
+                          <span className={`px-2 py-0.5 rounded text-[8px] font-bold border ${
+                            s.status === 'Completed' ? 'bg-green-950/40 border-green-800 text-green-400' :
+                            s.status === 'Pitching' ? 'bg-rose-950/40 border-rose-800 text-rose-400 animate-pulse' :
+                            'bg-slate-800/40 border-slate-700 text-slate-400'
+                          }`}>
+                            {s.status}
+                          </span>
+                        </div>
+                        <h4 className="text-xs font-bold text-white mt-1.5">{s.name}</h4>
+                        <p className="text-[10px] text-slate-400 mt-0.5">{s.founder} · {s.pitchTime}</p>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            </div>
+
+            {/* Column 2 & 3: Current Pitch & Score Entry */}
+            <div className="lg:col-span-2 space-y-6">
+              
+              {/* Pitch Info & Timer */}
+              <div className="glass-card p-6 rounded-3xl shadow-md grid grid-cols-1 md:grid-cols-3 gap-6 items-center">
+                
+                {/* Info */}
+                <div className="md:col-span-2 space-y-2">
+                  <span className="text-[9px] font-mono font-bold tracking-wider text-rose-400 uppercase">ACTIVE PRESENTATION</span>
+                  <h2 className="font-display text-lg font-bold text-white">{currentStartup.name}</h2>
+                  <p className="text-xs text-slate-300 line-clamp-2">{currentStartup.description}</p>
+                  <p className="text-[10px] text-slate-500 font-medium">Founder: <span className="text-slate-400 font-bold">{currentStartup.founder}</span> · Track: <span className="text-slate-400 font-bold">{currentStartup.track}</span></p>
+                </div>
+
+                {/* Interactive Timer Widget */}
+                <div className="bg-slate-900/80 border border-slate-800 p-4 rounded-2xl flex flex-col items-center justify-center space-y-3">
+                  
+                  {/* Mode switches */}
+                  <div className="flex bg-slate-800 p-0.5 rounded-lg text-[9px] font-bold">
+                    <button 
+                      onClick={() => handleSwitchTimerMode('pitch')}
+                      className={`px-2 py-1 rounded ${timerMode === 'pitch' ? 'bg-slate-700 text-rose-400' : 'text-slate-400'}`}
+                    >
+                      Pitch (5m)
+                    </button>
+                    <button 
+                      onClick={() => handleSwitchTimerMode('qa')}
+                      className={`px-2 py-1 rounded ${timerMode === 'qa' ? 'bg-slate-700 text-rose-400' : 'text-slate-400'}`}
+                    >
+                      Q&A (3m)
+                    </button>
+                  </div>
+
+                  <span className={`text-3xl font-mono font-bold tracking-wider ${timerColor}`}>
+                    {formatTime(timeLeft)}
+                  </span>
+
+                  {/* Play Pause Reset */}
+                  <div className="flex gap-2">
+                    {timerRunning ? (
+                      <button 
+                        onClick={handlePauseTimer}
+                        className="p-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 text-[10px] font-bold"
+                      >
+                        Pause
+                      </button>
+                    ) : (
+                      <button 
+                        onClick={handleStartTimer}
+                        className="p-1.5 rounded-lg bg-rose-500 hover:bg-rose-600 text-white text-[10px] font-bold"
+                      >
+                        Start
+                      </button>
+                    )}
+                    <button 
+                      onClick={handleResetTimer}
+                      className="p-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-400 text-[10px] font-bold"
+                    >
+                      Reset
+                    </button>
+                  </div>
+
+                </div>
+
+              </div>
+
+              {/* Rubric Score Entry */}
+              <div className="glass-card p-6 rounded-3xl shadow-md space-y-6">
+                
+                <div className="flex justify-between items-center border-b border-slate-800 pb-4">
+                  <div>
+                    <h3 className="font-display text-sm font-bold text-white">Score Entry Rubrics</h3>
+                    <p className="text-[11px] text-slate-400">Score criteria from 1 (lowest) to 10 (highest)</p>
+                  </div>
+
+                  {/* Auto Save Feedback indicator */}
+                  <div className="flex items-center gap-1.5 text-[10px] font-semibold text-emerald-400">
+                    <span className={`w-1.5 h-1.5 rounded-full ${isSaving ? 'bg-amber-400 animate-ping' : 'bg-emerald-400'}`}></span>
+                    <span>{autoSaveStatus}</span>
+                  </div>
+                </div>
+
+                <div className="space-y-4">
+                  
+                  {/* Slider 1 */}
+                  <div className="space-y-2">
+                    <div className="flex justify-between text-xs font-semibold">
+                      <span className="text-slate-300">Value Proposition</span>
+                      <span className="text-rose-400 font-bold">{valueProp} / 10</span>
+                    </div>
+                    <input 
+                      type="range" min="1" max="10" 
+                      value={valueProp}
+                      onChange={(e) => setValueProp(Number(e.target.value))}
+                      className="w-full h-1 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-rose-500"
+                    />
+                  </div>
+
+                  {/* Slider 2 */}
+                  <div className="space-y-2">
+                    <div className="flex justify-between text-xs font-semibold">
+                      <span className="text-slate-300">Market Validation & GTM</span>
+                      <span className="text-rose-400 font-bold">{gtm} / 10</span>
+                    </div>
+                    <input 
+                      type="range" min="1" max="10" 
+                      value={gtm}
+                      onChange={(e) => setGtm(Number(e.target.value))}
+                      className="w-full h-1 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-rose-500"
+                    />
+                  </div>
+
+                  {/* Slider 3 */}
+                  <div className="space-y-2">
+                    <div className="flex justify-between text-xs font-semibold">
+                      <span className="text-slate-300">Team Competence</span>
+                      <span className="text-rose-400 font-bold">{team} / 10</span>
+                    </div>
+                    <input 
+                      type="range" min="1" max="10" 
+                      value={team}
+                      onChange={(e) => setTeam(Number(e.target.value))}
+                      className="w-full h-1 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-rose-500"
+                    />
+                  </div>
+
+                  {/* Slider 4 */}
+                  <div className="space-y-2">
+                    <div className="flex justify-between text-xs font-semibold">
+                      <span className="text-slate-300">Technical Feasibility</span>
+                      <span className="text-rose-400 font-bold">{tech} / 10</span>
+                    </div>
+                    <input 
+                      type="range" min="1" max="10" 
+                      value={tech}
+                      onChange={(e) => setTech(Number(e.target.value))}
+                      className="w-full h-1 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-rose-500"
+                    />
+                  </div>
+
+                  {/* Slider 5 */}
+                  <div className="space-y-2">
+                    <div className="flex justify-between text-xs font-semibold">
+                      <span className="text-slate-300">Capital Efficiency & Financials</span>
+                      <span className="text-rose-400 font-bold">{finance} / 10</span>
+                    </div>
+                    <input 
+                      type="range" min="1" max="10" 
+                      value={finance}
+                      onChange={(e) => setFinance(Number(e.target.value))}
+                      className="w-full h-1 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-rose-500"
+                    />
+                  </div>
+
+                </div>
+
+                {/* Remarks & complete */}
+                <div className="space-y-4 pt-4 border-t border-slate-800">
+                  
+                  <div className="space-y-2">
+                    <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider">Evaluation remarks & notes</label>
+                    <textarea
+                      rows="3"
+                      value={remarks}
+                      onChange={(e) => setRemarks(e.target.value)}
+                      placeholder="Add key highlights or suggestions regarding value proposition, financials, or delivery timeline..."
+                      className="w-full rounded-xl p-3 text-xs font-semibold input-dark"
+                    />
+                  </div>
+
+                  <div className="flex justify-between items-center">
+                    <div className="text-xs font-bold text-slate-400">
+                      Calculated Average: <span className="text-white text-sm font-mono">{(Math.round(((valueProp + gtm + team + tech + finance) / 5) * 10) / 10).toFixed(1)} / 10.0</span>
+                    </div>
+                    
+                    <button
+                      onClick={handleCompleteEvaluation}
+                      className="px-5 py-2.5 bg-rose-500 hover:bg-rose-600 text-white rounded-xl text-xs font-bold shadow-md shadow-rose-500/10 transition-colors cursor-pointer"
+                    >
+                      Lock & Submit Scores
+                    </button>
+                  </div>
+
+                </div>
+
+              </div>
+
+            </div>
+
+            {/* Column 4: Leaderboard Ranking Preview */}
+            <div className="lg:col-span-1 space-y-6">
+              
+              <div className="glass-card p-5 rounded-2xl shadow-md space-y-4">
+                <div>
+                  <h3 className="font-display text-sm font-bold text-white tracking-wide">Live Rank Leaderboard</h3>
+                  <p className="text-[11px] text-slate-400">Real-time cohort standings preview</p>
+                </div>
+
+                <div className="space-y-3">
+                  {rankedLeaderboard.map((s, idx) => {
+                    const isRank1 = idx === 0;
+                    const isRank2 = idx === 1;
+                    const isRank3 = idx === 2;
+                    
+                    return (
+                      <div 
+                        key={s.id} 
+                        className={`p-3 border border-slate-800/80 bg-slate-900/20 rounded-xl flex items-center justify-between ${
+                          s.id === currentId ? 'border-rose-500/40 bg-rose-950/10' : ''
+                        }`}
+                      >
+                        <div className="flex items-center gap-3">
+                          <span className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold ${
+                            isRank1 ? 'bg-amber-500/20 text-amber-400 border border-amber-500/35' :
+                            isRank2 ? 'bg-slate-300/25 text-slate-300 border border-slate-400/30' :
+                            isRank3 ? 'bg-amber-700/20 text-amber-600 border border-amber-800/35' :
+                            'bg-slate-800/40 text-slate-500'
+                          }`}>
+                            {idx + 1}
+                          </span>
+                          <div>
+                            <p className="text-xs font-bold text-white">{s.name}</p>
+                            <span className="text-[9px] text-slate-500 font-mono">{s.track}</span>
+                          </div>
+                        </div>
+
+                        <span className="text-xs font-mono font-bold text-rose-400">{s.score.toFixed(1)}</span>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+
+            </div>
+
+          </main>
+
+          {/* Footer */}
+          <footer className="glass-header py-4 text-center mt-12">
+            <p className="text-[10px] text-slate-500 font-semibold uppercase tracking-wider">AXFE26 main stage judge portal · powered by google deepmind</p>
+          </footer>
+
+        </div>
+      );
+    }
+
+    const root = ReactDOM.createRoot(document.getElementById('root'));
+    root.render(<App />);
+  </script>
+</body>
+</html>

@@ -153,7 +153,7 @@
     // ==========================================
     const initialParticipants = [
       {
-        id: "AXFE26-118490",
+        id: "AXFE26-482913",
         name: "Nimbus AI Solutions",
         track: "SaaS & AI",
         stage: "Stage 2 of 4",
@@ -164,35 +164,95 @@
         scores: { valueProp: 8, gtm: 9, team: 8, tech: 9, finance: 8 },
         notes: "Excellent product market fit for LLM orchestration. GTM strategy is solid in enterprise space.",
         recommendations: "Build out custom API pricing options to win pilot partners.",
+        readiness: 4,
+        improvementAreas: { valueProp: false, gtm: true, team: false, tech: false, finance: false, presentation: true, pitchDeck: false },
+        suggestions: "Price model is complex. Simplify it.",
         updatedAt: "2 hours ago"
       },
       {
-        id: "AXFE26-482913",
+        id: "AXFE26-726481",
         name: "FinFlow Pay",
-        track: "SaaS & AI",
+        track: "FinTech",
         stage: "Stage 2 of 4",
         status: "Pending",
         score: null,
         founder: "Rajesh Verma",
         email: "rajesh@finflowpay.com",
-        scores: { valueProp: 0, gtm: 0, team: 0, tech: 0, finance: 0 },
+        scores: { valueProp: 5, gtm: 5, team: 5, tech: 5, finance: 5 },
         notes: "",
         recommendations: "",
+        readiness: 3,
+        improvementAreas: { valueProp: false, gtm: false, team: false, tech: false, finance: false, presentation: false, pitchDeck: false },
+        suggestions: "",
         updatedAt: "--"
       },
       {
-        id: "AXFE26-773910",
+        id: "AXFE26-339281",
         name: "Zetta AgriTech Systems",
         track: "Agritech",
         stage: "Stage 3 of 4",
         status: "Completed",
-        score: 9.0,
+        score: 8.2,
         founder: "Amit Patel",
         email: "amit@zettaagri.com",
-        scores: { valueProp: 9, gtm: 9, team: 9, tech: 9, finance: 9 },
+        scores: { valueProp: 8, gtm: 8, team: 9, tech: 8, finance: 8 },
         notes: "Strong physical-digital integration with soil sensors. High margins demonstrated.",
         recommendations: "Develop clear scaling roadmap for regional co-operative integrations.",
+        readiness: 4,
+        improvementAreas: { valueProp: false, gtm: false, team: false, tech: false, finance: false, presentation: false, pitchDeck: false },
+        suggestions: "",
         updatedAt: "Yesterday"
+      },
+      {
+        id: "AXFE26-102948",
+        name: "Apex Robotics Labs",
+        track: "DeepTech",
+        stage: "Stage 3 of 4",
+        status: "Pending",
+        score: null,
+        founder: "Vikram Malhotra",
+        email: "vikram@apexrobotics.in",
+        scores: { valueProp: 5, gtm: 5, team: 5, tech: 5, finance: 5 },
+        notes: "",
+        recommendations: "",
+        readiness: 3,
+        improvementAreas: { valueProp: false, gtm: false, team: false, tech: false, finance: false, presentation: false, pitchDeck: false },
+        suggestions: "",
+        updatedAt: "--"
+      },
+      {
+        id: "AXFE26-883921",
+        name: "MediQuick Care",
+        track: "HealthTech",
+        stage: "Stage 2 of 4",
+        status: "Pending",
+        score: null,
+        founder: "Dr. Shalini Mukherji",
+        email: "shalini@mediquick.care",
+        scores: { valueProp: 5, gtm: 5, team: 5, tech: 5, finance: 5 },
+        notes: "",
+        recommendations: "",
+        readiness: 3,
+        improvementAreas: { valueProp: false, gtm: false, team: false, tech: false, finance: false, presentation: false, pitchDeck: false },
+        suggestions: "",
+        updatedAt: "--"
+      },
+      {
+        id: "AXFE26-554812",
+        name: "Optima Logi Solutions",
+        track: "Logistic AI",
+        stage: "Stage 4 of 4",
+        status: "Pending",
+        score: null,
+        founder: "Karan Johar",
+        email: "karan@optimalogi.in",
+        scores: { valueProp: 5, gtm: 5, team: 5, tech: 5, finance: 5 },
+        notes: "",
+        recommendations: "",
+        readiness: 3,
+        improvementAreas: { valueProp: false, gtm: false, team: false, tech: false, finance: false, presentation: false, pitchDeck: false },
+        suggestions: "",
+        updatedAt: "--"
       }
     ];
 
@@ -227,6 +287,19 @@
       const [finance, setFinance] = useState(5);
       const [notesText, setNotesText] = useState('');
       const [recText, setRecText] = useState('');
+
+      // Zone Feedback states
+      const [readiness, setReadiness] = useState(3);
+      const [improvementAreas, setImprovementAreas] = useState({
+        valueProp: false,
+        gtm: false,
+        team: false,
+        tech: false,
+        finance: false,
+        presentation: false,
+        pitchDeck: false
+      });
+      const [suggestions, setSuggestions] = useState('');
 
       // Startup Profile Modal
       const [profileStartup, setProfileStartup] = useState(null);
@@ -268,6 +341,17 @@
           setFinance(target.scores.finance || 5);
           setNotesText(target.notes || '');
           setRecText(target.recommendations || '');
+          setReadiness(target.readiness || 3);
+          setImprovementAreas(target.improvementAreas || {
+            valueProp: false,
+            gtm: false,
+            team: false,
+            tech: false,
+            finance: false,
+            presentation: false,
+            pitchDeck: false
+          });
+          setSuggestions(target.suggestions || '');
           setActivePage('evaluate');
         }
       };
@@ -291,6 +375,9 @@
               scores: { valueProp, gtm, team, tech, finance },
               notes: notesText,
               recommendations: recText,
+              readiness: readiness,
+              improvementAreas: improvementAreas,
+              suggestions: suggestions,
               updatedAt: "Just now"
             };
           }
@@ -570,7 +657,9 @@
                               <tr key={p.id} className="hover:bg-slate-50/50 transition-colors">
                                 <td className="py-3.5 font-semibold text-slate-700">
                                   <div>
-                                    <p>{p.name}</p>
+                                    <p>
+                                      <a href={`participant-detail.html?id=${p.id}`} className="text-primary hover:underline">{p.name}</a>
+                                    </p>
                                     <p className="text-[10px] text-slate-400 font-normal">{p.founder}</p>
                                   </div>
                                 </td>
@@ -727,7 +816,9 @@
                             </span>
                           </div>
 
-                          <h3 className="font-display font-bold text-slate-800 text-sm mb-1">{p.name}</h3>
+                          <h3 className="font-display font-bold text-slate-800 text-sm mb-1">
+                            <a href={`participant-detail.html?id=${p.id}`} className="text-primary hover:underline">{p.name}</a>
+                          </h3>
                           <p className="text-[10px] text-slate-400 font-mono mb-4">{p.id} · {p.track}</p>
 
                           <div className="space-y-2 border-t border-b border-slate-100 py-3 my-4 text-xs">
@@ -754,12 +845,12 @@
                         </div>
 
                         <div className="bg-slate-50/80 px-6 py-4 border-t border-slate-100 flex gap-2 justify-end">
-                          <button
-                            onClick={() => setProfileStartup(p)}
-                            className="btn bg-white hover:bg-slate-100 text-slate-700 border border-slate-200 rounded-xl px-3 py-1.5 text-xs font-semibold"
+                          <a
+                            href={`participant-detail.html?id=${p.id}`}
+                            className="btn bg-white hover:bg-slate-100 text-slate-700 border border-slate-200 rounded-xl px-3 py-1.5 text-xs font-semibold text-center"
                           >
                             Details
-                          </button>
+                          </a>
                           <button
                             onClick={() => handleSelectStartupForEvaluation(p.id)}
                             className="btn bg-amber-500 hover:bg-amber-600 text-white rounded-xl px-3 py-1.5 text-xs font-bold shadow-sm shadow-amber-500/10"

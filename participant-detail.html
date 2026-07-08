@@ -1,0 +1,848 @@
+<!doctype html>
+<html lang="en" class="h-full">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Participant Detail — AX Founder Exchange 2026</title>
+  <meta name="description" content="Detailed participant assessment scorecard, timeline history, and privacy configuration." />
+  
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <!-- Tailwind Configuration -->
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: '#2563EB',
+            secondary: '#7C3AED',
+            success: '#16A34A',
+            warning: '#F59E0B',
+            danger: '#DC2626',
+            axnavy: '#0F1A4D',
+            axblue: '#3B5BFF',
+            axviolet: '#7C3AED',
+            axlavender: '#EEF1FF',
+            axpaper: '#F7F8FC',
+            axink: '#0F172A',
+            axslate: '#64748B',
+            axline: '#E2E6F3'
+          },
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+            display: ['Space Grotesk', 'sans-serif'],
+          },
+          boxShadow: {
+            'sm-custom': '0 1px 2px rgba(17,24,39,0.05)',
+            'md-custom': '0 4px 12px -2px rgba(17,24,39,0.08), 0 2px 4px rgba(17,24,39,0.04)',
+            'lg-custom': '0 16px 32px -8px rgba(17,24,39,0.14), 0 4px 8px rgba(17,24,39,0.05)',
+          }
+        }
+      }
+    }
+  </script>
+  
+  <!-- React & Babel CDNs -->
+  <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+  <style>
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .animate-fade-in {
+      animation: fadeIn 0.3s ease-out forwards;
+    }
+    .glass-card {
+      background: rgba(255, 255, 255, 0.75);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid rgba(226, 230, 243, 0.8);
+    }
+    .gradient-bg {
+      background: linear-gradient(135deg, #0F172A 0%, #1E1B4B 100%);
+    }
+    .switch-toggle:checked ~ .switch-dot {
+      transform: translateX(100%);
+      background-color: #2563EB;
+    }
+  </style>
+</head>
+<body class="h-full bg-slate-50 text-slate-800">
+  <div id="root"></div>
+
+  <!-- Toast Root -->
+  <div id="toast-root" class="fixed bottom-4 right-4 z-50 flex flex-col gap-3 pointer-events-none"></div>
+
+  <script type="text/babel">
+    const { useState, useEffect } = React;
+
+    // Toast Component
+    const Toast = ({ id, type, title, message, onClose }) => {
+      useEffect(() => {
+        const timer = setTimeout(() => onClose(id), 4000);
+        return () => clearTimeout(timer);
+      }, [id, onClose]);
+
+      const colors = {
+        success: 'border-green-200 bg-green-50 text-green-800',
+        danger: 'border-red-200 bg-red-50 text-red-800',
+        warning: 'border-amber-200 bg-amber-50 text-amber-800',
+        info: 'border-blue-200 bg-blue-50 text-blue-800',
+      };
+
+      return (
+        <div className={`p-4 rounded-xl border shadow-md flex gap-3 max-w-sm pointer-events-auto animate-fade-in ${colors[type]}`}>
+          <div className="flex-1">
+            <p className="text-xs font-bold font-display">{title}</p>
+            <p className="text-[11px] font-medium mt-0.5 leading-normal opacity-90">{message}</p>
+          </div>
+          <button onClick={() => onClose(id)} className="text-slate-400 hover:text-slate-600 self-start">
+            <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5"><path strokeLinecap="round" strokeLinejoin="round" d="M6 18 18 6M6 6l12 12" /></svg>
+          </button>
+        </div>
+      );
+    };
+
+    // Default Participant Profiles Dataset
+    const defaultParticipants = [
+      {
+        id: "AXFE26-482913",
+        name: "Nimbus AI Solutions",
+        founder: "Aditi Sharma",
+        email: "aditi@nimbusai.io",
+        track: "SaaS & AI",
+        zone: "Zone C",
+        stage: "Stage 2 of 4",
+        status: "Active Review",
+        score: 8.4,
+        scores: { valueProp: 8, gtm: 9, team: 8, tech: 9, finance: 8 },
+        description: "Nimbus AI delivers specialized developer orchestration tools for monitoring and optimizing token usage pipelines on production LLM cluster runtimes, reducing latencies by up to 40% while preventing token over-allocation.",
+        foundingDate: "May 2024",
+        fundingNeeded: "$250,000",
+        cohortLocation: "Bengaluru Tech Hub",
+        pitchDeckName: "pitch_deck_nimbus_ai.pdf",
+        teamSize: "8 developers",
+        timeline: [
+          { date: "Jul 01, 2026", event: "Application Submitted", description: "Successfully uploaded compliance docs and base legal certificates." },
+          { date: "Jul 03, 2026", event: "Onboarding Passed", description: "Completed initial registration screening and Bengaluru cohort check-in." },
+          { date: "Jul 04, 2026", event: "Mentor Matchmaking", description: "Priya Sharma (GTM Lead) and Arjun Nair (Tech Lead) assigned." },
+          { date: "Jul 05, 2026", event: "Mid-Term Scoring Update", description: "Scores synchronized across criteria rubrics by Priya Sharma." }
+        ],
+        remarks: [
+          { author: "Priya Sharma", role: "GTM Mentor", text: "Excellent product depth and clear addressable market size (TAM). The developer-facing API pricing requires minor refinement." },
+          { author: "Arjun Nair", role: "Tech Mentor", text: "Latency benchmarks are outstanding. Recommend scheduling key rotation cycles for production credentials." }
+        ],
+        history: [
+          { timestamp: "Jul 05, 2026 10:45 AM", action: "Grades Updated", user: "Priya Sharma", details: "Changed valueProp from 7 to 8, gtm from 8 to 9." },
+          { timestamp: "Jul 04, 2026 02:15 PM", action: "Mentor Assignment", user: "Admin Panel", details: "Assigned Priya Sharma & Arjun Nair." },
+          { timestamp: "Jul 03, 2026 09:30 AM", action: "Onboarding Approved", user: "Verification Lead", details: "Cohort registration checklist marked complete." }
+        ],
+        privacyFlags: {
+          shareWithInvestors: true,
+          anonymizePitch: false,
+          stagePresentation: true,
+          zoneLeadAccess: true
+        }
+      },
+      {
+        id: "AXFE26-726481",
+        name: "FinFlow Pay",
+        founder: "Rajesh Verma",
+        email: "rajesh@finflowpay.com",
+        track: "FinTech",
+        zone: "Zone C",
+        stage: "Stage 2 of 4",
+        status: "Drafting",
+        score: 6.8,
+        scores: { valueProp: 7, gtm: 6, team: 7, tech: 7, finance: 7 },
+        description: "FinFlow Pay streamlines cross-border remittance routing and B2B vendor payments using localized UPI routing networks and automated billing ledgers for regional enterprises.",
+        foundingDate: "January 2025",
+        fundingNeeded: "$150,000",
+        cohortLocation: "Bengaluru Tech Hub",
+        pitchDeckName: "finflow_pay_summary.pdf",
+        teamSize: "4 members",
+        timeline: [
+          { date: "Jul 02, 2026", event: "Application Submitted", description: "Initial UPI ledger drafts and payment integration layouts uploaded." },
+          { date: "Jul 04, 2026", event: "Security Clearance", description: "Passed sandbox payment security checking routines." }
+        ],
+        remarks: [
+          { author: "Rajesh Varma", role: "Zone Lead", text: "Evaluation grade mismatch detected between tech and finance categories. Needs alignment during the next panel." }
+        ],
+        history: [
+          { timestamp: "Jul 05, 2026 04:30 PM", action: "Evaluation Initiated", user: "Rajesh Varma", details: "Saved initial evaluation draft with overall score 6.8." }
+        ],
+        privacyFlags: {
+          shareWithInvestors: false,
+          anonymizePitch: true,
+          stagePresentation: false,
+          zoneLeadAccess: true
+        }
+      },
+      {
+        id: "AXFE26-102948",
+        name: "Apex Robotics Labs",
+        founder: "Vikram Malhotra",
+        email: "vikram@apexrobotics.in",
+        track: "DeepTech",
+        zone: "Zone A",
+        stage: "Stage 3 of 4",
+        status: "Evaluated",
+        score: 7.4,
+        scores: { valueProp: 8, gtm: 7, team: 8, tech: 7, finance: 7 },
+        description: "Apex Robotics Labs manufactures specialized collaborative pick-and-place robotic arm modules designed to integrate with automated warehouse inventory systems.",
+        foundingDate: "September 2023",
+        fundingNeeded: "$500,000",
+        cohortLocation: "Delhi NCR Hub",
+        pitchDeckName: "apex_robotics_deck.pdf",
+        teamSize: "12 members",
+        timeline: [
+          { date: "Jun 28, 2026", event: "Application Submitted", description: "Hardware blueprints and warehouse testing metrics uploaded." },
+          { date: "Jun 30, 2026", event: "Mechanical Sign-off", description: "Physical hardware check completed successfully." }
+        ],
+        remarks: [
+          { author: "Arjun Nair", role: "Tech Lead", text: "Satisfactory mechanical calibration. The capital efficiency ratios require additional documentation." }
+        ],
+        history: [
+          { timestamp: "Jul 02, 2026 03:00 PM", action: "Evaluation Finalized", user: "Arjun Nair", details: "Marked as evaluated with average score 7.4." }
+        ],
+        privacyFlags: {
+          shareWithInvestors: true,
+          anonymizePitch: false,
+          stagePresentation: true,
+          zoneLeadAccess: false
+        }
+      },
+      {
+        id: "AXFE26-883921",
+        name: "MediQuick Care",
+        founder: "Dr. Shalini Mukherji",
+        email: "shalini@mediquick.care",
+        track: "HealthTech",
+        zone: "Zone B",
+        stage: "Stage 2 of 4",
+        status: "Active Review",
+        score: 8.9,
+        scores: { valueProp: 9, gtm: 8, team: 9, tech: 9, finance: 9 },
+        description: "MediQuick Care is an AI-powered triage assistant that matches patient symptoms with clinic availability to optimize doctor scheduling networks.",
+        foundingDate: "November 2024",
+        fundingNeeded: "$300,000",
+        cohortLocation: "Mumbai Health Zone",
+        pitchDeckName: "mediquick_care_deck.pdf",
+        teamSize: "7 members",
+        timeline: [
+          { date: "Jun 29, 2026", event: "Triage Compliance Check", description: "Triage systems compliance certifications approved." },
+          { date: "Jul 01, 2026", event: "Cohort Matching", description: "Linked to Mumbai specialist networks." }
+        ],
+        remarks: [
+          { author: "Priya Sharma", role: "GTM Lead", text: "Incredibly high customer retention metrics during pilot phases. Clear validation of medical triage speeds." }
+        ],
+        history: [
+          { timestamp: "Jul 03, 2026 11:20 AM", action: "Score Updated", user: "Priya Sharma", details: "Value Proposition adjusted to 9/10." }
+        ],
+        privacyFlags: {
+          shareWithInvestors: true,
+          anonymizePitch: false,
+          stagePresentation: true,
+          zoneLeadAccess: true
+        }
+      },
+      {
+        id: "AXFE26-339281",
+        name: "Zetta AgriTech Systems",
+        founder: "Amit Patel",
+        email: "amit@zettaagri.com",
+        track: "Agritech",
+        zone: "Zone D",
+        stage: "Stage 3 of 4",
+        status: "Active Review",
+        score: 8.2,
+        scores: { valueProp: 8, gtm: 8, team: 9, tech: 8, finance: 8 },
+        description: "Zetta AgriTech provides internet-of-things soil sensors paired with cloud analytics to offer real-time crop yields recommendations and water conservation guides.",
+        foundingDate: "March 2024",
+        fundingNeeded: "$200,000",
+        cohortLocation: "Hyderabad Agri Hub",
+        pitchDeckName: "zetta_agritech_summary.pdf",
+        teamSize: "9 members",
+        timeline: [
+          { date: "Jun 25, 2026", event: "Sensor Quality Checks", description: "Received quality assurance tags for soil tracking hardware." }
+        ],
+        remarks: [
+          { author: "Meera Sen", role: "Zone Lead", text: "Demonstrated strong integration with regional cooperatives. Excellent team synergy." }
+        ],
+        history: [
+          { timestamp: "Jul 01, 2026 09:40 AM", action: "Roster Enrolled", user: "Meera Sen", details: "Transferred to active cohort roster." }
+        ],
+        privacyFlags: {
+          shareWithInvestors: true,
+          anonymizePitch: false,
+          stagePresentation: false,
+          zoneLeadAccess: true
+        }
+      },
+      {
+        id: "AXFE26-554812",
+        name: "Optima Logi Solutions",
+        founder: "Karan Johar",
+        email: "karan@optimalogi.in",
+        track: "Logistic AI",
+        zone: "Zone A",
+        stage: "Stage 4 of 4",
+        status: "Evaluated",
+        score: 7.9,
+        scores: { valueProp: 8, gtm: 8, team: 8, tech: 8, finance: 7 },
+        description: "Optima Logi implements machine learning routing models to schedule fleet dispatches, reducing total travel distance for commercial shippers.",
+        foundingDate: "December 2024",
+        fundingNeeded: "$250,000",
+        cohortLocation: "Delhi NCR Hub",
+        pitchDeckName: "optima_logi_details.pdf",
+        teamSize: "6 members",
+        timeline: [
+          { date: "Jun 24, 2026", event: "Dispatches Sandbox Success", description: "Achieved 15% distance optimization under simulated grid conditions." }
+        ],
+        remarks: [
+          { author: "Arjun Nair", role: "Tech Lead", text: "Satisfactory routing algorithms. Fleet interface UI requires further polishing." }
+        ],
+        history: [
+          { timestamp: "Jun 29, 2026 02:50 PM", action: "Initial Assessment Complete", user: "Arjun Nair", details: "Saved initial scoring values." }
+        ],
+        privacyFlags: {
+          shareWithInvestors: false,
+          anonymizePitch: false,
+          stagePresentation: true,
+          zoneLeadAccess: true
+        }
+      }
+    ];
+
+    function App() {
+      const [toasts, setToasts] = useState([]);
+      const [participants, setParticipants] = useState(() => {
+        // Read from local storage if available, else load defaults
+        const local = localStorage.getItem('axfe26_mentor_startups');
+        if (local) {
+          const list = JSON.parse(local);
+          // Merge details from default dataset to keep all profiles filled
+          return defaultParticipants.map(def => {
+            const match = list.find(l => l.id === def.id || l.code === def.id);
+            if (match) {
+              return {
+                ...def,
+                score: match.score,
+                scores: match.scores || def.scores,
+                notes: match.notes || def.notes,
+                status: match.status || def.status,
+                recommendations: match.recommendations || def.recommendations,
+                privacyFlags: match.privacyFlags || def.privacyFlags
+              };
+            }
+            return def;
+          });
+        }
+        return defaultParticipants;
+      });
+
+      // Get participant ID from query param
+      const getQueryParamId = () => {
+        const params = new URLSearchParams(window.location.search);
+        return params.get('id') || 'AXFE26-482913';
+      };
+
+      const [selectedId, setSelectedId] = useState(getQueryParamId());
+      const currentParticipant = participants.find(p => p.id === selectedId) || participants[0];
+
+      // Form state for updates
+      const [remarksText, setRemarksText] = useState('');
+      const [remarkAuthor, setRemarkAuthor] = useState('Admin');
+
+      const showToast = (type, title, message) => {
+        const id = Date.now().toString();
+        setToasts((prev) => [...prev, { id, type, title, message }]);
+      };
+
+      const removeToast = (id) => {
+        setToasts((prev) => prev.filter((t) => t.id !== id));
+      };
+
+      // Handle Privacy Flag Toggle
+      const handleToggleFlag = (flagName) => {
+        const updated = participants.map(p => {
+          if (p.id === currentParticipant.id) {
+            const updatedFlags = {
+              ...p.privacyFlags,
+              [flagName]: !p.privacyFlags[flagName]
+            };
+            showToast('success', 'Privacy Updated', `${flagName.replace(/([A-Z])/g, ' $1')} has been toggled.`);
+            return {
+              ...p,
+              privacyFlags: updatedFlags,
+              history: [
+                {
+                  timestamp: new Date().toLocaleString(),
+                  action: "Privacy Config Updated",
+                  user: "Admin",
+                  details: `Toggled ${flagName} to ${updatedFlags[flagName] ? 'ENABLED' : 'DISABLED'}`
+                },
+                ...p.history
+              ]
+            };
+          }
+          return p;
+        });
+        setParticipants(updated);
+        localStorage.setItem('axfe26_mentor_startups', JSON.stringify(updated));
+      };
+
+      // Add Remark
+      const handleAddRemark = (e) => {
+        e.preventDefault();
+        if (!remarksText.trim()) return;
+
+        const updated = participants.map(p => {
+          if (p.id === currentParticipant.id) {
+            return {
+              ...p,
+              remarks: [
+                ...p.remarks,
+                { author: remarkAuthor, role: remarkAuthor === 'Admin' ? 'System Organizer' : 'Cohort Mentor', text: remarksText }
+              ],
+              history: [
+                {
+                  timestamp: new Date().toLocaleString(),
+                  action: "Remark Added",
+                  user: remarkAuthor,
+                  details: `Added new assessment note.`
+                },
+                ...p.history
+              ]
+            };
+          }
+          return p;
+        });
+
+        setParticipants(updated);
+        localStorage.setItem('axfe26_mentor_startups', JSON.stringify(updated));
+        setRemarksText('');
+        showToast('success', 'Remark Saved', 'New remark appended to assessment feed.');
+      };
+
+      // Handle Dropdown Change
+      const handleSelectChange = (id) => {
+        setSelectedId(id);
+        // Update URL query parameter without page refresh
+        const newUrl = `${window.location.pathname}?id=${id}`;
+        window.history.pushState({ path: newUrl }, '', newUrl);
+      };
+
+      // Get Referrer Dashboard Link
+      const getBackLink = () => {
+        if (document.referrer.includes('mentor-dashboard.html')) {
+          return 'mentor-dashboard.html';
+        }
+        return 'admin-dashboard.html';
+      };
+
+      return (
+        <div className="min-h-screen flex flex-col bg-slate-50">
+          {/* Topbar Header */}
+          <header className="h-16 border-b border-slate-200/80 bg-white/70 backdrop-blur-md sticky top-0 z-40 flex items-center justify-between px-6">
+            <div className="flex items-center gap-3">
+              <a 
+                href={getBackLink()}
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold text-slate-600 bg-slate-100 hover:bg-slate-200 rounded-lg transition-colors"
+              >
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5"><path strokeLinecap="round" strokeLinejoin="round" d="M10.5 19.5 3 12m0 0 7.5-7.5M3 12h18" /></svg>
+                Back to Console
+              </a>
+              <span className="text-slate-300">|</span>
+              <h1 className="text-sm font-bold text-slate-800 font-display hidden sm:inline-block">
+                Participant Detail Portal
+              </h1>
+            </div>
+
+            {/* Quick Switch Dropdown */}
+            <div className="flex items-center gap-3">
+              <span className="text-xs text-slate-400 font-bold hidden md:inline">Select Startup Profile:</span>
+              <select 
+                value={selectedId} 
+                onChange={(e) => handleSelectChange(e.target.value)}
+                className="border border-slate-200 rounded-xl px-3 py-2 text-xs bg-white font-bold text-slate-700 focus:outline-none focus:ring-2 focus:ring-primary/20"
+              >
+                {participants.map(p => (
+                  <option key={p.id} value={p.id}>{p.name} ({p.id})</option>
+                ))}
+              </select>
+            </div>
+          </header>
+
+          {/* Main Grid Content */}
+          <main className="flex-1 p-6 md:p-8 max-w-7xl w-full mx-auto grid grid-cols-1 lg:grid-cols-12 gap-8 animate-fade-in">
+            
+            {/* LEFT COLUMN: Startup Profile, Timeline & Privacy Flags (5 Cols) */}
+            <div className="lg:col-span-5 space-y-8">
+              
+              {/* Profile Card */}
+              <div className="glass-card rounded-3xl p-6 shadow-sm-custom relative overflow-hidden">
+                <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-primary to-secondary"></div>
+                <div className="flex justify-between items-start">
+                  <div className="w-12 h-12 rounded-2xl bg-slate-900 text-white flex items-center justify-center font-display font-black text-base shadow-md">
+                    {currentParticipant.name.split(' ').map(n=>n[0]).join('')}
+                  </div>
+                  <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold border ${
+                    currentParticipant.status === 'Evaluated' || currentParticipant.status === 'Completed'
+                      ? 'bg-green-50 text-green-700 border-green-100' 
+                      : 'bg-amber-50 text-amber-700 border-amber-100'
+                  }`}>
+                    {currentParticipant.status}
+                  </span>
+                </div>
+
+                <div className="mt-4">
+                  <h2 className="text-lg font-bold text-slate-800 font-display">{currentParticipant.name}</h2>
+                  <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider mt-0.5">{currentParticipant.track} · {currentParticipant.zone}</p>
+                  <p className="text-xs text-slate-500 mt-3 leading-relaxed">{currentParticipant.description}</p>
+                </div>
+
+                <div className="border-t border-slate-100 pt-4 mt-5 space-y-2.5 text-xs text-slate-600">
+                  <div className="flex justify-between">
+                    <span className="font-semibold">Founder:</span>
+                    <span className="font-bold text-slate-800">{currentParticipant.founder}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="font-semibold">Contact Email:</span>
+                    <span className="font-mono text-slate-700">{currentParticipant.email}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="font-semibold">Founded Date:</span>
+                    <span className="font-bold text-slate-800">{currentParticipant.foundingDate}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="font-semibold">Funding Target:</span>
+                    <span className="font-bold text-slate-800">{currentParticipant.fundingNeeded}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="font-semibold">Cohort Hub Location:</span>
+                    <span className="font-bold text-slate-800">{currentParticipant.cohortLocation}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="font-semibold">Team Size:</span>
+                    <span className="font-bold text-slate-800">{currentParticipant.teamSize}</span>
+                  </div>
+                </div>
+
+                {/* Pitch Deck File */}
+                <div className="mt-5 p-3.5 bg-slate-50 rounded-2xl border border-slate-100 flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <div className="w-8 h-8 rounded-lg bg-red-50 text-red-600 flex items-center justify-center shrink-0">
+                      <svg className="w-4.5 h-4.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 0 0-3.375-3.375h-1.5A1.125 1.125 0 0 1 13.5 7.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H8.25m.75 12H9m3 0h.008v.008H12v-.008zM12 15h.008v.008H12V15zm0 2.25h.008v.008H12v-.008zM9.75 15h.008v.008H9.75V15zm0 2.25h.008v.008H9.75v-.008zM7.5 15h.008v.008H7.5V15zm0 2.25h.008v.008H7.5v-.008zm6.75-4.5h.008v.008h-.008v-.008zm0 2.25h.008v.008h-.008V15zm0 2.25h.008v.008h-.008v-.008zm2.25-4.5h.008v.008H16.5v-.008zm0 2.25h.008v.008H16.5V15z" /></svg>
+                    </div>
+                    <div className="min-w-0">
+                      <p className="text-[11px] font-bold text-slate-700 truncate">{currentParticipant.pitchDeckName}</p>
+                      <p className="text-[9px] text-slate-400">PDF Presentation Document</p>
+                    </div>
+                  </div>
+                  <button 
+                    onClick={() => showToast('info', 'File Download', 'Pitch deck PDF download started.')}
+                    className="px-2.5 py-1.5 text-[10px] font-bold text-primary bg-blue-50 border border-blue-100 rounded-lg hover:bg-blue-100 transition-colors"
+                  >
+                    Download
+                  </button>
+                </div>
+              </div>
+
+              {/* Timeline Card */}
+              <div className="bg-white border border-slate-200/80 rounded-3xl p-6 shadow-sm-custom">
+                <div className="pb-4 mb-4 border-b border-slate-100">
+                  <h3 className="text-sm font-bold text-slate-800 font-display">Evaluation Journey Timeline</h3>
+                  <p className="text-[10px] text-slate-400">Chronological history of program milestones</p>
+                </div>
+
+                <div className="space-y-5">
+                  {currentParticipant.timeline.map((item, idx) => (
+                    <div key={idx} className="flex gap-4 relative">
+                      {idx < currentParticipant.timeline.length - 1 && (
+                        <div className="absolute left-2.5 top-5 bottom-[-20px] w-0.5 bg-slate-100"></div>
+                      )}
+                      <div className="w-5.5 h-5.5 rounded-full bg-blue-50 border border-primary text-primary flex items-center justify-center shrink-0 text-[10px] font-bold z-10">
+                        {idx + 1}
+                      </div>
+                      <div>
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <h4 className="text-xs font-bold text-slate-700">{item.event}</h4>
+                          <span className="text-[9px] font-semibold text-slate-400">{item.date}</span>
+                        </div>
+                        <p className="text-[11px] text-slate-500 mt-0.5 leading-normal">{item.description}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Privacy Flags Card */}
+              <div className="bg-white border border-slate-200/80 rounded-3xl p-6 shadow-sm-custom">
+                <div className="pb-4 mb-4 border-b border-slate-100">
+                  <h3 className="text-sm font-bold text-slate-800 font-display">Privacy &amp; Sharing Flags</h3>
+                  <p className="text-[10px] text-slate-400">Configure participant data display properties</p>
+                </div>
+
+                <div className="space-y-4">
+                  {/* Flag 1 */}
+                  <div className="flex items-center justify-between p-2 rounded-xl hover:bg-slate-50/50 transition-colors">
+                    <div>
+                      <p className="text-xs font-bold text-slate-700">Share Scorecard with Investors</p>
+                      <p className="text-[10px] text-slate-400 mt-0.5">Allow vetted investor accounts to pull evaluation details.</p>
+                    </div>
+                    <label className="relative inline-flex items-center cursor-pointer">
+                      <input 
+                        type="checkbox" 
+                        checked={currentParticipant.privacyFlags.shareWithInvestors} 
+                        onChange={() => handleToggleFlag('shareWithInvestors')}
+                        className="sr-only peer switch-toggle" 
+                      />
+                      <div className="w-9 h-5 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-primary"></div>
+                    </label>
+                  </div>
+
+                  {/* Flag 2 */}
+                  <div className="flex items-center justify-between p-2 rounded-xl hover:bg-slate-50/50 transition-colors">
+                    <div>
+                      <p className="text-xs font-bold text-slate-700">Anonymize Sensitive Pitch Data</p>
+                      <p className="text-[10px] text-slate-400 mt-0.5">Obfuscate raw latency rates on public leaderboard views.</p>
+                    </div>
+                    <label className="relative inline-flex items-center cursor-pointer">
+                      <input 
+                        type="checkbox" 
+                        checked={currentParticipant.privacyFlags.anonymizePitch} 
+                        onChange={() => handleToggleFlag('anonymizePitch')}
+                        className="sr-only peer switch-toggle" 
+                      />
+                      <div className="w-9 h-5 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-primary"></div>
+                    </label>
+                  </div>
+
+                  {/* Flag 3 */}
+                  <div className="flex items-center justify-between p-2 rounded-xl hover:bg-slate-50/50 transition-colors">
+                    <div>
+                      <p className="text-xs font-bold text-slate-700">Enable Stage Presentation Mode</p>
+                      <p className="text-[10px] text-slate-400 mt-0.5">Toggle giant QR code visibility on screens.</p>
+                    </div>
+                    <label className="relative inline-flex items-center cursor-pointer">
+                      <input 
+                        type="checkbox" 
+                        checked={currentParticipant.privacyFlags.stagePresentation} 
+                        onChange={() => handleToggleFlag('stagePresentation')}
+                        className="sr-only peer switch-toggle" 
+                      />
+                      <div className="w-9 h-5 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-primary"></div>
+                    </label>
+                  </div>
+
+                  {/* Flag 4 */}
+                  <div className="flex items-center justify-between p-2 rounded-xl hover:bg-slate-50/50 transition-colors">
+                    <div>
+                      <p className="text-xs font-bold text-slate-700">Allow Mentoring Zone Supervisor Access</p>
+                      <p className="text-[10px] text-slate-400 mt-0.5">Grant write access to supervisor leads for grades validation.</p>
+                    </div>
+                    <label className="relative inline-flex items-center cursor-pointer">
+                      <input 
+                        type="checkbox" 
+                        checked={currentParticipant.privacyFlags.zoneLeadAccess} 
+                        onChange={() => handleToggleFlag('zoneLeadAccess')}
+                        className="sr-only peer switch-toggle" 
+                      />
+                      <div className="w-9 h-5 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-primary"></div>
+                    </label>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+
+            {/* RIGHT COLUMN: Score Cards, Remarks & History Log (7 Cols) */}
+            <div className="lg:col-span-7 space-y-8">
+              
+              {/* Score Cards Card */}
+              <div className="bg-white border border-slate-200/80 rounded-3xl p-6 shadow-sm-custom">
+                <div className="pb-4 mb-6 border-b border-slate-100 flex justify-between items-center flex-wrap gap-3">
+                  <div>
+                    <h3 className="text-sm font-bold text-slate-800 font-display">Rubrics &amp; Scorecard Metrics</h3>
+                    <p className="text-[10px] text-slate-400">Current scores weighted average performance</p>
+                  </div>
+                  <div className="text-right bg-slate-50 border border-slate-100 rounded-xl px-4 py-2 shrink-0">
+                    <span className="text-[9px] font-bold text-slate-400 uppercase tracking-wider block">Weighted Average Score</span>
+                    <span className="text-lg font-extrabold text-primary font-display mt-0.5">
+                      {currentParticipant.score !== null ? `${currentParticipant.score.toFixed(1)} / 10.0` : 'Pending'}
+                    </span>
+                  </div>
+                </div>
+
+                <div className="space-y-5">
+                  {/* Score 1 */}
+                  <div>
+                    <div className="flex justify-between text-xs font-bold text-slate-600 mb-1.5">
+                      <span>Value Proposition &amp; Product Definition (Weight: 20%)</span>
+                      <span className="text-primary font-mono">{currentParticipant.scores.valueProp} / 10</span>
+                    </div>
+                    <div className="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
+                      <div className="bg-primary h-full transition-all duration-300" style={{ width: `${currentParticipant.scores.valueProp * 10}%` }}></div>
+                    </div>
+                  </div>
+
+                  {/* Score 2 */}
+                  <div>
+                    <div className="flex justify-between text-xs font-bold text-slate-600 mb-1.5">
+                      <span>Go-To-Market &amp; Customer Acquisition Sales Cycles (Weight: 20%)</span>
+                      <span className="text-primary font-mono">{currentParticipant.scores.gtm} / 10</span>
+                    </div>
+                    <div className="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
+                      <div className="bg-primary h-full transition-all duration-300" style={{ width: `${currentParticipant.scores.gtm * 10}%` }}></div>
+                    </div>
+                  </div>
+
+                  {/* Score 3 */}
+                  <div>
+                    <div className="flex justify-between text-xs font-bold text-slate-600 mb-1.5">
+                      <span>Co-Founder Synergy &amp; Management Capability (Weight: 20%)</span>
+                      <span className="text-primary font-mono">{currentParticipant.scores.team} / 10</span>
+                    </div>
+                    <div className="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
+                      <div className="bg-primary h-full transition-all duration-300" style={{ width: `${currentParticipant.scores.team * 10}%` }}></div>
+                    </div>
+                  </div>
+
+                  {/* Score 4 */}
+                  <div>
+                    <div className="flex justify-between text-xs font-bold text-slate-600 mb-1.5">
+                      <span>Technical Architecture &amp; Database Viability (Weight: 20%)</span>
+                      <span className="text-primary font-mono">{currentParticipant.scores.tech} / 10</span>
+                    </div>
+                    <div className="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
+                      <div className="bg-primary h-full transition-all duration-300" style={{ width: `${currentParticipant.scores.tech * 10}%` }}></div>
+                    </div>
+                  </div>
+
+                  {/* Score 5 */}
+                  <div>
+                    <div className="flex justify-between text-xs font-bold text-slate-600 mb-1.5">
+                      <span>Financial Plan, Cash Runway &amp; Cap Efficiency (Weight: 20%)</span>
+                      <span className="text-primary font-mono">{currentParticipant.scores.finance} / 10</span>
+                    </div>
+                    <div className="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
+                      <div className="bg-primary h-full transition-all duration-300" style={{ width: `${currentParticipant.scores.finance * 10}%` }}></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Remarks & Recommendations Card */}
+              <div className="bg-white border border-slate-200/80 rounded-3xl p-6 shadow-sm-custom">
+                <div className="pb-4 mb-4 border-b border-slate-100">
+                  <h3 className="text-sm font-bold text-slate-800 font-display">Remarks &amp; Recommendations</h3>
+                  <p className="text-[10px] text-slate-400">Written feedback from evaluations leads &amp; mentors</p>
+                </div>
+
+                {/* Remarks List */}
+                <div className="space-y-4 mb-6">
+                  {currentParticipant.remarks.length === 0 ? (
+                    <p className="text-xs text-slate-400 text-center py-4">No remarks recorded yet.</p>
+                  ) : (
+                    currentParticipant.remarks.map((rem, idx) => (
+                      <div key={idx} className="p-4 border border-slate-100 rounded-2xl bg-slate-50/50">
+                        <div className="flex justify-between text-xs mb-1.5">
+                          <span className="font-bold text-slate-800">{rem.author}</span>
+                          <span className="text-[10px] font-bold text-primary bg-blue-50 px-2 py-0.5 rounded-full">{rem.role}</span>
+                        </div>
+                        <p className="text-xs text-slate-600 leading-relaxed italic">"{rem.text}"</p>
+                      </div>
+                    ))
+                  )}
+                </div>
+
+                {/* Add Remark Form */}
+                <form onSubmit={handleAddRemark} className="space-y-3.5 pt-4 border-t border-slate-100">
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Author Identity</label>
+                      <select 
+                        value={remarkAuthor} 
+                        onChange={(e) => setRemarkAuthor(e.target.value)}
+                        className="w-full border border-slate-200 rounded-xl px-3 py-2 text-xs bg-white font-semibold"
+                      >
+                        <option value="Admin">Admin (System)</option>
+                        <option value="Priya Sharma">Priya Sharma (GTM)</option>
+                        <option value="Arjun Nair">Arjun Nair (Tech)</option>
+                      </select>
+                    </div>
+                  </div>
+                  <div>
+                    <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Leave Remarks/Recommendations</label>
+                    <textarea 
+                      placeholder="Add specific recommendations or checklist concerns..." 
+                      rows="3"
+                      value={remarksText}
+                      onChange={(e) => setRemarksText(e.target.value)}
+                      className="w-full border border-slate-200 rounded-xl p-3 text-xs focus:outline-none focus:ring-2 focus:ring-primary/20"
+                      required
+                    ></textarea>
+                  </div>
+                  <div className="flex justify-end">
+                    <button 
+                      type="submit"
+                      className="px-4 py-2 text-xs font-bold text-white bg-slate-900 hover:bg-slate-800 rounded-xl transition-colors cursor-pointer"
+                    >
+                      Post Remark
+                    </button>
+                  </div>
+                </form>
+              </div>
+
+              {/* Assessment History Log Card */}
+              <div className="bg-white border border-slate-200/80 rounded-3xl p-6 shadow-sm-custom">
+                <div className="pb-4 mb-4 border-b border-slate-100">
+                  <h3 className="text-sm font-bold text-slate-800 font-display">Assessment History Log</h3>
+                  <p className="text-[10px] text-slate-400">System audit history tracking changes</p>
+                </div>
+
+                <div className="space-y-3.5">
+                  {currentParticipant.history.map((h, idx) => (
+                    <div key={idx} className="flex justify-between items-start gap-4 text-xs py-2 border-b border-slate-50 last:border-0">
+                      <div>
+                        <div className="flex items-center gap-1.5 flex-wrap">
+                          <span className="font-bold text-slate-700">{h.action}</span>
+                          <span className="text-[10px] text-slate-400 font-semibold">by {h.user}</span>
+                        </div>
+                        <p className="text-[11px] text-slate-500 mt-0.5 leading-normal">{h.details}</p>
+                      </div>
+                      <span className="text-[9px] font-bold text-slate-400 text-right whitespace-nowrap shrink-0">{h.timestamp}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+            </div>
+          </main>
+
+          {/* Render Toasts */}
+          <div className="fixed bottom-4 right-4 z-50 flex flex-col gap-3 pointer-events-none">
+            {toasts.map(toast => (
+              <Toast key={toast.id} {...toast} onClose={removeToast} />
+            ))}
+          </div>
+        </div>
+      );
+    }
+
+    const container = document.getElementById('root');
+    const root = ReactDOM.createRoot(container);
+    root.render(<App />);
+  </script>
+</body>
+</html>
